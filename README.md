@@ -15,31 +15,52 @@ $ npm install node-pushnotifications
 </ul>
 
 ## Usage 
-First of all:
 ```
-IOS: replace cert.txt and key.txt files on push folder with your cert.pem and key.pem. 
-ANDROID: Add to SETTINGS.js your API SERVER KEY  on push folder.
+Import and setup push module:
 ```
-Import push module:
-```
-var push = requiere('node-pushnotifications');
+var settings = {
+  gcm: {
+    id: null, // PUT YOUR GCM SERVER API KEY,
+    options: {},
+    msgcnt: 1,
+    dataDefaults: {
+      delayWhileIdle: false,
+      timeToLive: 4 * 7 * 24 * 3600, // 4 weeks
+      retries: 4
+    }
+  },
+  apn: {
+    gateway: 'gateway.sandbox.push.apple.com',
+    badge: 1,
+    defaultData: {
+      expiry: 4 * 7 * 24 * 3600, // 4 weeks
+      sound: 'ping.aiff'
+    }
+  },
+  adm: {
+    client_id: null, // PUT YOUR ADM CLIENT ID,
+    client_secret: null, // PUT YOUR ADM CLIENT SECRET,
+    expiresAfter: 4 * 7 * 24 * 3600, // 4 weeks
+  }
+};
+var push = new requiere('node-pushnotifications')(settings);
 ```
 
 Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
 ```
 // Single destination
-pushId = 'INSERT_YOUR_DEVICE_ID';
+deviceIds = 'INSERT_YOUR_DEVICE_ID';
 
 // Multiple destinations
-pushId = [];
-pushId.push('INSERT_YOUR_DEVICE_ID');
-pushId.push('INSERT_OTHER_DEVICE_ID');
+deviceIds = [];
+deviceIds.push('INSERT_YOUR_DEVICE_ID');
+deviceIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
 Next, create a JSON object witch MUST contain, at least, a title and message and send it to server. 
 ```
-data = {title: 'My First Push' , message: 'Powered by AppFeel', otherfields: 'add more fields if you want');
-push.sendPush(pushId, data, function (result) {
+data = {title: 'New push notification' , message: 'Powered by AppFeel', otherfields: 'optionally add more data');
+push.sendPush(deviceIds, data, function (result) {
 	console.log(result);
 });
 ```
@@ -47,8 +68,9 @@ Result will contain 'true' or 'an error description'.
 
 
 ##Resources
-<ul>
-<li> <a href="http://aerogear.org/docs/guides/aerogear-push-android/google-setup/"> Google Cloud Messaging setup guide</a> </li>
-<li> <a href="http://aerogear.org/docs/guides/aerogear-push-ios/app-id-ssl-certificate-apns/"> Apple Push Notification setup guide Part 1</a> </li>
-<li> <a href="https://github.com/argon/node-apn/wiki/Preparing-Certificates"> Apple Push Notification setup guide Part 2</a> </li>
-</ul>
+
+- [Node Push Notify from alexlds](https://github.com/alexlds/node-push-notify)
+- [Google Cloud Messaging setup guide](http://aerogear.org/docs/guides/aerogear-push-android/google-setup/)
+- [Apple Push Notification setup guide Part 1](http://aerogear.org/docs/guides/aerogear-push-ios/app-id-ssl-certificate-apns/)
+- [Apple Push Notification setup guide Part 2](https://github.com/argon/node-apn/wiki/Preparing-Certificates)
+
