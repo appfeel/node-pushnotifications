@@ -15,7 +15,6 @@ $ npm install node-pushnotifications
 </ul>
 
 ## Usage 
-```
 Import and setup push module:
 ```
 var settings = {
