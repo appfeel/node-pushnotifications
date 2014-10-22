@@ -1,0 +1,50 @@
+{
+  "name": "node-pushnotifications",
+  "description": "A cross-platform push service for Node.js",
+  "version": "0.1.0",
+  "author": {
+    "name": "AppFeel",
+    "email": "info@appfeel.com"
+  },
+  "keywords": [
+    "apple",
+    "google",
+    "microsoft",
+    "amazon",
+    "ios",
+    "android",
+    "wphone",
+    "apns",
+    "gcm",
+    "mpns",
+    "adm",
+    "notifications",
+    "push",
+    "push notifications"
+  ],
+  "main": "index.js",
+  "bugs": {
+    "url": "https://github.com/appfeel/node-pushnotifications",
+    "email": "info@appfeel.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appfeel/node-pushnotifications.git"
+  },
+  "dependencies": {
+    "apn": "*",
+    "node-gcm": "*",
+    "mpns": "*",
+    "node-parallel": "*",
+    "node-adm": "*",
+    "lodash": "*"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "readme": "Node Push Notify\n========\n\nA Node.js interface to send notifications with Apple Push Notification, Google Cloud Messaging, Microsoft Push Notification and Amazon Device Messaging services.\n\n## Installation \n$ npm install node-notifications\n\n#Features\n<ul>\n<li>Powerful and intuitive.</li>\n<li>Multi platform push sends.</li>\n<li>Automatically detects destination device type.</li>\n<li>Unified error handling.</li>\n</ul>\n\n## Usage \nFirst of all:\n```\nIOS: replace cert.txt and key.txt files on stratton folder with your cert.pem and key.pem. \nANDROID: Add to SETTINGS.js your API SERVER KEY  on stratton folder.\n```\nImport stratton module:\n```\nvar stratton = requiere('stratton');\n```\n\nDefine destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.\n```\n// Single destination\npushId = 'INSERT_YOUR_DEVICE_ID';\n\n// Multiple destinations\npushId = [];\npushId.push('INSERT_YOUR_DEVICE_ID');\npushId.push('INSERT_OTHER_DEVICE_ID');\n```\n\nNext, create a JSON object witch MUST contain, at least, a title and message. \n```\ndata = {title: 'My First Push' , message: 'Powered by stratton', otherfields: 'add more fields if you want');\n```\nFinally send a push notificacion and catch response:\n```\nstratton.sendPush(pushId, data, function (result){\n\tconsole.log(result);\n});\n```\nResult will contain 'true' or 'an error description'.\n\n\n##Resources\n<ul>\n<li> <a href=\"http://aerogear.org/docs/guides/aerogear-push-android/google-setup/\"> Google Cloud Messaging setup guide</a> </li>\n<li> <a href=\"http://aerogear.org/docs/guides/aerogear-push-ios/app-id-ssl-certificate-apns/\"> Apple Push Notification setup guide Part 1</a> </li>\n<li> <a href=\"https://github.com/argon/node-apn/wiki/Preparing-Certificates\"> Apple Push Notification setup guide Part 2</a> </li>\n</ul>\n",
+  "readmeFilename": "README.md",
+  "homepage": "https://github.com/appfeel/node-pushnotifications",
+  "_id": "node-pushnotifications@0.1.0",
+  "_from": "node-pushnotifications@"
+}
