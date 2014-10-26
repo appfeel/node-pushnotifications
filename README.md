@@ -18,6 +18,9 @@ npm install node-pushnotifications
 - Unified error handling.
 
 ## Usage 
+
+*iOS:* Prepare cert.pem and key.pem as described in [node-apn](https://github.com/argon/node-apn/wiki/Preparing-Certificates)
+
 Import and setup push module:
 ```
 var settings = {
