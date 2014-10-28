@@ -1,7 +1,7 @@
 {
   "name": "node-pushnotifications",
   "description": "A cross-platform push service for Node.js",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "author": {
     "name": "AppFeel",
     "email": "info@appfeel.com"
@@ -44,6 +44,6 @@
   },
   "readmeFilename": "README.md",
   "homepage": "https://github.com/appfeel/node-pushnotifications",
-  "_id": "node-pushnotifications@0.1.3",
+  "_id": "node-pushnotifications@0.1.4",
   "_from": "node-pushnotifications@"
 }

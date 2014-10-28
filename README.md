@@ -3,7 +3,7 @@ Node Push Notify
 
 A Node.js module for interfacing with Apple Push Notification, Google Cloud Messaging, Microsoft Push Notification and Amazon Device Messaging services.
 
-[![NPM Version](http://img.shields.io/badge/npm-0.1.3-green.svg?style=flat)](https://www.npmjs.org/package/node-pushnotifications)
+[![NPM Version](http://img.shields.io/badge/npm-0.1.4-green.svg?style=flat)](https://www.npmjs.org/package/node-pushnotifications)
 
 ## Installation 
 ```
