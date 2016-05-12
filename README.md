@@ -22,7 +22,7 @@ npm install node-pushnotifications
 *iOS:* Prepare cert.pem and key.pem as described in [node-apn](https://github.com/argon/node-apn/wiki/Preparing-Certificates)
 
 Import and setup push module:
-```
+```js
 var settings = {
   gcm: {
     id: null, // PUT YOUR GCM SERVER API KEY,
@@ -53,7 +53,7 @@ var push = new PushNotifications(settings);
 ```
 
 Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
-```
+```js
 // Single destination
 var deviceIds = 'INSERT_YOUR_DEVICE_ID';
 
@@ -64,7 +64,7 @@ deviceIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
 Next, create a JSON object witch MUST contain, at least, a title and message and send it to server. 
-```
+```js
 var data = {title: 'New push notification' , message: 'Powered by AppFeel', otherfields: 'optionally add more data');
 push.send(deviceIds, data, function (result) {
 	console.log(result);
@@ -80,3 +80,4 @@ Result will contain 'true' or 'an error description'.
 - [Apple Push Notification setup guide Part 1](http://aerogear.org/docs/guides/aerogear-push-ios/app-id-ssl-certificate-apns/)
 - [Apple Push Notification setup guide Part 2](https://github.com/argon/node-apn/wiki/Preparing-Certificates)
 
+*<p style="font-size: small;" align="right"><a color="#232323;" href="http://appfeel.com">Made in Barcelona with <span color="#FCB">Love</span> and <span color="#BBCCFF">Code</span></a></p>*
