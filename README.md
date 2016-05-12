@@ -55,17 +55,17 @@ var push = new PushNotifications(settings);
 Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
 ```
 // Single destination
-deviceIds = 'INSERT_YOUR_DEVICE_ID';
+var deviceIds = 'INSERT_YOUR_DEVICE_ID';
 
 // Multiple destinations
-deviceIds = [];
+var deviceIds = [];
 deviceIds.push('INSERT_YOUR_DEVICE_ID');
 deviceIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
 Next, create a JSON object witch MUST contain, at least, a title and message and send it to server. 
 ```
-data = {title: 'New push notification' , message: 'Powered by AppFeel', otherfields: 'optionally add more data');
+var data = {title: 'New push notification' , message: 'Powered by AppFeel', otherfields: 'optionally add more data');
 push.send(deviceIds, data, function (result) {
 	console.log(result);
 });
