@@ -48,7 +48,8 @@ var settings = {
     expiresAfter: 4 * 7 * 24 * 3600, // 4 weeks
   }
 };
-var push = new requiere('node-pushnotifications')(settings);
+var PushNotifications = new require('node-pushnotifications');
+var push = new PushNotifications(settings);
 ```
 
 Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
@@ -65,7 +66,7 @@ deviceIds.push('INSERT_OTHER_DEVICE_ID');
 Next, create a JSON object witch MUST contain, at least, a title and message and send it to server. 
 ```
 data = {title: 'New push notification' , message: 'Powered by AppFeel', otherfields: 'optionally add more data');
-push.sendPush(deviceIds, data, function (result) {
+push.send(deviceIds, data, function (result) {
 	console.log(result);
 });
 ```
