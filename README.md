@@ -68,7 +68,11 @@ deviceIds.push('INSERT_OTHER_DEVICE_ID');
 
 Next, create a JSON object witch MUST contain, at least, a title and message and send it to server. 
 ```js
-var data = {title: 'New push notification' , message: 'Powered by AppFeel', otherfields: 'optionally add more data');
+var data = {
+  title: 'New push notification',
+  message: 'Powered by AppFeel',
+  otherfields: 'optionally add more data'
+};
 push.send(deviceIds, data, function (result) {
 	console.log(result);
 });
