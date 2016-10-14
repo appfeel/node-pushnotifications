@@ -25,6 +25,7 @@ npm install node-pushnotifications
 *iOS:* Prepare cert.pem and key.pem as described in [node-apn](https://github.com/argon/node-apn/wiki/Preparing-Certificates)
 
 Import and setup push module:
+
 ```js
 var settings = {
   gcm: {
@@ -68,8 +69,11 @@ GCM and ADM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#cu
 
 APN options: see [node-apn](https://github.com/argon/node-apn/blob/master/doc/connection.markdown)
 
+MPNS options see [mpns](https://github.com/jeffwilcox/mpns)
+
 
 Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
+
 ```js
 // Single destination
 var deviceIds = 'INSERT_YOUR_DEVICE_ID';
@@ -80,18 +84,25 @@ deviceIds.push('INSERT_YOUR_DEVICE_ID');
 deviceIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
-Next, create a JSON object witch MUST contain, at least, a title and message and send it to server. 
+Next, create a JSON object witch MUST contain, at least, a title and message and send it to server.
+
 ```js
 var data = {
   title: 'New push notification',
   message: 'Powered by AppFeel',
   otherfields: 'optionally add more data'
 };
-push.send(deviceIds, data, function (result) {
-	console.log(result);
+push.send(deviceIds, data, function (err, result) {
+    if (err) {
+        console.log(err);
+    } else {
+	    console.log(result);
+    }
 });
 ```
-Result will contain 'true' or 'an error description'.
+
+Error will be null if all went fine, will return the error otherwise.
+Result will contain 'true' if all went fine.
 
 
 ##Resources
