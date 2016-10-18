@@ -2,5 +2,6 @@ import lint from 'mocha-eslint'; // eslint-disable-line import/no-extraneous-dep
 
 lint(['src'], {
     strict: true,
+    timeout: 5000,
 });
 
