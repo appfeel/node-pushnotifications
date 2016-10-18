@@ -97,8 +97,8 @@ push.send(registrationIds, data)
     .catch((err) => { ... });
 ```
 
-`err` will be null if all went fine, will return the error otherwise.
-Result will contain an array with the following objects:
+- `err` will be null if all went fine, will return the error otherwise.
+- `result` will contain an array with the following objects:
 
 ```js
 [
@@ -153,6 +153,8 @@ The following parameters are used to create a GCM message. See https://developer
 }
 ```
 
+*data is the parameter in `push.send(registrationIds, data)`*
+
 * [See node-gcm fields](https://github.com/ToothlessGear/node-gcm#usage)
 
 ## APN
@@ -187,6 +189,8 @@ The following parameters are used to create an APN message:
 }
 ```
 
+*data is the parameter in `push.send(registrationIds, data)`*
+
 * [See apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
 
 ## ADM
@@ -210,6 +214,8 @@ const ADMmesssage = {
 };
 ```
 
+*data is the parameter in `push.send(registrationIds, data)`*
+
 * [See node-adm fields](https://github.com/umano/node-adm#usage)
 
 ## WNS
@@ -232,15 +238,42 @@ wns[notificationMethod](regId, data, opts, (err, response) => { ... });
 
 ```
 
+*data is the parameter in `push.send(registrationIds, data)`*
+
 * [See wns optional fileds](https://github.com/tjanczuk/wns)
 **Note:** Please take in mind that if `data.accessToken` is supplied then each push notification will be sent after the previous one has been responded. This is due to the fact that in the response while sending a push notification it is possible that Microsoft servers responds with a new `accessToken` and it should be used for next requests. This can slow down the whole process.
 
 
-##Resources
+## Resources
 
 - [Node Push Notify from alexlds](https://github.com/alexlds/node-push-notify)
 - [Google Cloud Messaging setup guide](http://aerogear.org/docs/guides/aerogear-push-android/google-setup/)
 - [Apple Push Notification setup guide Part 1](http://aerogear.org/docs/guides/aerogear-push-ios/app-id-ssl-certificate-apns/)
 - [Apple Push Notification setup guide Part 2](https://github.com/argon/node-apn/wiki/Preparing-Certificates)
+
+## LICENSE
+
+The MIT License (MIT)
+
+Copyright (c) 2016 AppFeel
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 
 *<p style="font-size: small;" align="right"><a color="#232323;" href="http://appfeel.com">Made in Barcelona with <span color="#FCB"><3</span> and <span color="#BBCCFF">Code</span></a></p>*
