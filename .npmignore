@@ -1,5 +1,7 @@
-.DS_Store
-.git
+# Default
+# .git
+# .DS_Store
+
 *.log
 node_modules
 tmp
@@ -7,4 +9,6 @@ tmp
 test/logs
 coverage
 .sonar
-lib
+
+test
+src
