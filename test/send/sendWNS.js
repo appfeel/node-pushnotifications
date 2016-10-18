@@ -268,7 +268,8 @@ describe('push-notifications-wns', () => {
         });
 
         it('the exception should be catched (callback)', (done) => {
-            pn.send(regIds, data, (err, results) => test(err, results, done));
+            pn.send(regIds, data, (err, results) => test(err, results, done))
+                .catch(() => { }); // This is to avoid UnhandledPromiseRejectionWarning
         });
 
         it('the exception should be catched (promise)', (done) => {

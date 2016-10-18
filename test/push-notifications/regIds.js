@@ -193,7 +193,8 @@ describe('push-notifications: error while sending push notifications', () => {
             } catch (e) {
                 done(err || e);
             }
-        });
+        })
+            .catch(() => { }); // This is to avoid UnhandledPromiseRejectionWarning
     });
 
     it('should catch an error occurred during push notifications sending (promise)', (done) => {
