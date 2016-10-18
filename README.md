@@ -10,7 +10,7 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 [![Coverage Status](https://coveralls.io/repos/github/appfeel/node-pushnotifications/badge.svg?branch=master)](https://coveralls.io/github/appfeel/node-pushnotifications?branch=master)
 [![Dependencies](https://img.shields.io/david/appfeel/node-pushnotifications.svg?style=flat-square)](https://david-dm.org/appfeel/node-pushnotifications)
 
-**NOTE:** Version 1.x has completely been redesigned to be compatible with new apn 2.x and written in es6. Tests have been implemented.
+**NOTE:** Version 1.x has completely been redesigned to be compatible with new apn 2.x.
 
 ## Installation
 
@@ -24,7 +24,7 @@ npm install node-pushnotifications --save
 - Multi platform push notifications.
 - Automatically detects destination device type.
 - Unified error handling.
-- Compatible with ES5 through babel transpilation.
+- Written in ES6, compatible with ES5 through babel transpilation.
 
 ## Usage 
 
@@ -78,10 +78,50 @@ registrationIds.push('INSERT_OTHER_DEVICE_ID');
 
 ### 3. Create a JSON object with a title and message and send the notification.
 
+Both `title` and `body` fields are required (or `alert` for ios). The other fields are optional (see how message is created for each device type for additional info):
+
 ```js
 const data = {
-  title: 'New push notification',
-  body: 'Powered by AppFeel',
+    title: 'New push notification', // REQUIRED
+    body: 'Powered by AppFeel', // REQUIRED
+    custom: {
+        sender: 'AppFeel',
+    },
+    priority: 1, // gcm, apn
+    collapseKey: '', // gcm for android
+    contentAvailable: true, // gcm for android
+    delayWhileIdle: true, // gcm for android
+    restrictedPackageName: '', // gcm for android
+    dryRun: false, // gcm for android
+    icon: '', // gcm for android
+    tag: '', // gcm for android
+    color: '', // gcm for android
+    clickAction: '', // gcm for android. In ios, category will be used if not supplied
+    locKey: '', // gcm, apn
+    bodyLocArgs: '', // gcm, apn
+    titleLocKey: '', // gcm, apn
+    titleLocArgs: '', // gcm, apn
+    retries: 1, // apn
+    encoding: '', // apn
+    badge: 2, // gcm for ios, apn
+    sound: 'ping.aiff', // gcm, apn
+    alert: {}, // apn, will take precedence over title and body
+    titleLocKey: '', // apn and gcm for ios
+    titleLocArgs: '', // apn and gcm for ios
+    launchImage: '', // apn and gcm for ios
+    action: '', // apn and gcm for ios
+    topic: '', // apn and gcm for ios
+    category: '', // apn and gcm for ios
+    contentAvailable: '', // apn and gcm for ios
+    mdm: '', // apn and gcm for ios
+    urlArgs: '', // apn and gcm for ios
+    truncateAtWordEnd: true, // apn and gcm for ios
+    expiry: ,
+    timeToLive: 28 * 86400, // if both expiry and timeToLive are given, expiry will take precedency
+    headers: [], // wns
+    launch: '', // wns
+    duration: '', // wns
+    consolidationKey: 'my notification', // ADM
 };
 push.send(registrationIds, data, (err, result) => {
     if (err) {
@@ -109,8 +149,8 @@ push.send(registrationIds, data)
         failure: 0, // Number of notifications that have been failed to be send.
         message: [{
             messageId: '', // (only for android) String specifying a unique ID for each successfully processed message or undefined if error
-            regId: value, // The registrationId
-            error: new Error('unknown'), // If any there will be an Error object here
+            regId: value, // The registrationId (device token id)
+            error: new Error('unknown'), // If any, there will be an Error object here
         }],
     },
     {
