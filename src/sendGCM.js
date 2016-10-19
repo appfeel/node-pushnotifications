@@ -2,15 +2,15 @@ const gcm = require('node-gcm');
 
 const method = 'gcm';
 
-const sendChunk = (GCMSender, tokens, message, retries) => new Promise((resolve) => {
-    GCMSender.send(message, { tokens }, retries, (err, response) => {
+const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promise((resolve) => {
+    GCMSender.send(message, { registrationTokens }, retries, (err, response) => {
         // Response: see https://developers.google.com/cloud-messaging/http-server-ref#table5
         if (err) {
             resolve({
                 method,
                 success: 0,
-                failure: tokens.length,
-                message: tokens.map(value => ({
+                failure: registrationTokens.length,
+                message: registrationTokens.map(value => ({
                     regId: value,
                     error: err,
                 })),
@@ -33,7 +33,7 @@ const sendChunk = (GCMSender, tokens, message, retries) => new Promise((resolve)
                 multicastId: response.multicast_id,
                 success: response.success,
                 failure: response.failure,
-                message: tokens.map(value => ({
+                message: registrationTokens.map(value => ({
                     regId: value,
                     error: new Error('unknown'),
                 })),
@@ -77,7 +77,7 @@ module.exports = (regIds, data, settings) => {
     // Split in 1.000 chunks, see https://developers.google.com/cloud-messaging/http-server-ref#table1
     do {
         const tokens = regIds.slice(chunk * 1000, (chunk + 1) * 1000);
-        promises.push(sendChunk(GCMSender, tokens, message, data.retries));
+        promises.push(sendChunk(GCMSender, tokens, message, data.retries || 0));
         chunk += 1;
     } while (1000 * chunk < regIds.length);
 
