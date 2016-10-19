@@ -23,16 +23,22 @@ const fErr = new Error('Forced error');
 let sendMethod;
 
 function sendOkMethod() {
-    return sinon.stub(gcm.Sender.prototype, 'send', (message, { tokens }, retries, cb) => {
+    return sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+        expect(recipients).to.be.instanceOf(Object);
+        expect(recipients).to.have.property('registrationTokens');
+        const { registrationTokens } = recipients;
+        expect(registrationTokens).to.be.instanceOf(Array);
+        registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+        expect(retries).to.be.a('number');
         expect(message).to.be.instanceOf(gcm.Message);
         expect(message).to.have.deep.property('params.notification.title', data.title);
         expect(message).to.have.deep.property('params.notification.body', data.body);
         expect(message).to.have.deep.property('params.data', data.custom);
         cb(null, {
             multicast_id: 'abc',
-            success: regIds.length,
+            success: registrationTokens.length,
             failure: 0,
-            results: tokens.map(token => ({
+            results: registrationTokens.map(token => ({
                 message_id: '',
                 registration_id: token,
                 error: null,
@@ -42,12 +48,13 @@ function sendOkMethod() {
 }
 
 function sendFailureMethod1() {
-    return sinon.stub(gcm.Sender.prototype, 'send', (message, { tokens }, retries, cb) => {
+    return sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+        const { registrationTokens } = recipients;
         cb(null, {
             multicast_id: 'abc',
             success: 0,
             failure: regIds.length,
-            results: tokens.map(token => ({
+            results: registrationTokens.map(token => ({
                 message_id: '',
                 registration_id: token,
                 error: fErr.message,
@@ -57,7 +64,8 @@ function sendFailureMethod1() {
 }
 
 function sendFailureMethod2() {
-    return sinon.stub(gcm.Sender.prototype, 'send', (message, { tokens }, retries, cb) => {
+    return sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+        const { registrationTokens } = recipients;
         cb(null, {
             multicast_id: 'abc',
             success: 0,
@@ -67,7 +75,8 @@ function sendFailureMethod2() {
 }
 
 function sendErrorMethod() {
-    return sinon.stub(gcm.Sender.prototype, 'send', (message, { tokens }, retries, cb) => {
+    return sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+        const { registrationTokens } = recipients;
         cb(fErr);
     });
 }

@@ -30,6 +30,8 @@ let sendMethod;
 
 function sendOkMethod() {
     return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => {
+        expect(_regIds).to.be.instanceOf(Array);
+        _regIds.forEach(regId => expect(regIds).to.include(regId));
         expect(message).to.be.instanceOf(apn.Notification);
         expect(message).to.have.deep.property('aps.sound', data.sound);
         expect(message).to.have.deep.property('aps.alert.title', data.title);

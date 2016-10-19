@@ -24,6 +24,8 @@ let sendMethod;
 
 function sendOkMethod() {
     return sinon.stub(adm.Sender.prototype, 'send', (message, regId, cb) => {
+        expect(regId).to.be.a('string');
+        expect(regIds).to.include(regId);
         expect(message).to.have.deep.property('data.title', data.title);
         expect(message).to.have.deep.property('data.body', data.body);
         expect(message).to.have.deep.property('data.custom', data.custom);

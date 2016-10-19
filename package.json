@@ -7,7 +7,7 @@
     "email": "info@appfeel.com"
   },
   "scripts": {
-    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha  --report lcovonly -- test/ --compilers jsx:babel-core/register --recursive",
+    "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- test/ --compilers jsx:babel-core/register --recursive",
     "build": "./node_modules/.bin/babel src -d lib",
     "prepublish": "npm test && npm run build",
     "test-alone": "./node_modules/.bin/_mocha test/ --compilers jsx:babel-core/register --recursive"

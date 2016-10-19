@@ -86,6 +86,8 @@ let i = 0;
 function sendOkMethod() {
     wnsMethods.forEach((wnsMethod) => {
         sendWNS[wnsMethod] = sinon.stub(wns, wnsMethod, (channel, message, options, cb) => {
+            expect(channel).to.be.a('string');
+            expect(regIds).to.include(channel);
             expect(message).to.have.deep.property('title', data.title);
             expect(message).to.have.deep.property('body', data.body);
             expect(message).to.have.deep.property('custom', data.custom);
