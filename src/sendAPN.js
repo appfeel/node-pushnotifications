@@ -8,7 +8,7 @@ module.exports = (regIds, data, settings) => {
         expiry: data.expiry || ((data.timeToLive || 28 * 86400) + Math.floor(Date.now() / 1000)),
         priority: data.priority,
         encoding: data.encoding,
-        payload: data.custom,
+        payload: data.custom || {},
         badge: data.badge,
         sound: data.sound || 'ping.aiff',
         alert: data.alert || {
@@ -21,12 +21,13 @@ module.exports = (regIds, data, settings) => {
             'launch-image': data.launchImage,
             action: data.action,
         },
-        topic: data.topic || '',
+        topic: data.topic || undefined,
         category: data.category || data.clickAction,
         contentAvailable: data.contentAvailable,
         mdm: data.mdm,
         urlArgs: data.urlArgs,
         truncateAtWordEnd: data.truncateAtWordEnd,
+        collapseId: data.collapseKey,
     });
     const connection = new apn.Provider(settings.apn);
 

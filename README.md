@@ -88,7 +88,7 @@ const data = {
         sender: 'AppFeel',
     },
     priority: 1, // gcm, apn
-    collapseKey: '', // gcm for android
+    collapseKey: '', // gcm for android, used as collapseId in apn
     contentAvailable: true, // gcm for android
     delayWhileIdle: true, // gcm for android
     restrictedPackageName: '', // gcm for android

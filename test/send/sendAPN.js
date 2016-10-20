@@ -21,8 +21,8 @@ const data = {
 };
 const pn = new PN({
     apn: {
-        cert: path.resolve('test/send/cert.pem'),
-        key: path.resolve('test/send/key.pem'),
+        cert: path.resolve('./test/send/cert.pem'),
+        key: path.resolve('./test/send/key.pem'),
     },
 });
 const fErr = new Error('Forced error');
