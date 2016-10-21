@@ -30,6 +30,8 @@ npm install node-pushnotifications --save
 
 ### 1. Import and setup push module:
 
+Include the settings for each device type. You should only include the settings for the devices that you expect to have. I.e. if your app is only available for android or for ios, you should only include `gcm` or `apn` respectively.
+
 ```js
 const settings = {
     gcm: {
@@ -37,8 +39,11 @@ const settings = {
         ...
     },
     apn: {
-        cert: 'cert.pem',
-        key: 'key.pem',
+        token: {
+            key: './certs/key.pem', // optionally: fs.readFileSync('./certs/key.pem')
+            keyId: 'ABCD',
+            teamId: 'EFGH',
+        },
         ...
     },
     adm: {
@@ -57,9 +62,9 @@ const PushNotifications = new require('node-pushnotifications');
 const push = new PushNotifications(settings);
 ```
 
-* GCM and ADM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
+* GCM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
 * APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
-* ADM options: see [node-gcm](https://github.com/umano/node-adm)
+* ADM options: see [node-adm](https://github.com/umano/node-adm)
 * WNS options: see [wns](https://github.com/tjanczuk/wns)
 
 *iOS:* It is recomended to use [provider authentication tokens](https://developer.apple.com/library/prerelease/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/APNsProviderAPI.html#//apple_ref/doc/uid/TP40008194-CH101-SW21). However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. 
@@ -76,9 +81,11 @@ registrationIds.push('INSERT_YOUR_DEVICE_ID');
 registrationIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
+*Android:* If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
+
 ### 3. Create a JSON object with a title and message and send the notification.
 
-Both `title` and `body` fields are required (or `alert` for ios). The other fields are optional (see how message is created for each device type for additional info):
+Both `title` and `body` fields are required (or `alert` for ios). The other fields are optional (see below how the message is created for each device type):
 
 ```js
 const data = {
@@ -106,6 +113,7 @@ const data = {
     badge: 2, // gcm for ios, apn
     sound: 'ping.aiff', // gcm, apn
     alert: {}, // apn, will take precedence over title and body
+    // alert: '', // It is also accepted a text message in alert
     titleLocKey: '', // apn and gcm for ios
     titleLocArgs: '', // apn and gcm for ios
     launchImage: '', // apn and gcm for ios
@@ -123,6 +131,8 @@ const data = {
     duration: '', // wns
     consolidationKey: 'my notification', // ADM
 };
+
+// You can use it in node callback style
 push.send(registrationIds, data, (err, result) => {
     if (err) {
         console.log(err);
@@ -138,7 +148,7 @@ push.send(registrationIds, data)
 ```
 
 - `err` will be null if all went fine, will return the error otherwise.
-- `result` will contain an array with the following objects:
+- `result` will contain an array with the following objects (one object for each device type found in device registration id's):
 
 ```js
 [
@@ -157,13 +167,21 @@ push.send(registrationIds, data)
         method: 'apn',
         ... // Same structure here
     },
-    ...
+    {
+        method: 'wns',
+        ... // Same structure here
+    },
+    {
+        method: 'adm',
+        ... // Same structure here
+    },
 ]
 ```
 
 ## GCM
 
-**NOTE** If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
+**NOTE:** If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
+
 The following parameters are used to create a GCM message. See https://developers.google.com/cloud-messaging/http-server-ref#table5 for more info:
 
 ```js
@@ -207,7 +225,7 @@ The following parameters are used to create an APN message:
     expiry: data.expiry || ((data.timeToLive || 28 * 86400) + Math.floor(Date.now() / 1000)),
     priority: data.priority,
     encoding: data.encoding,
-    payload: data.custom,
+    payload: data.custom || {},
     badge: data.badge,
     sound: data.sound || 'ping.aiff',
     alert: data.alert || {
@@ -220,7 +238,7 @@ The following parameters are used to create an APN message:
         'launch-image': data.launchImage,
         action: data.action,
     },
-    topic: data.topic || '',
+    topic: data.topic || undefined,
     category: data.category || data.clickAction,
     contentAvailable: data.contentAvailable,
     mdm: data.mdm,
@@ -231,7 +249,33 @@ The following parameters are used to create an APN message:
 
 *data is the parameter in `push.send(registrationIds, data)`*
 
-* [See apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
+* [See node-apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
+
+## WNS
+
+The following fields are used to create a WNS message:
+
+```js
+const notificationMethod = settings.wns.notificationMethod;
+const opts = Object.assign({}, settings.wns);
+opts.headers = data.headers || opts.headers;
+opts.launch = data.launch || opts.launch;
+opts.duration = data.duration || opts.duration;
+
+delete opts.notificationMethod;
+delete data.headers;
+delete data.launch;
+delete data.duration;
+
+wns[notificationMethod](regId, data, opts, (err, response) => { ... });
+
+```
+
+*data is the parameter in `push.send(registrationIds, data)`*
+
+* [See wns fileds](https://github.com/tjanczuk/wns)
+
+**Note:** Please keep in mind that if `data.accessToken` is supplied, each push notification will be sent after the previous one has been **responded**. This is because Microsoft may send a new `accessToken` in the response and it should be used in successive requests. This can slow down the whole process depending on the number of devices to send.
 
 ## ADM
 
@@ -258,38 +302,10 @@ const ADMmesssage = {
 
 * [See node-adm fields](https://github.com/umano/node-adm#usage)
 
-## WNS
-
-The following fields are used to create a WNS message:
-
-```js
-const notificationMethod = settings.wns.notificationMethod;
-const opts = Object.assign({}, settings.wns);
-opts.headers = data.headers || opts.headers;
-opts.launch = data.launch || opts.launch;
-opts.duration = data.duration || opts.duration;
-
-delete opts.notificationMethod;
-delete data.headers;
-delete data.launch;
-delete data.duration;
-
-wns[notificationMethod](regId, data, opts, (err, response) => { ... });
-
-```
-
-*data is the parameter in `push.send(registrationIds, data)`*
-
-* [See wns optional fileds](https://github.com/tjanczuk/wns)
-**Note:** Please take in mind that if `data.accessToken` is supplied then each push notification will be sent after the previous one has been responded. This is due to the fact that in the response while sending a push notification it is possible that Microsoft servers responds with a new `accessToken` and it should be used for next requests. This can slow down the whole process.
-
 
 ## Resources
 
 - [Node Push Notify from alexlds](https://github.com/alexlds/node-push-notify)
-- [Google Cloud Messaging setup guide](http://aerogear.org/docs/guides/aerogear-push-android/google-setup/)
-- [Apple Push Notification setup guide Part 1](http://aerogear.org/docs/guides/aerogear-push-ios/app-id-ssl-certificate-apns/)
-- [Apple Push Notification setup guide Part 2](https://github.com/argon/node-apn/wiki/Preparing-Certificates)
 
 ## LICENSE
 
