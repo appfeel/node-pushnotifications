@@ -108,7 +108,7 @@ const data = {
     bodyLocArgs: '', // gcm, apn
     titleLocKey: '', // gcm, apn
     titleLocArgs: '', // gcm, apn
-    retries: 1, // apn
+    retries: 1, // gcm, apn
     encoding: '', // apn
     badge: 2, // gcm for ios, apn
     sound: 'ping.aiff', // gcm, apn
@@ -124,7 +124,8 @@ const data = {
     mdm: '', // apn and gcm for ios
     urlArgs: '', // apn and gcm for ios
     truncateAtWordEnd: true, // apn and gcm for ios
-    expiry: ,
+    mutableContent: 0, // apn
+    expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // seconds
     timeToLive: 28 * 86400, // if both expiry and timeToLive are given, expiry will take precedency
     headers: [], // wns
     launch: '', // wns
@@ -244,6 +245,8 @@ The following parameters are used to create an APN message:
     mdm: data.mdm,
     urlArgs: data.urlArgs,
     truncateAtWordEnd: data.truncateAtWordEnd,
+    collapseId: data.collapseKey,
+    mutableContent: data.mutableContent || 0,
 }
 ```
 
