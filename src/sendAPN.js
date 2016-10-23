@@ -28,6 +28,7 @@ module.exports = (regIds, data, settings) => {
         urlArgs: data.urlArgs,
         truncateAtWordEnd: data.truncateAtWordEnd,
         collapseId: data.collapseKey,
+        mutableContent: data.mutableContent || 0,
     });
     const connection = new apn.Provider(settings.apn);
 

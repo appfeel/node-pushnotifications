@@ -1,7 +1,7 @@
 {
   "name": "node-pushnotifications",
   "description": "A cross-platform push service for node.js",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "author": {
     "name": "AppFeel",
     "email": "info@appfeel.com"
@@ -9,7 +9,8 @@
   "scripts": {
     "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- test/ --compilers jsx:babel-core/register --recursive",
     "build": "./node_modules/.bin/babel src -d lib",
-    "prepublish": "npm test && npm run build",
+    "prepublish": "npm run lint && npm test && npm run build",
+    "lint": "eslint src/**/*.js",
     "test-alone": "./node_modules/.bin/_mocha test/ --compilers jsx:babel-core/register --recursive"
   },
   "keywords": [
@@ -67,7 +68,6 @@
     "eslint-plugin-react": "^6.4.1",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^3.1.2",
-    "mocha-eslint": "^3.0.1",
     "sinon": "^1.17.6"
   },
   "license": "MIT"
