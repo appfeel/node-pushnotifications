@@ -48,6 +48,24 @@ module.exports = (regIds, data, settings) => {
     delete opts.id;
     const GCMSender = new gcm.Sender(id, opts);
     const promises = [];
+    const custom = typeof data.custom === 'string' ? { message: data.custom } :|| {};
+    if (typeof data.custom === 'string') {
+        custom = {
+            message: data.custom,
+        };
+    } else if (typeof data.custom === 'object') {
+        custom = Object.extend({}, data.custom);
+    } else {
+        custom = {
+            data: data.custom,
+        };
+    }
+
+    custom.title = custom.title || data.title || '';
+    custom.message = custom.message || data.body || '';
+    custom.sound = custom.sound || data.sound || undefined;
+    custom.icon = custom.icon || data.icon || undefined;
+
     const message = new gcm.Message({ // See https://developers.google.com/cloud-messaging/http-server-ref#table5
         collapseKey: data.collapseKey,
         priority: data.priority,
