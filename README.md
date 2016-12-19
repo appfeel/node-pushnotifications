@@ -186,6 +186,26 @@ push.send(registrationIds, data)
 The following parameters are used to create a GCM message. See https://developers.google.com/cloud-messaging/http-server-ref#table5 for more info:
 
 ```js
+    // Set default custom data from data
+    let custom = typeof data.custom === 'string' ? { message: data.custom } : {};
+    if (typeof data.custom === 'string') {
+        custom = {
+            message: data.custom,
+        };
+    } else if (typeof data.custom === 'object') {
+        custom = Object.assign({}, data.custom);
+    } else {
+        custom = {
+            data: data.custom,
+        };
+    }
+
+    custom.title = custom.title || data.title || '';
+    custom.message = custom.message || data.body || '';
+    custom.sound = custom.sound || data.sound || undefined;
+    custom.icon = custom.icon || data.icon || undefined;
+    custom.msgcnt = custom.msgcnt || data.badge || undefined;
+
 {
     collapseKey: data.collapseKey,
     priority: data.priority,

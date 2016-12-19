@@ -65,6 +65,7 @@ module.exports = (regIds, data, settings) => {
     custom.message = custom.message || data.body || '';
     custom.sound = custom.sound || data.sound || undefined;
     custom.icon = custom.icon || data.icon || undefined;
+    custom.msgcnt = custom.msgcnt || data.badge || undefined;
 
     const message = new gcm.Message({ // See https://developers.google.com/cloud-messaging/http-server-ref#table5
         collapseKey: data.collapseKey,
