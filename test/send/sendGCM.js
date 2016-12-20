@@ -33,7 +33,13 @@ function sendOkMethod() {
         expect(message).to.be.instanceOf(gcm.Message);
         expect(message).to.have.deep.property('params.notification.title', data.title);
         expect(message).to.have.deep.property('params.notification.body', data.body);
-        expect(message).to.have.deep.property('params.data', data.custom);
+        expect(message).to.have.deep.property('params.notification.sound', data.sound);
+        expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
+        // This params are duplicated in order to facilitate extraction
+        // So they are available as `gcm.notification.title` and as `title`
+        expect(message).to.have.deep.property('params.data.title', data.title);
+        expect(message).to.have.deep.property('params.data.message', data.body);
+        expect(message).to.have.deep.property('params.data.sound', data.sound);
         cb(null, {
             multicast_id: 'abc',
             success: registrationTokens.length,

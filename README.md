@@ -236,6 +236,41 @@ The following parameters are used to create a GCM message. See https://developer
 
 * [See node-gcm fields](https://github.com/ToothlessGear/node-gcm#usage)
 
+**Note:** parameters are duplicated in data and in notification, so in fact they are being send as:
+
+```js
+    data: {
+        title: 'title',
+        message: 'body',
+        sound: 'mySound.aiff',
+        icon: undefined,
+        msgcnt: undefined
+        // Any custom data
+        sender: 'appfeel-test',
+    },
+    notification: {
+        title: 'title',
+        body: 'body',
+        icon: undefined,
+        sound: 'mySound.aiff',
+        badge: undefined,
+        tag: undefined,
+        color: undefined,
+        click_action: undefined,
+        body_loc_key: undefined,
+        body_loc_args: undefined,
+        title_loc_key: undefined,
+        title_loc_args: undefined
+    }
+```
+
+In that way, they can be accessed in android in the following two ways:
+
+```java
+    String title = extras.getString("title");
+    title = title != null ? title : extras.getString("gcm.notification.title");
+```
+
 ## APN
 
 The following parameters are used to create an APN message:
