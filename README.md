@@ -8,7 +8,7 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 [![Downloads](http://img.shields.io/npm/dm/node-pushnotifications.svg?style=flat)](https://npmjs.org/package/node-pushnotifications)
 [![Build Status](http://img.shields.io/travis/appfeel/node-pushnotifications.svg?style=flat)](https://travis-ci.org/appfeel/node-pushnotifications)
 [![Coverage Status](https://coveralls.io/repos/github/appfeel/node-pushnotifications/badge.svg?branch=master)](https://coveralls.io/github/appfeel/node-pushnotifications?branch=master)
-[![Dependencies](https://img.shields.io/david/appfeel/node-pushnotifications.svg?style=flat-square)](https://david-dm.org/appfeel/node-pushnotifications)
+[![Dependencies](https://david-dm.org/appfeel/node-pushnotifications/status.svg)](https://david-dm.org/appfeel/node-pushnotifications)
 
 **NOTE:** Version 1.x has completely been redesigned to be compatible with new apn 2.x.
 
