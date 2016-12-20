@@ -75,7 +75,7 @@ module.exports = (regIds, data, settings) => {
         timeToLive: data.expiry - Math.floor(Date.now() / 1000) || data.timeToLive || 28 * 86400,
         restrictedPackageName: data.restrictedPackageName,
         dryRun: data.dryRun || false,
-        data: data.custom,
+        data: custom,
         notification: {
             title: data.title, // Android, iOS (Watch)
             body: data.body, // Android, iOS
