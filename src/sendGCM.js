@@ -48,7 +48,22 @@ module.exports = (regIds, data, settings) => {
     delete opts.id;
     const GCMSender = new gcm.Sender(id, opts);
     const promises = [];
+    const notification = {
+        title: data.title, // Android, iOS (Watch)
+        body: data.body, // Android, iOS
+        icon: data.icon, // Android
+        sound: data.sound, // Android, iOS
+        badge: data.badge, // iOS
+        tag: data.tag, // Android
+        color: data.color, // Android
+        click_action: data.clickAction || data.category, // Android, iOS
+        body_loc_key: data.locKey, // Android, iOS
+        body_loc_args: data.locArgs, // Android, iOS
+        title_loc_key: data.titleLocKey, // Android, iOS
+        title_loc_args: data.titleLocArgs, // Android, iOS
+    };
     let custom = typeof data.custom === 'string' ? { message: data.custom } : {};
+
     if (typeof data.custom === 'string') {
         custom = {
             message: data.custom,
@@ -75,21 +90,8 @@ module.exports = (regIds, data, settings) => {
         timeToLive: data.expiry - Math.floor(Date.now() / 1000) || data.timeToLive || 28 * 86400,
         restrictedPackageName: data.restrictedPackageName,
         dryRun: data.dryRun || false,
-        data: custom,
-        notification: {
-            title: data.title, // Android, iOS (Watch)
-            body: data.body, // Android, iOS
-            icon: data.icon, // Android
-            sound: data.sound, // Android, iOS
-            badge: data.badge, // iOS
-            tag: data.tag, // Android
-            color: data.color, // Android
-            click_action: data.clickAction || data.category, // Android, iOS
-            body_loc_key: data.locKey, // Android, iOS
-            body_loc_args: data.locArgs, // Android, iOS
-            title_loc_key: data.titleLocKey, // Android, iOS
-            title_loc_args: data.titleLocArgs, // Android, iOS
-        },
+        data: opts.phonegap === true ? Object.assign(custom, notification) : custom, // See https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour
+        notification: opts.phonegap === true ? undefined : notification,
     });
     let chunk = 0;
 
