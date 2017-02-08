@@ -82,9 +82,9 @@ module.exports = (regIds, data, settings) => {
     custom.icon = custom.icon || data.icon || undefined;
     custom.msgcnt = custom.msgcnt || data.badge || undefined;
     if (opts.phonegap === true) {
-        custom['content-available'] = 1
+        custom['content-available'] = 1;
     }
-    
+
     const message = new gcm.Message({ // See https://developers.google.com/cloud-messaging/http-server-ref#table5
         collapseKey: data.collapseKey,
         priority: data.priority,
