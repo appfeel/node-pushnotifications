@@ -271,6 +271,21 @@ In that way, they can be accessed in android in the following two ways:
     title = title != null ? title : extras.getString("gcm.notification.title");
 ```
 
+### PhoneGap compatibility mode
+
+In case your app is written with Cordova / Ionic and you are using the [PhoneGap PushPlugin](https://github.com/phonegap/phonegap-plugin-push/), 
+you can use the `phonegap` setting in order to adapt to the recommended behaviour described in 
+[https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour](https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour).
+
+```js
+    const settings = {
+        gcm: {
+            id: '<yourId>',
+            phonegap: true
+        }
+    }
+```
+
 ## APN
 
 The following parameters are used to create an APN message:
