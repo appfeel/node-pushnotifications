@@ -81,7 +81,7 @@ module.exports = (regIds, data, settings) => {
     custom.sound = custom.sound || data.sound || undefined;
     custom.icon = custom.icon || data.icon || undefined;
     custom.msgcnt = custom.msgcnt || data.badge || undefined;
-    if (opts.phonegap === true) {
+    if (opts.phonegap === true && data.contentAvailable) {
         custom['content-available'] = 1;
     }
 
