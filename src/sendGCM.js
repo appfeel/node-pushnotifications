@@ -62,8 +62,8 @@ module.exports = (regIds, data, settings) => {
         title_loc_key: data.titleLocKey, // Android, iOS
         title_loc_args: data.titleLocArgs, // Android, iOS
     };
-    let custom = typeof data.custom === 'string' ? { message: data.custom } : {};
-
+    
+    let custom;
     if (typeof data.custom === 'string') {
         custom = {
             message: data.custom,
