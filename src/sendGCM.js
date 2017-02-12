@@ -62,8 +62,8 @@ module.exports = (regIds, data, settings) => {
         title_loc_key: data.titleLocKey, // Android, iOS
         title_loc_args: data.titleLocArgs, // Android, iOS
     };
-    let custom = typeof data.custom === 'string' ? { message: data.custom } : {};
 
+    let custom;
     if (typeof data.custom === 'string') {
         custom = {
             message: data.custom,
@@ -81,7 +81,7 @@ module.exports = (regIds, data, settings) => {
     custom.sound = custom.sound || data.sound || undefined;
     custom.icon = custom.icon || data.icon || undefined;
     custom.msgcnt = custom.msgcnt || data.badge || undefined;
-    if (opts.phonegap === true) {
+    if (opts.phonegap === true && data.contentAvailable) {
         custom['content-available'] = 1;
     }
 

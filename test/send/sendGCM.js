@@ -14,6 +14,7 @@ const data = {
     title: 'title',
     body: 'body',
     sound: 'mySound.aiff',
+    contentAvailable: true,
     custom: {
         sender: 'appfeel-test'
     },
@@ -134,8 +135,10 @@ describe('push-notifications-gcm', () => {
     });
 
     describe('send push notifications in phonegap-push compatibility mode', () => {
-        const push = new PN({
-            phonegap: true
+        const pushPhoneGap = new PN({
+            gcm: {
+              phonegap: true
+            }
         });
 
         const test = (err, results, done) => {
@@ -166,11 +169,12 @@ describe('push-notifications-gcm', () => {
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).to.not.have.property('params.notification');
+                expect(message.notification).to.be.undefined;
                 expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
                 expect(message).to.have.deep.property('params.data.title', data.title);
                 expect(message).to.have.deep.property('params.data.message', data.body);
                 expect(message).to.have.deep.property('params.data.sound', data.sound);
+                expect(message).to.have.deep.property('params.data.content-available', 1);
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -189,15 +193,15 @@ describe('push-notifications-gcm', () => {
         });
 
         it('all responses should be successful (callback)', (done) => {
-            pn.send(regIds, data, (err, results) => test(err, results, done));
+            pushPhoneGap.send(regIds, data, (err, results) => test(err, results, done));
         });
 
         it('all responses should be successful (promise)', (done) => {
-            pn.send(regIds, data)
+            pushPhoneGap.send(regIds, data)
                 .then(results => test(null, results, done))
                 .catch(done);
         });
-    })
+    });
 
     {
         const test = (err, results, done) => {
