@@ -309,7 +309,7 @@ The following parameters are used to create an APN message:
         'launch-image': data.launchImage,
         action: data.action,
     },
-    topic: data.topic || undefined,
+    topic: data.topic, // Required
     category: data.category || data.clickAction,
     contentAvailable: data.contentAvailable,
     mdm: data.mdm,
@@ -323,6 +323,7 @@ The following parameters are used to create an APN message:
 *data is the parameter in `push.send(registrationIds, data)`*
 
 * [See node-apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
+* **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic))
 
 ## WNS
 

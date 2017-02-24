@@ -21,7 +21,7 @@ module.exports = (regIds, data, settings) => {
             'launch-image': data.launchImage,
             action: data.action,
         },
-        topic: data.topic || undefined,
+        topic: data.topic,
         category: data.category || data.clickAction,
         contentAvailable: data.contentAvailable,
         mdm: data.mdm,
