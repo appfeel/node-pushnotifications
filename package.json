@@ -1,7 +1,7 @@
 {
   "name": "node-pushnotifications",
   "description": "A cross-platform push service for node.js",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "author": {
     "name": "AppFeel",
     "email": "info@appfeel.com"
@@ -13,7 +13,7 @@
     "build": "./node_modules/.bin/babel src -d lib",
     "prepublish": "npm run lint && npm test && npm run build",
     "lint": "eslint src/**/*.js",
-    "test-alone": "./node_modules/.bin/_mocha test/ --compilers jsx:babel-core/register --recursive"
+    "test-alone": "./node_modules/.bin/_mocha test/ --compilers jsx:babel-core/register --recursive -w"
   },
   "keywords": [
     "notifications",
@@ -54,7 +54,14 @@
     "wns": "^0.5.3"
   },
   "engines": {
-    "node": "*"
+    "node": ">= 4.6.0"
+  },
+  "eslintConfig": {
+    "ecmaVersion": 6,
+    "env": {
+      "es6": true,
+      "node": true
+    }
   },
   "readmeFilename": "README.md",
   "homepage": "https://github.com/appfeel/node-pushnotifications",

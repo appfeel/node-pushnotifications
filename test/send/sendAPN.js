@@ -115,6 +115,53 @@ describe('push-notifications-apn', () => {
         });
     });
 
+    describe('send push notifications successfully (no payload)', () => {
+        const test = (err, results, done) => {
+            try {
+                expect(err).to.equal(null);
+                results.forEach((result) => {
+                    expect(result.method).to.equal(method);
+                    expect(result.success).to.equal(regIds.length);
+                    expect(result.failure).to.equal(0);
+                    expect(result.message.length).to.equal(regIds.length);
+                    result.message.forEach((message) => {
+                        expect(message).to.have.property('regId');
+                        expect(regIds).to.include(message.regId);
+                    });
+                });
+                done(err);
+            } catch (e) {
+                done(err || e);
+            }
+        };
+
+        before(() => {
+            sendMethod = sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => {
+                expect(_regIds).to.be.instanceOf(Array);
+                _regIds.forEach(regId => expect(regIds).to.include(regId));
+                expect(message).to.be.instanceOf(apn.Notification);
+                expect(message).to.have.deep.property('aps.sound', 'ping.aiff');
+                expect(message).to.have.deep.property('aps.alert.title', data.title);
+                expect(message).to.have.deep.property('aps.alert.body', data.body);
+                expect(message).to.have.deep.property('payload').deep.equal({});
+                return Promise.resolve({
+                    sent: _regIds,
+                });
+            });
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be successful (callback no payload, no sound)', (done) => {
+            const newData = Object.assign({}, data);
+            delete newData.custom;
+            delete newData.sound;
+            pn.send(regIds, newData, (err, results) => test(err, results, done));
+        });
+    });
+
     {
         const test = (err, results, done) => {
             try {
