@@ -30,7 +30,7 @@ module.exports = (regIds, data, settings) => {
         mutableContent: data.mutableContent || 0,
     });
     if (data.sound) {
-        message.sound = data.sound;   
+        message.sound = data.sound;
     }
     const connection = new apn.Provider(settings.apn);
 
