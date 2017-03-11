@@ -4,6 +4,7 @@
 node_modules
 tmp
 .idea
+.vscode/
 test/logs
 coverage
 .sonar

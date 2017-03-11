@@ -37,6 +37,7 @@ function sendOkMethod() {
         expect(message).to.have.deep.property('params.notification.body', data.body);
         expect(message).to.have.deep.property('params.notification.sound', data.sound);
         expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
+        expect(message).to.have.deep.property('params.priority', 'high');
         // This params are duplicated in order to facilitate extraction
         // So they are available as `gcm.notification.title` and as `title`
         expect(message).to.have.deep.property('params.data.title', data.title);
@@ -488,6 +489,60 @@ describe('push-notifications-gcm', () => {
             const newData = Object.assign({}, data);
             delete newData.custom;
             pn.send(regIds, newData, (err, results) => test(err, results, done));
+        });
+    });
+
+    describe('send push notifications successfully, normal priority', () => {
+        const test = (err, results, done) => {
+            try {
+                expect(err).to.equal(null);
+                results.forEach((result) => {
+                    expect(result.method).to.equal(method);
+                    expect(result.success).to.equal(regIds.length);
+                    expect(result.failure).to.equal(0);
+                    expect(result.message.length).to.equal(regIds.length);
+                    result.message.forEach((message) => {
+                        expect(message).to.have.property('regId');
+                        expect(regIds).to.include(message.regId);
+                    });
+                });
+                done(err);
+            } catch (e) {
+                done(err || e);
+            }
+        };
+
+        before(() => {
+            sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+                expect(recipients).to.be.instanceOf(Object);
+                expect(recipients).to.have.property('registrationTokens');
+                const { registrationTokens } = recipients;
+                expect(registrationTokens).to.be.instanceOf(Array);
+                registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+                expect(retries).to.be.a('number');
+                expect(message).to.be.instanceOf(gcm.Message);
+                expect(message).to.have.deep.property('params.priority', 'normal');
+                cb(null, {
+                    multicast_id: 'abc',
+                    success: registrationTokens.length,
+                    failure: 0,
+                    results: registrationTokens.map(token => ({
+                        message_id: '',
+                        registration_id: token,
+                        error: null,
+                    })),
+                });
+            });
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be successful (callback, custom data undefined)', (done) => {
+            const normalPrioData = Object.assign({}, data);
+            normalPrioData.priority = 'normal'
+            pn.send(regIds, normalPrioData, (err, results) => test(err, results, done));
         });
     });
 
