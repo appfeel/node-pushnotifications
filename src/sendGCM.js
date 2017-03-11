@@ -87,7 +87,7 @@ module.exports = (regIds, data, settings) => {
 
     const message = new gcm.Message({ // See https://developers.google.com/cloud-messaging/http-server-ref#table5
         collapseKey: data.collapseKey,
-        priority: data.priority,
+        priority: data.priority === 'normal' ? data.priority : 'high',
         contentAvailable: data.contentAvailable || false,
         delayWhileIdle: data.delayWhileIdle || false,
         timeToLive: data.expiry - Math.floor(Date.now() / 1000) || data.timeToLive || 28 * 86400,

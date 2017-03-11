@@ -94,7 +94,7 @@ const data = {
     custom: {
         sender: 'AppFeel',
     },
-    priority: 1, // gcm, apn
+    priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
     collapseKey: '', // gcm for android, used as collapseId in apn
     contentAvailable: true, // gcm for android
     delayWhileIdle: true, // gcm for android
@@ -187,7 +187,7 @@ The following parameters are used to create a GCM message. See https://developer
 
 ```js
     // Set default custom data from data
-    let custom = typeof data.custom === 'string' ? { message: data.custom } : {};
+    let custom;
     if (typeof data.custom === 'string') {
         custom = {
             message: data.custom,
@@ -205,31 +205,34 @@ The following parameters are used to create a GCM message. See https://developer
     custom.sound = custom.sound || data.sound || undefined;
     custom.icon = custom.icon || data.icon || undefined;
     custom.msgcnt = custom.msgcnt || data.badge || undefined;
+    if (opts.phonegap === true && data.contentAvailable) {
+        custom['content-available'] = 1;
+    }
 
-{
-    collapseKey: data.collapseKey,
-    priority: data.priority,
-    contentAvailable: data.contentAvailable || false,
-    delayWhileIdle: data.delayWhileIdle || false, // Deprecated from Nov 15th 2016 (will be ignored)
-    timeToLive: data.expiry - Math.floor(Date.now() / 1000) || data.timeToLive || 28 * 86400,
-    restrictedPackageName: data.restrictedPackageName,
-    dryRun: data.dryRun || false,
-    data: data.custom,
-    notification: {
-        title: data.title, // Android, iOS (Watch)
-        body: data.body, // Android, iOS
-        icon: data.icon, // Android
-        sound: data.sound, // Android, iOS
-        badge: data.badge, // iOS
-        tag: data.tag, // Android
-        color: data.color, // Android
-        click_action: data.clickAction || data.category, // Android, iOS
-        body_loc_key: data.locKey, // Android, iOS
-        body_loc_args: data.locArgs, // Android, iOS
-        title_loc_key: data.titleLocKey, // Android, iOS
-        title_loc_args: data.titleLocArgs, // Android, iOS
-    },
-}
+    const message = new gcm.Message({ // See https://developers.google.com/cloud-messaging/http-server-ref#table5
+        collapseKey: data.collapseKey,
+        priority: data.priority === 'normal' ? data.priority : 'high',
+        contentAvailable: data.contentAvailable || false,
+        delayWhileIdle: data.delayWhileIdle || false, // Deprecated from Nov 15th 2016 (will be ignored)
+        timeToLive: data.expiry - Math.floor(Date.now() / 1000) || data.timeToLive || 28 * 86400,
+        restrictedPackageName: data.restrictedPackageName,
+        dryRun: data.dryRun || false,
+        data: data.custom,
+        notification: {
+            title: data.title, // Android, iOS (Watch)
+            body: data.body, // Android, iOS
+            icon: data.icon, // Android
+            sound: data.sound, // Android, iOS
+            badge: data.badge, // iOS
+            tag: data.tag, // Android
+            color: data.color, // Android
+            click_action: data.clickAction || data.category, // Android, iOS
+            body_loc_key: data.locKey, // Android, iOS
+            body_loc_args: data.locArgs, // Android, iOS
+            title_loc_key: data.titleLocKey, // Android, iOS
+            title_loc_args: data.titleLocArgs, // Android, iOS
+        },
+    }
 ```
 
 *data is the parameter in `push.send(registrationIds, data)`*
@@ -294,7 +297,7 @@ The following parameters are used to create an APN message:
 {
     retryLimit: data.retries || -1,
     expiry: data.expiry || ((data.timeToLive || 28 * 86400) + Math.floor(Date.now() / 1000)),
-    priority: data.priority,
+    priority: data.priority === 'normal' ? 5 : 10,
     encoding: data.encoding,
     payload: data.custom || {},
     badge: data.badge,

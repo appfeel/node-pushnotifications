@@ -6,7 +6,7 @@ module.exports = (regIds, data, settings) => {
     const message = new apn.Notification({
         retryLimit: data.retries || -1,
         expiry: data.expiry || ((data.timeToLive || 28 * 86400) + Math.floor(Date.now() / 1000)),
-        priority: data.priority,
+        priority: data.priority === 'normal' ? 5 : 10,
         encoding: data.encoding,
         payload: data.custom || {},
         badge: data.badge,
