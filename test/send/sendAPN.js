@@ -19,6 +19,12 @@ const data = {
         sender: 'appfeel-test',
     },
 };
+const silentData = {
+    silent: true,
+    custom: {
+        sender: 'appfeel-test',
+    },
+};
 const pn = new PN({
     apn: {
         cert: path.resolve('./test/send/cert.pem'),
@@ -38,6 +44,20 @@ function sendOkMethod() {
         expect(message).to.have.deep.property('aps.alert.body', data.body);
         expect(message).to.have.deep.property('priority', 10);
         expect(message).to.have.deep.property('payload', data.custom);
+        return Promise.resolve({
+            sent: _regIds,
+        });
+    });
+}
+
+function sendOkSilentMethod() {
+    return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => {
+        expect(_regIds).to.be.instanceOf(Array);
+        _regIds.forEach(regId => expect(regIds).to.include(regId));
+        expect(message).to.be.instanceOf(apn.Notification);
+        expect(message.aps.sound).to.not.exist;
+        expect(message.aps.alert).to.not.exist;
+        expect(message).to.have.deep.property('payload', silentData.custom);
         return Promise.resolve({
             sent: _regIds,
         });
@@ -203,6 +223,45 @@ describe('push-notifications-apn', () => {
             const normalPrioData = Object.assign({}, data);
             normalPrioData.priority = 'normal';
             pn.send(regIds, normalPrioData, (err, results) => test(err, results, done));
+        });
+    });
+
+    describe('send silent push notifications successfully', () => {
+        const test = (err, results, done) => {
+            try {
+                expect(err).to.equal(null);
+                results.forEach((result) => {
+                    expect(result.method).to.equal(method);
+                    expect(result.success).to.equal(regIds.length);
+                    expect(result.failure).to.equal(0);
+                    expect(result.message.length).to.equal(regIds.length);
+                    result.message.forEach((message) => {
+                        expect(message).to.have.property('regId');
+                        expect(regIds).to.include(message.regId);
+                    });
+                });
+                done(err);
+            } catch (e) {
+                done(err || e);
+            }
+        };
+
+        before(() => {
+            sendMethod = sendOkSilentMethod();
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be successful (callback)', (done) => {
+            pn.send(regIds, silentData, (err, results) => test(err, results, done));
+        });
+
+        it('all responses should be successful (promise)', (done) => {
+            pn.send(regIds, silentData)
+                .then(results => test(null, results, done))
+                .catch(done);
         });
     });
 
