@@ -16,16 +16,22 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                 })),
             });
         } else if (response && response.results !== undefined) {
+            let regIndex = 0;
             resolve({
                 method,
                 multicastId: response.multicast_id,
                 success: response.success,
                 failure: response.failure,
-                message: response.results.map(value => ({
-                    messageId: value.message_id,
-                    regId: value.registration_id,
-                    error: value.error ? new Error(value.error) : null,
-                })),
+                message: response.results.map((value) => {
+                    const regToken = registrationTokens[regIndex];
+                    regIndex += 1;
+                    return {
+                        messageId: value.message_id,
+                        regId: value.registration_id || regToken,
+                        error: value.error ? new Error(value.error) : null,
+                    };
+                }
+                ),
             });
         } else {
             resolve({
