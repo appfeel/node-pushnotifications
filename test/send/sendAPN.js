@@ -33,7 +33,6 @@ function sendOkMethod() {
         expect(_regIds).to.be.instanceOf(Array);
         _regIds.forEach(regId => expect(regIds).to.include(regId));
         expect(message).to.be.instanceOf(apn.Notification);
-        expect(message).to.have.deep.property('aps.sound', data.sound);
         expect(message).to.have.deep.property('aps.alert.title', data.title);
         expect(message).to.have.deep.property('aps.alert.body', data.body);
         expect(message).to.have.deep.property('priority', 10);
@@ -141,7 +140,6 @@ describe('push-notifications-apn', () => {
                 expect(_regIds).to.be.instanceOf(Array);
                 _regIds.forEach(regId => expect(regIds).to.include(regId));
                 expect(message).to.be.instanceOf(apn.Notification);
-                expect(message).to.have.deep.property('aps.sound', 'ping.aiff');
                 expect(message).to.have.deep.property('aps.alert.title', data.title);
                 expect(message).to.have.deep.property('aps.alert.body', data.body);
                 expect(message).to.have.deep.property('payload').deep.equal({});

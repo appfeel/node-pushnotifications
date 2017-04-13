@@ -10,7 +10,6 @@ module.exports = (regIds, data, settings) => {
         encoding: data.encoding,
         payload: data.custom || {},
         badge: data.badge,
-        sound: data.sound || 'ping.aiff',
         alert: data.alert || {
             title: data.title,
             body: data.body,
@@ -30,6 +29,9 @@ module.exports = (regIds, data, settings) => {
         collapseId: data.collapseKey,
         mutableContent: data.mutableContent || 0,
     });
+    if (data.sound) {
+        message.sound = data.sound;
+    }
     const connection = new apn.Provider(settings.apn);
 
     return connection.send(message, regIds)
