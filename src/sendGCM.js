@@ -82,11 +82,14 @@ module.exports = (regIds, data, settings) => {
         };
     }
 
-    custom.title = custom.title || data.title || '';
-    custom.message = custom.message || data.body || '';
-    custom.sound = custom.sound || data.sound || undefined;
-    custom.icon = custom.icon || data.icon || undefined;
-    custom.msgcnt = custom.msgcnt || data.badge || undefined;
+    if (data.silent !== true) {
+        custom.title = custom.title || data.title || '';
+        custom.message = custom.message || data.body || '';
+        custom.sound = custom.sound || data.sound || undefined;
+        custom.icon = custom.icon || data.icon || undefined;
+        custom.msgcnt = custom.msgcnt || data.badge || undefined;
+    }
+
     if (opts.phonegap === true && data.contentAvailable) {
         custom['content-available'] = 1;
     }
@@ -100,7 +103,7 @@ module.exports = (regIds, data, settings) => {
         restrictedPackageName: data.restrictedPackageName,
         dryRun: data.dryRun || false,
         data: opts.phonegap === true ? Object.assign(custom, notification) : custom, // See https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour
-        notification: opts.phonegap === true ? undefined : notification,
+        notification: opts.phonegap === true || data.silent === true ? undefined : notification,
     });
     let chunk = 0;
 

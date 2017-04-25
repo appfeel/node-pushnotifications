@@ -615,6 +615,64 @@ describe('push-notifications-gcm', () => {
         });
     });
 
+  describe('send push notifications in silent mode', () => {
+    const test = (err, results, done) => {
+      try {
+        expect(err).to.equal(null);
+        results.forEach((result) => {
+          expect(result.method).to.equal(method);
+          expect(result.success).to.equal(regIds.length);
+          expect(result.failure).to.equal(0);
+          expect(result.message.length).to.equal(regIds.length);
+          result.message.forEach((message) => {
+            expect(message).to.have.property('regId');
+            expect(regIds).to.include(message.regId);
+          });
+        });
+        done(err);
+      } catch (e) {
+        done(err || e);
+      }
+    };
+
+    before(() => {
+      sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+        expect(recipients).to.be.instanceOf(Object);
+        expect(recipients).to.have.property('registrationTokens');
+        const { registrationTokens } = recipients;
+        expect(registrationTokens).to.be.instanceOf(Array);
+        registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+        expect(retries).to.be.a('number');
+        expect(message).to.be.instanceOf(gcm.Message);
+        expect(message.notification).to.be.undefined;
+        expect(message.params.data.title).to.be.undefined;
+        expect(message.params.data.sound).to.be.undefined;
+        expect(message.params.data.icon).to.be.undefined;
+        expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
+        expect(message).to.have.deep.property('params.data.msgcnt', data.custom.msgcnt);
+        cb(null, {
+          multicast_id: 'abc',
+          success: registrationTokens.length,
+          failure: 0,
+          results: registrationTokens.map(token => ({
+            message_id: '',
+            registration_id: token,
+            error: null,
+          })),
+        });
+      });
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('all responses should be successful (callback, custom data undefined)', (done) => {
+      const newData = Object.assign({}, data, { silent: true });
+      pn.send(regIds, newData, (err, results) => test(err, results, done));
+    });
+  });
+
     {
         const test = (err, results, done) => {
             try {
