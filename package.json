@@ -51,7 +51,7 @@
     "apn": "^2.1.1",
     "node-adm": "^0.9.1",
     "node-gcm": "^0.14.4",
-    "wns": "^0.5.3"
+    "wns": "git://github.com/alex-friedl/wns.git#660afd2"
   },
   "engines": {
     "node": ">= 4.6.0"
