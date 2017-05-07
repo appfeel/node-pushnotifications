@@ -82,8 +82,8 @@ module.exports = (regIds, data, settings) => {
         };
     }
 
-    custom.title = custom.title || data.title || '';
-    custom.message = custom.message || data.body || '';
+    custom.title = custom.title || data.title || undefined;
+    custom.message = custom.message || data.body || undefined;
     custom.sound = custom.sound || data.sound || undefined;
     custom.icon = custom.icon || data.icon || undefined;
     custom.msgcnt = custom.msgcnt || data.badge || undefined;
