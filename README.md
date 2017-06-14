@@ -131,6 +131,7 @@ const data = {
     launch: '', // wns
     duration: '', // wns
     consolidationKey: 'my notification', // ADM
+    silent: false, //apn
 };
 
 // You can use it in node callback style
@@ -322,6 +323,7 @@ The following parameters are used to create an APN message:
     mutableContent: data.mutableContent || 0,
 }
 ```
+To create a silent push notification just add `silent` to your data object
 
 *data is the parameter in `push.send(registrationIds, data)`*
 
