@@ -3,33 +3,45 @@ const apn = require('apn');
 const method = 'apn';
 
 module.exports = (regIds, data, settings) => {
-    const message = new apn.Notification({
-        retryLimit: data.retries || -1,
-        expiry: data.expiry || ((data.timeToLive || 28 * 86400) + Math.floor(Date.now() / 1000)),
-        priority: data.priority === 'normal' ? 5 : 10,
-        encoding: data.encoding,
-        payload: data.custom || {},
-        badge: data.badge,
-        sound: data.sound || 'ping.aiff',
-        alert: data.alert || {
-            title: data.title,
-            body: data.body,
-            'title-loc-key': data.titleLocKey,
-            'title-loc-args': data.titleLocArgs,
-            'loc-key': data.locKey,
-            'loc-args': data.bodyLocArgs,
-            'launch-image': data.launchImage,
-            action: data.action,
-        },
-        topic: data.topic,
-        category: data.category || data.clickAction,
-        contentAvailable: data.contentAvailable,
-        mdm: data.mdm,
-        urlArgs: data.urlArgs,
-        truncateAtWordEnd: data.truncateAtWordEnd,
-        collapseId: data.collapseKey,
-        mutableContent: data.mutableContent || 0,
-    });
+    let notification = {};
+    if (data.silent) {
+        notification = {
+            contentAvailable: 1,
+            payload: data.custom || {},
+            topic: data.topic,
+        };
+    } else {
+        notification = {
+            retryLimit: data.retries || -1,
+            expiry: data.expiry || (data.timeToLive || 28 * 86400) + Math.floor(Date.now() / 1000),
+            priority: data.priority === 'normal' ? 5 : 10,
+            encoding: data.encoding,
+            payload: data.custom || {},
+            badge: data.badge,
+            topic: data.topic,
+            category: data.category || data.clickAction,
+            contentAvailable: data.contentAvailable,
+            mdm: data.mdm,
+            urlArgs: data.urlArgs,
+            truncateAtWordEnd: data.truncateAtWordEnd,
+            collapseId: data.collapseKey,
+            mutableContent: data.mutableContent || 0,
+            sound: data.sound || 'ping.aiff',
+            alert: data.alert || {
+                title: data.title,
+                body: data.body,
+                'title-loc-key': data.titleLocKey,
+                'title-loc-args': data.titleLocArgs,
+                'loc-key': data.locKey,
+                'loc-args': data.bodyLocArgs,
+                'launch-image': data.launchImage,
+                action: data.action,
+            },
+        };
+    }
+
+    const message = new apn.Notification(notification);
+
     const connection = new apn.Provider(settings.apn);
 
     return connection.send(message, regIds)
