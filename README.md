@@ -44,6 +44,7 @@ const settings = {
             keyId: 'ABCD',
             teamId: 'EFGH',
         },
+	production: false,
         ...
     },
     adm: {
@@ -67,7 +68,7 @@ const push = new PushNotifications(settings);
 * ADM options: see [node-adm](https://github.com/umano/node-adm)
 * WNS options: see [wns](https://github.com/tjanczuk/wns)
 
-*iOS:* It is recomended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account memebership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an *Apple Push Notification Authentication Key (Sandbox & Production)* or *Apple Push Notification service SSL (Sandbox & Production)*. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. 
+*iOS:* It is recomended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account memebership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an *Apple Push Notification Authentication Key (Sandbox & Production)* or *Apple Push Notification service SSL (Sandbox & Production)*. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. Make sure that once you deploy your server the production key in the apn settings is true or you will be thrown BadDeviceToken errors.  
 
 ### 2. Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
 
