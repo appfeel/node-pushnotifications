@@ -27,6 +27,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                     regIndex += 1;
                     return {
                         messageId: value.message_id,
+                        oldRegId: (value.registration_id !== regToken) ? regToken : null,
                         regId: value.registration_id || regToken,
                         error: value.error ? new Error(value.error) : null,
                     };
