@@ -2,7 +2,7 @@ const adm = require('node-adm');
 
 const method = 'adm';
 
-module.exports = (regIds, _data, settings) => {
+const sendADM = (regIds, _data, settings) => {
     const resumed = {
         method,
         success: 0,
@@ -41,3 +41,5 @@ module.exports = (regIds, _data, settings) => {
     return Promise.all(promises)
         .then(() => resumed);
 };
+
+module.exports = sendADM;

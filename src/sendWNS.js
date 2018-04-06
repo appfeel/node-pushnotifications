@@ -12,8 +12,7 @@ function processResponse(err, response, regId) {
     });
 }
 
-
-module.exports = (_regIds, _data, settings) => {
+const sendWNS = (_regIds, _data, settings) => {
     // sendNotifications and sendPromises are inside exports as in this way,
     // successive calls to this module doesn't override previous ones
     let sendPromises;
@@ -80,3 +79,5 @@ module.exports = (_regIds, _data, settings) => {
     return Promise.all(promises)
         .then(() => resumed);
 };
+
+module.exports = sendWNS;

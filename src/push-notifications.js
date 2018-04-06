@@ -86,7 +86,7 @@ PN.prototype.send = function send(_regIds, data, callback) {
     for (const regId of regIds) {
         if (regId.substring(0, 4) === 'http') {
             regIdsWNS.push(regId);
-        } else if (/(amzn|adm)/i.test(regId)) {
+        } else if (/^(amzn[0-9]*.adm)/i.test(regId)) {
             regIdsADM.push(regId);
         } else if (regId.length > 64) {
             regIdsGCM.push(regId);

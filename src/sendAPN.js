@@ -2,7 +2,7 @@ const apn = require('apn');
 
 const method = 'apn';
 
-module.exports = (regIds, data, settings) => {
+const sendAPN = (regIds, data, settings) => {
     const message = new apn.Notification({
         retryLimit: data.retries || -1,
         expiry: data.expiry || ((data.timeToLive || 28 * 86400) + Math.floor(Date.now() / 1000)),
@@ -68,3 +68,5 @@ module.exports = (regIds, data, settings) => {
             return resumed;
         });
 };
+
+module.exports = sendAPN;
