@@ -97,7 +97,7 @@ const data = {
     },
     priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
     collapseKey: '', // gcm for android, used as collapseId in apn
-    contentAvailable: true, // gcm for android
+    contentAvailable: true, // gcm, apn. node-apn will translate true to 1 as required by apn.
     delayWhileIdle: true, // gcm for android
     restrictedPackageName: '', // gcm for android
     dryRun: false, // gcm for android
@@ -120,7 +120,6 @@ const data = {
     launchImage: '', // apn and gcm for ios
     action: '', // apn and gcm for ios
     category: '', // apn and gcm for ios
-    contentAvailable: '', // apn and gcm for ios
     mdm: '', // apn and gcm for ios
     urlArgs: '', // apn and gcm for ios
     truncateAtWordEnd: true, // apn and gcm for ios
