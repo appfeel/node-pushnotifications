@@ -383,6 +383,7 @@ const ADMmesssage = {
 
 ## Resources
 
+- [Crossplatform integration example using this library and a React Native app](https://github.com/alex-friedl/crossplatform-push-notifications-example)
 - [Node Push Notify from alexlds](https://github.com/alexlds/node-push-notify)
 
 ## LICENSE
