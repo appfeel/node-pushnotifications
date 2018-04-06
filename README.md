@@ -91,6 +91,7 @@ Both `title` and `body` fields are required (or `alert` for ios). The other fiel
 const data = {
     title: 'New push notification', // REQUIRED
     body: 'Powered by AppFeel', // REQUIRED
+    topic: '', // REQUIRED for apn and gcm for ios
     custom: {
         sender: 'AppFeel',
     },
@@ -118,7 +119,6 @@ const data = {
     titleLocArgs: '', // apn and gcm for ios
     launchImage: '', // apn and gcm for ios
     action: '', // apn and gcm for ios
-    topic: '', // apn and gcm for ios
     category: '', // apn and gcm for ios
     contentAvailable: '', // apn and gcm for ios
     mdm: '', // apn and gcm for ios
