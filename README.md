@@ -125,6 +125,7 @@ const data = {
     urlArgs: '', // apn and gcm for ios
     truncateAtWordEnd: true, // apn and gcm for ios
     mutableContent: 0, // apn
+    threadId: '', // apn
     expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // seconds
     timeToLive: 28 * 86400, // if both expiry and timeToLive are given, expiry will take precedency
     headers: [], // wns
