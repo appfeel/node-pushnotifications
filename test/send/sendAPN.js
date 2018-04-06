@@ -119,17 +119,17 @@ describe('push-notifications-apn', () => {
     describe('once notification has been sent', () => {
         before(() => {
             sendMethod = sendOkMethod();
-            sinon.stub(apn.Provider.prototype, 'shutdown')
+            sinon.stub(apn.Provider.prototype, 'shutdown');
         });
 
         after(() => {
             sendMethod.restore();
-            apn.Provider.prototype.shutdown.restore()
+            apn.Provider.prototype.shutdown.restore();
         });
 
         it('shuts down the provider instance', (done) => {
-            pn.send(regIds, data, (err, results) => {
-                sinon.assert.calledOnce(apn.Provider.prototype.shutdown)
+            pn.send(regIds, data, () => {
+                expect(apn.Provider.prototype.shutdown).to.have.been.calledOnce;
                 done()
             });
         });
