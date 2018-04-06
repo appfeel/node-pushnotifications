@@ -13,7 +13,8 @@
     "build": "./node_modules/.bin/babel src -d lib",
     "prepublish": "npm run lint && npm test && npm run build",
     "lint": "eslint src/**/*.js",
-    "test-alone": "./node_modules/.bin/_mocha test/ --compilers jsx:babel-core/register --recursive -w"
+    "test-alone": "./node_modules/.bin/_mocha test/ --compilers jsx:babel-core/register --recursive -w",
+    "release": "release-it"
   },
   "keywords": [
     "notifications",
@@ -53,18 +54,6 @@
     "node-gcm": "^0.14.4",
     "wns": "git://github.com/alex-friedl/wns.git#660afd2"
   },
-  "engines": {
-    "node": ">= 4.6.0"
-  },
-  "eslintConfig": {
-    "ecmaVersion": 6,
-    "env": {
-      "es6": true,
-      "node": true
-    }
-  },
-  "readmeFilename": "README.md",
-  "homepage": "https://github.com/appfeel/node-pushnotifications",
   "devDependencies": {
     "babel-cli": "^6.16.0",
     "babel-core": "^6.17.0",
@@ -79,8 +68,21 @@
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^3.1.2",
     "opn-cli": "^3.1.0",
+    "release-it": "^7.3.0",
     "sinon": "^1.17.6"
   },
+  "engines": {
+    "node": ">= 4.6.0"
+  },
+  "eslintConfig": {
+    "ecmaVersion": 6,
+    "env": {
+      "es6": true,
+      "node": true
+    }
+  },
+  "readmeFilename": "README.md",
+  "homepage": "https://github.com/appfeel/node-pushnotifications",
   "license": "MIT",
   "contributors": [
     {
