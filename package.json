@@ -49,9 +49,9 @@
     "url": "https://github.com/appfeel/node-pushnotifications.git"
   },
   "dependencies": {
-    "apn": "^2.1.5",
+    "apn": "^2.2.0",
     "node-adm": "^0.9.1",
-    "node-gcm": "^0.14.4",
+    "node-gcm": "^0.14.10",
     "wns": "git://github.com/alex-friedl/wns.git#660afd2"
   },
   "devDependencies": {
