@@ -11,6 +11,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                 success: 0,
                 failure: registrationTokens.length,
                 message: registrationTokens.map(value => ({
+                    originalRegId: value,
                     regId: value,
                     error: err,
                 })),
@@ -27,7 +28,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                     regIndex += 1;
                     return {
                         messageId: value.message_id,
-                        oldRegId: (value.registration_id !== regToken) ? regToken : null,
+                        originalRegId: regToken,
                         regId: value.registration_id || regToken,
                         error: value.error ? new Error(value.error) : null,
                     };
@@ -41,6 +42,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                 success: response.success,
                 failure: response.failure,
                 message: registrationTokens.map(value => ({
+                    originalRegId: value,
                     regId: value,
                     error: new Error('unknown'),
                 })),

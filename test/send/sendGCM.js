@@ -107,6 +107,8 @@ describe('push-notifications-gcm', () => {
                     result.message.forEach((message) => {
                         expect(message).to.have.property('regId');
                         expect(regIds).to.include(message.regId);
+                        expect(message).to.have.property('originalRegId');
+                        expect(regIds).to.include(message.originalRegId);
                     });
                 });
                 done(err);
@@ -199,6 +201,8 @@ describe('push-notifications-gcm', () => {
                     result.message.forEach((message) => {
                         expect(message).to.have.property('regId');
                         expect(regIds).to.include(message.regId);
+                        expect(message).to.have.property('originalRegId');
+                        expect(regIds).to.include(message.originalRegId);
                     });
                 });
                 done(err);
@@ -266,6 +270,8 @@ describe('push-notifications-gcm', () => {
                     result.message.forEach((message) => {
                         expect(message).to.have.property('regId');
                         expect(regIds).to.include(message.regId);
+                        expect(message).to.have.property('originalRegId');
+                        expect(regIds).to.include(message.originalRegId);
                     });
                 });
                 done(err);
@@ -381,6 +387,8 @@ describe('push-notifications-gcm', () => {
                     result.message.forEach((message) => {
                         expect(message).to.have.property('regId');
                         expect(regIds).to.include(message.regId);
+                        expect(message).to.have.property('originalRegId');
+                        expect(regIds).to.include(message.originalRegId);
                     });
                 });
                 done(err);
@@ -442,6 +450,8 @@ describe('push-notifications-gcm', () => {
                     result.message.forEach((message) => {
                         expect(message).to.have.property('regId');
                         expect(regIds).to.include(message.regId);
+                        expect(message).to.have.property('originalRegId');
+                        expect(regIds).to.include(message.originalRegId);
                     });
                 });
                 done(err);
@@ -504,6 +514,8 @@ describe('push-notifications-gcm', () => {
                     result.message.forEach((message) => {
                         expect(message).to.have.property('regId');
                         expect(regIds).to.include(message.regId);
+                        expect(message).to.have.property('originalRegId');
+                        expect(regIds).to.include(message.originalRegId);
                     });
                 });
                 done(err);
@@ -564,6 +576,8 @@ describe('push-notifications-gcm', () => {
                     result.message.forEach((message) => {
                         expect(message).to.have.property('regId');
                         expect(regIds).to.include(message.regId);
+                        expect(message).to.have.property('originalRegId');
+                        expect(regIds).to.include(message.originalRegId);
                     });
                 });
                 done(err);
