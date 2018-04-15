@@ -158,22 +158,22 @@ push.send(registrationIds, data)
         failure: 0, // Number of notifications that have been failed to be send.
         message: [{
             messageId: '', // (only for android) String specifying a unique ID for each successfully processed message or undefined if error
-            originalRegId: value, // (only for android) The registrationId that was sent to the push.send() method, compare with regId to know when the original registrationId (device token id) gets changed
-            regId: value, // The registrationId (device token id)
+            regId: value, // The current registrationId (device token id). Beware: For Android this may change if Google invalidates the previous device token. Use "originalRegId" if you are interested in when this changed occurs.
+            originalRegId: value, // (only for android) The registrationId that was sent to the push.send() method. Compare this with field "regId" in order to know when the original registrationId (device token id) gets changed.
             error: new Error('unknown'), // If any, there will be an Error object here
         }],
     },
     {
         method: 'apn',
-        ... // Same structure here
+        ... // Same structure here, except for message.orignalRegId
     },
     {
         method: 'wns',
-        ... // Same structure here
+        ... // Same structure here, except for message.orignalRegId
     },
     {
         method: 'adm',
-        ... // Same structure here
+        ... // Same structure here, except for message.orignalRegId
     },
 ]
 ```
