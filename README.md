@@ -158,6 +158,7 @@ push.send(registrationIds, data)
         failure: 0, // Number of notifications that have been failed to be send.
         message: [{
             messageId: '', // (only for android) String specifying a unique ID for each successfully processed message or undefined if error
+            originalRegId: value, // (only for android) The registrationId that was sent to the push.send() method, compare with regId to know when the original registrationId (device token id) gets changed
             regId: value, // The registrationId (device token id)
             error: new Error('unknown'), // If any, there will be an Error object here
         }],
