@@ -41,6 +41,7 @@ const settings = {
             key: './certs/key.p8', // optionally: fs.readFileSync('./certs/key.p8')
             keyId: 'ABCD',
             teamId: 'EFGH',
+            production: false // true for APN production environment, false for APN sandbox environment
         },
         ...
     },
