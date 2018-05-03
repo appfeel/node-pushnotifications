@@ -90,7 +90,7 @@ Both `title` and `body` fields are required (or `alert` for ios). The other fiel
 const data = {
     title: 'New push notification', // REQUIRED
     body: 'Powered by AppFeel', // REQUIRED
-    topic: '', // REQUIRED for apn and gcm for ios
+    topic: 'topic', // REQUIRED for apn and gcm for ios
     custom: {
         sender: 'AppFeel',
     },
@@ -112,14 +112,21 @@ const data = {
     encoding: '', // apn
     badge: 2, // gcm for ios, apn
     sound: 'ping.aiff', // gcm, apn
-    alert: {}, // apn, will take precedence over title and body
-    // alert: '', // It is also accepted a text message in alert
+    alert: { // apn, will take precedence over title and body
+        title: 'title'
+        body: 'body'
+        // details: https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#convenience-setters
+    }, 
+    // alert: '', // A string is also accepted as a payload for alert
+    // Your notification won't appear on ios if alert is empty object
+    // If alert is an empty string the regular 'title' and 'body' will show in Notification
     titleLocKey: '', // apn and gcm for ios
     titleLocArgs: '', // apn and gcm for ios
     launchImage: '', // apn and gcm for ios
     action: '', // apn and gcm for ios
     category: '', // apn and gcm for ios
-    mdm: '', // apn and gcm for ios
+    // mdm: '', // apn and gcm for ios. Use this to send Mobile Device Management commands. 
+    // https://developer.apple.com/library/content/documentation/Miscellaneous/Reference/MobileDeviceManagementProtocolRef/3-MDM_Protocol/MDM_Protocol.html
     urlArgs: '', // apn and gcm for ios
     truncateAtWordEnd: true, // apn and gcm for ios
     mutableContent: 0, // apn
