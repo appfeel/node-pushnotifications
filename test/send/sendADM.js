@@ -1,4 +1,5 @@
-import { describe, it, before, after } from 'mocha'; // eslint-disable-line import/no-extraneous-dependencies
+/* eslint-env mocha */
+
 import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
 import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
 import adm from 'node-adm';

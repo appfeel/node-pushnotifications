@@ -1,6 +1,7 @@
+/* eslint-env mocha */
 import path from 'path';
-import { describe, it } from 'mocha'; // eslint-disable-line import/no-extraneous-dependencies
-import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
+import { expect } from 'chai';
+import { spy } from 'sinon';
 import PN from '../../src';
 
 describe('push-notifications: instantiation and class properties', () => {
@@ -13,62 +14,76 @@ describe('push-notifications: instantiation and class properties', () => {
             expect(pn.settings).to.have.property('adm');
             expect(pn.settings).to.have.property('wns');
         });
+    });
 
-        it('should override gcm options', () => {
-            const settings = {
-                gcm: {
-                    id: 'gcm id',
+    describe('override options with constructor', () => {
+        let pn;
+        const settings = {
+            gcm: {
+                id: 'gcm id',
+            },
+            apn: {
+                token: {
+                    key: 'testKey',
+                    keyId: 'testKeyId',
+                    teamId: 'testTeamId',
                 },
-                apn: {
-                    cert: path.resolve('test/send/cert.pem'),
-                    key: path.resolve('test/send/key.pem'),
-                },
-                wns: {
-                    client_id: 'client id',
-                    client_secret: 'client secret',
-                    notificationMethod: 'sendTileSquareBlock',
-                },
-                adm: {
-                    client_id: 'client id',
-                    client_secret: 'client secret',
-                },
-            };
-            const pn = new PN(settings);
-            expect(pn.settings.gcm).to.deep.equal(settings.gcm);
-            expect(pn.settings.apn).to.deep.equal(settings.apn);
-            expect(pn.settings.wns).to.deep.equal(settings.wns);
-            expect(pn.settings.adm).to.deep.equal(settings.adm);
+                cert: path.resolve('test/send/cert.pem'),
+                key: path.resolve('test/send/key.pem'),
+            },
+            wns: {
+                client_id: 'client id',
+                client_secret: 'client secret',
+                notificationMethod: 'sendTileSquareBlock',
+            },
+            adm: {
+                client_id: 'client id',
+                client_secret: 'client secret',
+            },
+        };
+
+        before(() => {
+            pn = new PN(settings);
+        });
+
+        it('should override the given options', () => {
+            expect(pn.settings.apn).to.eql(settings.apn);
+            expect(pn.settings.gcm).to.eql(settings.gcm);
+            expect(pn.settings.adm).to.eql(settings.adm);
+            expect(pn.settings.wns).to.eql(settings.wns);
         });
     });
 
-    describe('override options', () => {
+    describe('setOptions', () => {
         let pn;
         const settings = {
+            gcm: {
+                id: '123',
+                phonegap: false,
+            },
             apn: {
-                options: {
-                    token: {
-                        key: '',
-                        keyId: '',
-                        teamId: '',
-                    },
+                token: {
+                    key: 'test',
                 },
             },
         };
-        const test = () => {
-            expect(pn.settings.apn).to.deep.equal(settings.apn);
-            expect(pn.settings).to.have.property('apn');
-            expect(pn.settings).to.have.property('adm');
-            expect(pn.settings).to.have.property('wns');
-        };
-        it('should override apn options', () => {
-            pn = new PN(settings);
-            test();
+        const apnShutdownSpy = spy();
+
+        before(() => {
+            pn = new PN();
+            pn.apn.shutdown = apnShutdownSpy;
+            pn.setOptions(settings);
         });
 
-        it('update options after creation', () => {
-            pn = new PN();
-            pn.setOptions(settings);
-            test();
+        it('should override the options', () => {
+            expect(pn.settings.apn).to.eql(settings.apn);
+            expect(pn.settings.gcm).to.eql(settings.gcm);
+            expect(pn.settings).to.have.property('adm');
+            expect(pn.settings).to.have.property('wns');
+        });
+
+        it('should shutdown any previous APN providers', () => {
+            expect(apnShutdownSpy).to.have.been.calledOnce;
         });
     });
 

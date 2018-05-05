@@ -1,5 +1,5 @@
+/* eslint-env mocha */
 import path from 'path';
-import { describe, it, before, after } from 'mocha'; // eslint-disable-line import/no-extraneous-dependencies
 import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
 import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
 import apn from 'apn';
@@ -113,25 +113,6 @@ describe('push-notifications-apn', () => {
             pn.send(regIds, data)
                 .then(results => test(null, results, done))
                 .catch(done);
-        });
-    });
-
-    describe('once notification has been sent', () => {
-        before(() => {
-            sendMethod = sendOkMethod();
-            sinon.stub(apn.Provider.prototype, 'shutdown');
-        });
-
-        after(() => {
-            sendMethod.restore();
-            apn.Provider.prototype.shutdown.restore();
-        });
-
-        it('shuts down the provider instance', (done) => {
-            pn.send(regIds, data, () => {
-                expect(apn.Provider.prototype.shutdown).to.have.been.calledOnce;
-                done()
-            });
         });
     });
 

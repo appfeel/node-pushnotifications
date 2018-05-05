@@ -1,9 +1,9 @@
-import { describe, it, before, after, beforeEach, afterEach } from 'mocha'; // eslint-disable-line import/no-extraneous-dependencies
+/* eslint-env mocha */
+
 import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
 import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
 import PN from '../../src';
 import sendGCM from '../../src/sendGCM';
-import sendAPN from '../../src/sendAPN';
 import sendADM from '../../src/sendADM';
 import sendWNS from '../../src/sendWNS';
 
@@ -27,6 +27,8 @@ describe('push-notifications: call with registration ids for android, ios, windo
 
     before(() => {
         pn = new PN();
+        const sendApnFunctionName = pn.apn.sendAPN.bind(pn.apn).name;
+
         sendWith = sinon.stub(PN.prototype, 'sendWith', (method, _regIds, _data, cb) => {
             const result = {
                 method: method.name,
@@ -42,7 +44,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
                     break;
 
                 case 3:
-                    expect(method).to.equal(sendAPN);
+                    expect(method.name).to.equal(sendApnFunctionName);
                     break;
 
                 case 4:
@@ -61,7 +63,6 @@ describe('push-notifications: call with registration ids for android, ios, windo
             expect(data).to.equal(data);
             _regIds.forEach(regId => expect(regIds).to.include(regId));
             expect(cb).to.equal(undefined);
-            // (cb || (noop => noop))();
             return Promise.resolve(result);
         });
     });
