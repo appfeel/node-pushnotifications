@@ -84,13 +84,11 @@ registrationIds.push('INSERT_OTHER_DEVICE_ID');
 
 ### 3. Create a JSON object with a title and message and send the notification.
 
-Both `title` and `body` fields are required (or `alert` for ios). The other fields are optional (see below how the message is created for each device type):
-
 ```js
 const data = {
-    title: 'New push notification', // REQUIRED
-    body: 'Powered by AppFeel', // REQUIRED
-    topic: 'topic', // REQUIRED for apn and gcm for ios
+    title: 'New push notification', // REQUIRED for Android
+    topic: 'topic', // REQUIRED for iOS (apn and gcm)
+    body: 'Powered by AppFeel',
     custom: {
         sender: 'AppFeel',
     },
@@ -207,11 +205,11 @@ The following parameters are used to create a GCM message. See https://developer
         };
     }
 
-    custom.title = custom.title || data.title || '';
-    custom.message = custom.message || data.body || '';
-    custom.sound = custom.sound || data.sound || undefined;
-    custom.icon = custom.icon || data.icon || undefined;
-    custom.msgcnt = custom.msgcnt || data.badge || undefined;
+    custom.title = custom.title || data.title;
+    custom.message = custom.message || data.body;
+    custom.sound = custom.sound || data.sound;
+    custom.icon = custom.icon || data.icon;
+    custom.msgcnt = custom.msgcnt || data.badge;
     if (opts.phonegap === true && data.contentAvailable) {
         custom['content-available'] = 1;
     }
@@ -308,7 +306,7 @@ The following parameters are used to create an APN message:
     encoding: data.encoding,
     payload: data.custom || {},
     badge: data.badge,
-    sound: data.sound || 'ping.aiff',
+    sound: data.sound,
     alert: data.alert || {
         title: data.title,
         body: data.body,
@@ -334,6 +332,24 @@ The following parameters are used to create an APN message:
 
 * [See node-apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
 * **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic))
+
+### Silent push notifications
+
+iOS supports silent push notifications which are not displayed to the user but only used to transmit data.
+
+You can send silent push notifications by sending a push notification with normal priority and no sound, badge or alert.
+
+```js
+const silentPushData = {
+    topic: 'yourTopic',
+    contentAvailable: true,
+    priority: 'normal',
+    payload: {
+        yourKey: 'yourValue',
+        ...
+    }
+}
+```
 
 ## WNS
 

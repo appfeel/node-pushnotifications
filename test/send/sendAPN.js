@@ -160,7 +160,6 @@ describe('push-notifications-apn', () => {
                 expect(_regIds).to.be.instanceOf(Array);
                 _regIds.forEach(regId => expect(regIds).to.include(regId));
                 expect(message).to.be.instanceOf(apn.Notification);
-                expect(message).to.have.deep.property('aps.sound', 'ping.aiff');
                 expect(message).to.have.deep.property('aps.alert.title', data.title);
                 expect(message).to.have.deep.property('aps.alert.body', data.body);
                 expect(message).to.have.deep.property('payload').deep.equal({});
@@ -179,6 +178,63 @@ describe('push-notifications-apn', () => {
             delete newData.custom;
             delete newData.sound;
             pn.send(regIds, newData, (err, results) => test(err, results, done));
+        });
+    });
+
+    describe('send silent push notifications', () => {
+        const test = (err, results, done) => {
+            try {
+                expect(err).to.equal(null);
+                results.forEach((result) => {
+                    expect(result.method).to.equal(method);
+                    expect(result.success).to.equal(regIds.length);
+                    expect(result.failure).to.equal(0);
+                    expect(result.message.length).to.equal(regIds.length);
+                    result.message.forEach((message) => {
+                        expect(message).to.have.property('regId');
+                        expect(regIds).to.include(message.regId);
+                    });
+                });
+                done(err);
+            } catch (e) {
+                done(err || e);
+            }
+        };
+
+        before(() => {
+            sendMethod = sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => {
+                expect(_regIds).to.be.instanceOf(Array);
+                _regIds.forEach(regId => expect(regIds).to.include(regId));
+                expect(message).to.be.instanceOf(apn.Notification);
+                console.log(message)
+                expect(message.aps.sound).to.be.undefined;
+                expect(message.aps.alert.title).to.be.undefined;
+                expect(message.aps.alert.body).to.be.undefined;
+                expect(message.aps.badge).to.be.undefined;
+                expect(message.topic).to.equal('testTopic');
+                expect(message.priority).to.equal(5);
+                expect(message.aps['content-available']).to.equal(1);
+                expect(message.payload).to.eql({ testKey: 'testValue' });
+                return Promise.resolve({
+                    sent: _regIds,
+                });
+            });
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be successful', (done) => {
+            const silentPushData = {
+                topic: 'testTopic',
+                contentAvailable: true,
+                priority: 'normal',
+                custom: {
+                    testKey: 'testValue',
+                },
+            };
+            pn.send(regIds, silentPushData, (err, results) => test(err, results, done));
         });
     });
 

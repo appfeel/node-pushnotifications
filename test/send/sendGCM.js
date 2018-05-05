@@ -553,8 +553,75 @@ describe('push-notifications-gcm', () => {
 
         it('all responses should be successful (callback, custom data undefined)', (done) => {
             const normalPrioData = Object.assign({}, data);
-            normalPrioData.priority = 'normal'
+            normalPrioData.priority = 'normal';
             pn.send(regIds, normalPrioData, (err, results) => test(err, results, done));
+        });
+    });
+
+    describe('send silent push notifications', () => {
+        const test = (err, results, done) => {
+            try {
+                expect(err).to.equal(null);
+                results.forEach((result) => {
+                    expect(result.method).to.equal(method);
+                    expect(result.success).to.equal(regIds.length);
+                    expect(result.failure).to.equal(0);
+                    expect(result.message.length).to.equal(regIds.length);
+                    result.message.forEach((message) => {
+                        expect(message).to.have.property('regId');
+                        expect(regIds).to.include(message.regId);
+                        expect(message).to.have.property('originalRegId');
+                        expect(regIds).to.include(message.originalRegId);
+                    });
+                });
+                done(err);
+            } catch (e) {
+                done(err || e);
+            }
+        };
+
+        before(() => {
+            sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+                expect(recipients).to.be.instanceOf(Object);
+                expect(recipients).to.have.property('registrationTokens');
+                const { registrationTokens } = recipients;
+                expect(registrationTokens).to.be.instanceOf(Array);
+                registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+                expect(retries).to.be.a('number');
+                expect(message).to.be.instanceOf(gcm.Message);
+                expect(message).to.have.deep.property('params.priority', 'normal');
+                expect(message).to.have.deep.property('params.contentAvailable', true);
+                expect(message.params.data).to.have.deep.property('testKey', 'testValue');
+                expect(message.params.data.title).to.be.undefined;
+                expect(message.params.data.message).to.be.undefined;
+                expect(message.params.data.body).to.be.undefined;
+                expect(message.params.data.sound).to.be.undefined;
+                cb(null, {
+                    multicast_id: 'abc',
+                    success: registrationTokens.length,
+                    failure: 0,
+                    results: registrationTokens.map(token => ({
+                        message_id: '',
+                        registration_id: token,
+                        error: null,
+                    })),
+                });
+            });
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be successful (callback, custom data undefined)', (done) => {
+            const silentPushData = {
+                contentAvailable: true,
+                priority: 'normal',
+                custom: {
+                    testKey: 'testValue',
+                },
+            };
+            pn.send(regIds, silentPushData, (err, results) => test(err, results, done));
         });
     });
 
