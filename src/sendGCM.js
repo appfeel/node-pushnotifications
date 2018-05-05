@@ -85,11 +85,11 @@ const sendGCM = (regIds, data, settings) => {
         };
     }
 
-    custom.title = custom.title || data.title || '';
-    custom.message = custom.message || data.body || '';
-    custom.sound = custom.sound || data.sound || undefined;
-    custom.icon = custom.icon || data.icon || undefined;
-    custom.msgcnt = custom.msgcnt || data.badge || undefined;
+    custom.title = custom.title || data.title;
+    custom.message = custom.message || data.body;
+    custom.sound = custom.sound || data.sound;
+    custom.icon = custom.icon || data.icon;
+    custom.msgcnt = custom.msgcnt || data.badge;
     if (opts.phonegap === true && data.contentAvailable) {
         custom['content-available'] = 1;
     }

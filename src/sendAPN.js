@@ -10,7 +10,7 @@ const sendAPN = (regIds, data, settings) => {
         encoding: data.encoding,
         payload: data.custom || {},
         badge: data.badge,
-        sound: data.sound || 'ping.aiff',
+        sound: data.sound,
         alert: data.alert || {
             title: data.title,
             body: data.body,
