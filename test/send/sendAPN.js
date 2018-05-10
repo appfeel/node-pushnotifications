@@ -187,7 +187,6 @@ describe('push-notifications-apn', () => {
                 expect(_regIds).to.be.instanceOf(Array);
                 _regIds.forEach(regId => expect(regIds).to.include(regId));
                 expect(message).to.be.instanceOf(apn.Notification);
-                console.log(message)
                 expect(message.aps.sound).to.be.undefined;
                 expect(message.aps.alert.title).to.be.undefined;
                 expect(message.aps.alert.body).to.be.undefined;
