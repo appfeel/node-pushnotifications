@@ -88,7 +88,7 @@ class PN {
         const regIds = Array.isArray(_regIds || []) ? _regIds || [] : [_regIds];
 
         // Classify each pushId for corresponding device
-        for (const regId of regIds) {
+        regIds.forEach((regId) => {
             if (regId.substring(0, 4) === 'http') {
                 regIdsWNS.push(regId);
             } else if (/^(amzn[0-9]*.adm)/i.test(regId)) {
@@ -100,7 +100,7 @@ class PN {
             } else {
                 regIdsUnk.push(regId);
             }
-        }
+        });
 
         try {
             // Android GCM

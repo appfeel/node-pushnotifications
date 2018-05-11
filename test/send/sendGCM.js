@@ -1,9 +1,12 @@
-/* eslint-disable no-unused-expressions */
 /* eslint-env mocha */
-import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
-import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
+import chai from 'chai';
+import sinon from 'sinon';
+import dirtyChai from 'dirty-chai';
 import gcm from 'node-gcm';
 import PN from '../../src';
+
+const { expect } = chai;
+chai.use(dirtyChai);
 
 const method = 'gcm';
 const regIds = [
@@ -33,16 +36,16 @@ function sendOkMethod() {
         registrationTokens.forEach(regId => expect(regIds).to.include(regId));
         expect(retries).to.be.a('number');
         expect(message).to.be.instanceOf(gcm.Message);
-        expect(message).to.have.deep.property('params.notification.title', data.title);
-        expect(message).to.have.deep.property('params.notification.body', data.body);
-        expect(message).to.have.deep.property('params.notification.sound', data.sound);
-        expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
-        expect(message).to.have.deep.property('params.priority', 'high');
+        expect(message.params.notification.title).to.eql(data.title);
+        expect(message.params.notification.body).to.eql(data.body);
+        expect(message.params.notification.sound).to.eql(data.sound);
+        expect(message.params.data.sender).to.eql(data.custom.sender);
+        expect(message.params.priority).to.equal('high');
         // This params are duplicated in order to facilitate extraction
         // So they are available as `gcm.notification.title` and as `title`
-        expect(message).to.have.deep.property('params.data.title', data.title);
-        expect(message).to.have.deep.property('params.data.message', data.body);
-        expect(message).to.have.deep.property('params.data.sound', data.sound);
+        expect(message.params.data.title).to.eql(data.title);
+        expect(message.params.data.message).to.eql(data.body);
+        expect(message.params.data.sound).to.eql(data.sound);
         cb(null, {
             multicast_id: 'abc',
             success: registrationTokens.length,
@@ -94,23 +97,27 @@ function sendThrowExceptionMethod() {
     });
 }
 
+const assertResults = (results) => {
+    results.forEach((result) => {
+        expect(result.method).to.equal(method);
+        expect(result.success).to.equal(regIds.length);
+        expect(result.failure).to.equal(0);
+        expect(result.message.length).to.equal(regIds.length);
+        result.message.forEach((message) => {
+            expect(message).to.have.property('regId');
+            expect(regIds).to.include(message.regId);
+            expect(message).to.have.property('originalRegId');
+            expect(regIds).to.include(message.originalRegId);
+        });
+    });
+};
+
 describe('push-notifications-gcm', () => {
     describe('send push notifications successfully', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('originalRegId');
-                        expect(regIds).to.include(message.originalRegId);
-                    });
-                });
+                expect(err).to.be.null();
+                assertResults(results);
                 done(err);
             } catch (e) {
                 done(err || e);
@@ -139,8 +146,8 @@ describe('push-notifications-gcm', () => {
     describe('send push notifications successfully, data no title', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.have.property('message').not.null;
-                expect(err.message).match(/has no deep property 'params.notification.title'/ig);
+                expect(err).to.be.null();
+                assertResults(results);
                 done();
             } catch (e) {
                 done(err || e);
@@ -156,15 +163,15 @@ describe('push-notifications-gcm', () => {
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).not.to.have.deep.property('params.notification.title', data.title);
-                expect(message).to.have.deep.property('params.notification.body', data.body);
-                expect(message).to.have.deep.property('params.notification.sound', data.sound);
-                expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
+                expect(message.params.notification.title).to.be.undefined();
+                expect(message.params.notification.body).to.eql(data.body);
+                expect(message.params.notification.sound).to.eql(data.sound);
+                expect(message.params.data.sender).to.eql(data.custom.sender);
                 // This params are duplicated in order to facilitate extraction
                 // So they are available as `gcm.notification.title` and as `title`
-                expect(message).to.have.deep.property('params.data.title', data.title);
-                expect(message).to.have.deep.property('params.data.message', data.body);
-                expect(message).to.have.deep.property('params.data.sound', data.sound);
+                expect(message.params.data.title).to.be.undefined();
+                expect(message.params.data.message).to.eql(data.body);
+                expect(message.params.data.sound).to.eql(data.sound);
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -192,19 +199,8 @@ describe('push-notifications-gcm', () => {
     describe('send push notifications successfully, (callback, no sound, icon, msgcnt)', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('originalRegId');
-                        expect(regIds).to.include(message.originalRegId);
-                    });
-                });
+                expect(err).to.be.null();
+                assertResults(results);
                 done(err);
             } catch (e) {
                 done(err || e);
@@ -220,18 +216,18 @@ describe('push-notifications-gcm', () => {
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).to.have.deep.property('params.notification.title', data.title);
-                expect(message).to.have.deep.property('params.notification.body', data.body);
-                expect(message).to.have.deep.property('params.notification.sound', undefined);
-                expect(message).to.have.deep.property('params.notification.icon', 'myicon.png');
-                expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
+                expect(message.params.notification.title).to.eql(data.title);
+                expect(message.params.notification.body).to.eql(data.body);
+                expect(message.params.notification.sound).to.be.undefined();
+                expect(message.params.notification.icon).to.equal('myicon.png');
+                expect(message.params.data.sender).to.eql(data.custom.sender);
                 // This params are duplicated in order to facilitate extraction
                 // So they are available as `gcm.notification.title` and as `title`
-                expect(message).to.have.deep.property('params.data.title', data.title);
-                expect(message).to.have.deep.property('params.data.message', data.body);
-                expect(message).to.have.deep.property('params.data.sound', undefined);
-                expect(message).to.have.deep.property('params.data.icon', 'myicon.png');
-                expect(message).to.have.deep.property('params.data.msgcnt', 2);
+                expect(message.params.data.title).to.eql(data.title);
+                expect(message.params.data.message).to.eql(data.body);
+                expect(message.params.data.sound).to.be.undefined();
+                expect(message.params.data.icon).to.equal('myicon.png');
+                expect(message.params.data.msgcnt).to.equal(2);
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -261,19 +257,8 @@ describe('push-notifications-gcm', () => {
     describe('send push notifications successfully, (callback, no contentAvailable)', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('originalRegId');
-                        expect(regIds).to.include(message.originalRegId);
-                    });
-                });
+                expect(err).to.be.null();
+                assertResults(results);
                 done(err);
             } catch (e) {
                 done(err || e);
@@ -289,15 +274,15 @@ describe('push-notifications-gcm', () => {
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).to.have.deep.property('params.notification.title', data.title);
-                expect(message).to.have.deep.property('params.notification.body', data.body);
-                expect(message).to.have.deep.property('params.notification.sound', data.sound);
-                expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
+                expect(message.params.notification.title).to.eql(data.title);
+                expect(message.params.notification.body).to.eql(data.body);
+                expect(message.params.notification.sound).to.eql(data.sound);
+                expect(message.params.data.sender).to.eql(data.custom.sender);
                 // This params are duplicated in order to facilitate extraction
                 // So they are available as `gcm.notification.title` and as `title`
-                expect(message).to.have.deep.property('params.data.title', data.title);
-                expect(message).to.have.deep.property('params.data.message', data.body);
-                expect(message).to.have.deep.property('params.data.sound', data.sound);
+                expect(message.params.data.title).to.eql(data.title);
+                expect(message.params.data.message).to.eql(data.body);
+                expect(message.params.data.sound).to.eql(data.sound);
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -325,8 +310,8 @@ describe('push-notifications-gcm', () => {
     describe('send push notifications successfully, data no body', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.have.property('message').not.null;
-                expect(err.message).match(/has no deep property 'params.notification.body'/ig);
+                expect(err).to.be.null();
+                assertResults(results);
                 done();
             } catch (e) {
                 done(err || e);
@@ -342,15 +327,15 @@ describe('push-notifications-gcm', () => {
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).to.have.deep.property('params.notification.title', data.title);
-                expect(message).not.to.have.deep.property('params.notification.body', data.body);
-                expect(message).to.have.deep.property('params.notification.sound', data.sound);
-                expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
+                expect(message.params.notification.title).to.eql(data.title);
+                expect(message.params.notification.body).to.be.undefined();
+                expect(message.params.notification.sound).to.eql(data.sound);
+                expect(message.params.data.sender).to.eql(data.custom.sender);
                 // This params are duplicated in order to facilitate extraction
                 // So they are available as `gcm.notification.title` and as `title`
-                expect(message).to.have.deep.property('params.data.title', data.title);
-                expect(message).to.have.deep.property('params.data.message', data.body);
-                expect(message).to.have.deep.property('params.data.sound', data.sound);
+                expect(message.params.data.title).to.eql(data.title);
+                expect(message.params.data.message).to.be.undefined();
+                expect(message.params.data.sound).to.eql(data.sound);
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -378,19 +363,8 @@ describe('push-notifications-gcm', () => {
     describe('send push notifications successfully, custom data string', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('originalRegId');
-                        expect(regIds).to.include(message.originalRegId);
-                    });
-                });
+                expect(err).to.be.null();
+                assertResults(results);
                 done(err);
             } catch (e) {
                 done(err || e);
@@ -406,15 +380,15 @@ describe('push-notifications-gcm', () => {
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).to.have.deep.property('params.notification.title', data.title);
-                expect(message).to.have.deep.property('params.notification.body', data.body);
-                expect(message).to.have.deep.property('params.notification.sound', data.sound);
-                expect(message).to.have.deep.property('params.data.message').an('string');
+                expect(message.params.notification.title).to.eql(data.title);
+                expect(message.params.notification.body).to.eql(data.body);
+                expect(message.params.notification.sound).to.eql(data.sound);
+                expect(message.params.data.message).to.equal('this is a string');
                 // This params are duplicated in order to facilitate extraction
                 // So they are available as `gcm.notification.title` and as `title`
-                expect(message).to.have.deep.property('params.data.title', data.title);
-                expect(message).to.have.deep.property('params.data.message', 'this is a string');
-                expect(message).to.have.deep.property('params.data.sound', data.sound);
+                expect(message.params.data.title).to.eql(data.title);
+                expect(message.params.data.message).to.equal('this is a string');
+                expect(message.params.data.sound).to.eql(data.sound);
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -441,19 +415,8 @@ describe('push-notifications-gcm', () => {
     describe('send push notifications successfully, custom data undefined', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('originalRegId');
-                        expect(regIds).to.include(message.originalRegId);
-                    });
-                });
+                expect(err).to.be.null();
+                assertResults(results);
                 done(err);
             } catch (e) {
                 done(err || e);
@@ -468,16 +431,16 @@ describe('push-notifications-gcm', () => {
                 expect(registrationTokens).to.be.instanceOf(Array);
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
-                expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).to.have.deep.property('params.notification.title', data.title);
-                expect(message).to.have.deep.property('params.notification.body', data.body);
-                expect(message).to.have.deep.property('params.notification.sound', data.sound);
-                expect(message).to.have.deep.property('params.data.data').undefined;
+                expect(message).to.be.an.instanceOf(gcm.Message);
+                expect(message.params.notification.title).to.eql(data.title);
+                expect(message.params.notification.body).to.eql(data.body);
+                expect(message.params.notification.sound).to.eql(data.sound);
+                expect(message.params.notification.data).to.be.undefined();
                 // This params are duplicated in order to facilitate extraction
                 // So they are available as `gcm.notification.title` and as `title`
-                expect(message).to.have.deep.property('params.data.title', data.title);
-                expect(message).to.have.deep.property('params.data.message', data.body);
-                expect(message).to.have.deep.property('params.data.sound', data.sound);
+                expect(message.params.data.title).to.eql(data.title);
+                expect(message.params.data.message).to.eql(data.body);
+                expect(message.params.data.sound).to.eql(data.sound);
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -505,19 +468,8 @@ describe('push-notifications-gcm', () => {
     describe('send push notifications successfully, normal priority', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('originalRegId');
-                        expect(regIds).to.include(message.originalRegId);
-                    });
-                });
+                expect(err).to.be.null();
+                assertResults(results);
                 done(err);
             } catch (e) {
                 done(err || e);
@@ -533,7 +485,7 @@ describe('push-notifications-gcm', () => {
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).to.have.deep.property('params.priority', 'normal');
+                expect(message.params.priority).to.equal('normal');
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -561,19 +513,8 @@ describe('push-notifications-gcm', () => {
     describe('send silent push notifications', () => {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('originalRegId');
-                        expect(regIds).to.include(message.originalRegId);
-                    });
-                });
+                expect(err).to.be.null();
+                assertResults(results);
                 done(err);
             } catch (e) {
                 done(err || e);
@@ -589,13 +530,13 @@ describe('push-notifications-gcm', () => {
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message).to.have.deep.property('params.priority', 'normal');
-                expect(message).to.have.deep.property('params.contentAvailable', true);
-                expect(message.params.data).to.have.deep.property('testKey', 'testValue');
-                expect(message.params.data.title).to.be.undefined;
-                expect(message.params.data.message).to.be.undefined;
-                expect(message.params.data.body).to.be.undefined;
-                expect(message.params.data.sound).to.be.undefined;
+                expect(message.params.priority).to.equal('normal');
+                expect(message.params.contentAvailable).to.be.true();
+                expect(message.params.data.testKey).to.eql('testValue');
+                expect(message.params.data.title).to.be.undefined();
+                expect(message.params.data.message).to.be.undefined();
+                expect(message.params.data.body).to.be.undefined();
+                expect(message.params.data.sound).to.be.undefined();
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -634,19 +575,8 @@ describe('push-notifications-gcm', () => {
 
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('originalRegId');
-                        expect(regIds).to.include(message.originalRegId);
-                    });
-                });
+                expect(err).to.be.null();
+                assertResults(results);
                 done(err);
             } catch (e) {
                 done(err || e);
@@ -658,16 +588,16 @@ describe('push-notifications-gcm', () => {
                 expect(recipients).to.be.instanceOf(Object);
                 expect(recipients).to.have.property('registrationTokens');
                 const { registrationTokens } = recipients;
-                expect(registrationTokens).to.be.instanceOf(Array);
+                expect(registrationTokens).to.be.an.instanceOf(Array);
                 registrationTokens.forEach(regId => expect(regIds).to.include(regId));
                 expect(retries).to.be.a('number');
                 expect(message).to.be.instanceOf(gcm.Message);
-                expect(message.notification).to.be.undefined;
-                expect(message).to.have.deep.property('params.data.sender', data.custom.sender);
-                expect(message).to.have.deep.property('params.data.title', data.title);
-                expect(message).to.have.deep.property('params.data.message', data.body);
-                expect(message).to.have.deep.property('params.data.sound', data.sound);
-                expect(message).to.have.deep.property('params.data.content-available', 1);
+                expect(message.notification).to.be.undefined();
+                expect(message.params.data.sender).to.eql(data.custom.sender);
+                expect(message.params.data.title).to.eql(data.title);
+                expect(message.params.data.body).to.eql(data.body);
+                expect(message.params.data.sound).to.eql(data.sound);
+                expect(message.params.data['content-available']).to.equal(1);
                 cb(null, {
                     multicast_id: 'abc',
                     success: registrationTokens.length,
@@ -699,7 +629,7 @@ describe('push-notifications-gcm', () => {
     {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
+                expect(err).to.be.null();
                 results.forEach((result) => {
                     expect(result.method).to.equal(method);
                     expect(result.success).to.equal(0);
@@ -764,7 +694,7 @@ describe('push-notifications-gcm', () => {
     {
         const test = (err, results, done) => {
             try {
-                expect(err).to.equal(null);
+                expect(err).to.be.null();
                 results.forEach((result) => {
                     expect(result.method).to.equal(method);
                     expect(result.success).to.equal(0);

@@ -1,9 +1,14 @@
 /* eslint-env mocha */
 import path from 'path';
-import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
-import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
+import chai from 'chai';
+import sinon from 'sinon';
+import dirtyChai from 'dirty-chai';
+
 import apn from 'apn';
 import PN from '../../src';
+
+const { expect } = chai;
+chai.use(dirtyChai);
 
 const method = 'apn';
 const regIds = [
@@ -33,11 +38,11 @@ function sendOkMethod() {
         expect(_regIds).to.be.instanceOf(Array);
         _regIds.forEach(regId => expect(regIds).to.include(regId));
         expect(message).to.be.instanceOf(apn.Notification);
-        expect(message).to.have.deep.property('aps.sound', data.sound);
-        expect(message).to.have.deep.property('aps.alert.title', data.title);
-        expect(message).to.have.deep.property('aps.alert.body', data.body);
-        expect(message).to.have.deep.property('priority', 10);
-        expect(message).to.have.deep.property('payload', data.custom);
+        expect(message.aps.sound).to.eql(data.sound);
+        expect(message.aps.alert.title).to.eql(data.title);
+        expect(message.aps.alert.body).to.equal(data.body);
+        expect(message.priority).to.equal(10);
+        expect(message.payload).to.eql(data.custom);
         return Promise.resolve({
             sent: _regIds,
         });
@@ -141,9 +146,9 @@ describe('push-notifications-apn', () => {
                 expect(_regIds).to.be.instanceOf(Array);
                 _regIds.forEach(regId => expect(regIds).to.include(regId));
                 expect(message).to.be.instanceOf(apn.Notification);
-                expect(message).to.have.deep.property('aps.alert.title', data.title);
-                expect(message).to.have.deep.property('aps.alert.body', data.body);
-                expect(message).to.have.deep.property('payload').deep.equal({});
+                expect(message.aps.alert.title).to.eql(data.title);
+                expect(message.aps.alert.body).to.eql(data.body);
+                expect(message.payload).to.eql({});
                 return Promise.resolve({
                     sent: _regIds,
                 });
@@ -187,10 +192,10 @@ describe('push-notifications-apn', () => {
                 expect(_regIds).to.be.instanceOf(Array);
                 _regIds.forEach(regId => expect(regIds).to.include(regId));
                 expect(message).to.be.instanceOf(apn.Notification);
-                expect(message.aps.sound).to.be.undefined;
-                expect(message.aps.alert.title).to.be.undefined;
-                expect(message.aps.alert.body).to.be.undefined;
-                expect(message.aps.badge).to.be.undefined;
+                expect(message.aps.sound).to.be.undefined();
+                expect(message.aps.alert.title).to.be.undefined();
+                expect(message.aps.alert.body).to.be.undefined();
+                expect(message.aps.badge).to.be.undefined();
                 expect(message.topic).to.equal('testTopic');
                 expect(message.priority).to.equal(5);
                 expect(message.aps['content-available']).to.equal(1);

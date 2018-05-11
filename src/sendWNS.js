@@ -40,8 +40,8 @@ const sendWNS = (_regIds, _data, settings) => {
 
 
     const promises = [];
-    const notificationMethod = settings.wns.notificationMethod;
     const opts = Object.assign({}, settings.wns);
+    const { notificationMethod } = opts;
     const data = notificationMethod === 'sendRaw' ? JSON.stringify(_data) : Object.assign({}, _data);
 
     resumed = {
@@ -64,16 +64,13 @@ const sendWNS = (_regIds, _data, settings) => {
         const regIds = [..._regIds];
         promises.push(new Promise((resolve, reject) =>
             sendNotifications(regIds, notificationMethod, data, opts, err =>
-                (err ? reject(err) : resolve())
-            )
-        ));
+                (err ? reject(err) : resolve()))));
     } else {
         _regIds.forEach(regId => promises.push(new Promise(resolve =>
             wns[notificationMethod](regId, data, opts, (err, response) => {
                 processResponse(err, response, regId);
                 resolve();
-            })
-        )));
+            }))));
     }
 
     return Promise.all(promises)

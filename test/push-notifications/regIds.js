@@ -58,7 +58,6 @@ describe('push-notifications: call with registration ids for android, ios, windo
                 default:
                     expect('Method should be sendGCM, sendAPN, sendWNS or sendADM').to.equal(true);
                     break;
-
             }
             expect(data).to.equal(data);
             _regIds.forEach(regId => expect(regIds).to.include(regId));

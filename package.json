@@ -12,7 +12,7 @@
     "test": "./node_modules/.bin/_mocha test/ --require babel-core/register --recursive",
     "build": "./node_modules/.bin/babel src -d lib",
     "prepublish": "npm run lint && npm test && npm run build",
-    "lint": "eslint src/**/*.js",
+    "lint": "eslint {src,test}/**/*.js",
     "release": "release-it"
   },
   "keywords": [
@@ -54,21 +54,23 @@
     "wns": "git://github.com/alex-friedl/wns.git#660afd2"
   },
   "devDependencies": {
-    "babel-cli": "^6.16.0",
-    "babel-core": "^6.17.0",
-    "babel-preset-es2015": "^6.16.0",
-    "chai": "^3.5.0",
-    "coveralls": "^2.11.16",
-    "eslint": "^3.8.0",
-    "eslint-config-airbnb": "^12.0.0",
-    "eslint-plugin-import": "^1.16.0",
-    "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-react": "^6.4.1",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-preset-es2015": "^6.24.1",
+    "chai": "^4.1.2",
+    "coveralls": "^3.0.1",
+    "dirty-chai": "^2.0.1",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-react": "^7.8.0",
     "istanbul": "^1.1.0-alpha.1",
-    "mocha": "^3.1.2",
+    "mocha": "^5.1.1",
     "opn-cli": "^3.1.0",
     "release-it": "^7.3.0",
-    "sinon": "^1.17.6"
+    "sinon": "^1.17.6",
+    "sinon-chai": "^3.0.0"
   },
   "engines": {
     "node": ">= 4.6.0"

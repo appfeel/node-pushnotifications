@@ -1,7 +1,6 @@
 /* eslint-env mocha */
-
-import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
-import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
+import { expect } from 'chai';
+import sinon from 'sinon';
 import adm from 'node-adm';
 import PN from '../../src';
 
@@ -27,10 +26,10 @@ function sendOkMethod() {
     return sinon.stub(adm.Sender.prototype, 'send', (message, regId, cb) => {
         expect(regId).to.be.a('string');
         expect(regIds).to.include(regId);
-        expect(message).to.have.deep.property('data.title', data.title);
-        expect(message).to.have.deep.property('data.body', data.body);
-        expect(message).to.have.deep.property('data.custom', data.custom);
-        expect(message).to.be.an('object');
+        expect(message.data).to.be.an('object');
+        expect(message.data.title).to.eql(data.title);
+        expect(message.data.body).to.eql(data.body);
+        expect(message.data.custom).to.eql(data.custom);
         cb(null, {});
     });
 }

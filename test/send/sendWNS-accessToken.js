@@ -1,6 +1,6 @@
 /* eslint-env mocha */
-import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
-import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
+import { expect } from 'chai';
+import sinon from 'sinon';
 import wns from 'wns';
 import PN from '../../src';
 

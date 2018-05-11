@@ -32,8 +32,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                         regId: value.registration_id || regToken,
                         error: value.error ? new Error(value.error) : null,
                     };
-                }
-                ),
+                }),
             });
         } else {
             resolve({
@@ -53,7 +52,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
 
 const sendGCM = (regIds, data, settings) => {
     const opts = Object.assign({}, settings.gcm);
-    const id = opts.id;
+    const id = { opts };
     delete opts.id;
     const GCMSender = new gcm.Sender(id, opts);
     const promises = [];
@@ -123,14 +122,16 @@ const sendGCM = (regIds, data, settings) => {
                 failure: 0,
                 message: [],
             };
-            for (const result of results) {
+
+            results.forEach((result) => {
                 if (result.multicastId) {
                     resumed.multicastId.push(result.multicastId);
                 }
                 resumed.success += result.success;
                 resumed.failure += result.failure;
                 resumed.message = [...resumed.message, ...result.message];
-            }
+            });
+
             return resumed;
         });
 };

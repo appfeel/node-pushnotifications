@@ -1,8 +1,14 @@
 /* eslint-env mocha */
 import path from 'path';
-import { expect } from 'chai';
+import chai from 'chai';
+import dirtyChai from 'dirty-chai';
+import sinonChai from 'sinon-chai';
 import { spy } from 'sinon';
 import PN from '../../src';
+
+const { expect } = chai;
+chai.use(dirtyChai);
+chai.use(sinonChai);
 
 describe('push-notifications: instantiation and class properties', () => {
     describe('empty options', () => {
@@ -83,7 +89,7 @@ describe('push-notifications: instantiation and class properties', () => {
         });
 
         it('should shutdown any previous APN providers', () => {
-            expect(apnShutdownSpy).to.have.been.calledOnce;
+            expect(apnShutdownSpy).to.have.been.calledOnce();
         });
     });
 
