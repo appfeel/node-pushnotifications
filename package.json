@@ -8,7 +8,7 @@
   },
   "scripts": {
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "test-cover": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha test/ --require babel-core/register --recursive; opn ./coverage/lcov-report/index.html",
+    "test-cover": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha test/ -- --require babel-core/register --recursive; opn ./coverage/lcov-report/index.html",
     "test": "./node_modules/.bin/_mocha test/ --require babel-core/register --recursive",
     "build": "./node_modules/.bin/babel src -d lib",
     "prepare": "npm run lint && npm test && npm run build",
