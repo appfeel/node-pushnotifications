@@ -2,13 +2,16 @@
 import path from 'path';
 import chai from 'chai';
 import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import dirtyChai from 'dirty-chai';
 
 import apn from 'apn';
 import PN from '../../src';
+import APN from '../../src/sendAPN';
 
 const { expect } = chai;
 chai.use(dirtyChai);
+chai.use(sinonChai);
 
 const method = 'apn';
 const regIds = [
@@ -24,11 +27,12 @@ const data = {
         sender: 'appfeel-test',
     },
 };
+const apnOptions = {
+    cert: path.resolve('./test/send/cert.pem'),
+    key: path.resolve('./test/send/key.pem'),
+};
 const pn = new PN({
-    apn: {
-        cert: path.resolve('./test/send/cert.pem'),
-        key: path.resolve('./test/send/key.pem'),
-    },
+    apn: apnOptions,
 });
 const fErr = new Error('Forced error');
 let sendMethod;
@@ -379,6 +383,43 @@ describe('push-notifications-apn', () => {
             pn.send(regIds, data)
                 .then(results => test(null, results, done))
                 .catch(err => test(err, undefined, done));
+        });
+    });
+
+    describe('shutdown', () => {
+        const connectionStub = sinon.stub(apn.Provider.prototype, 'shutdown');
+        const apnInstance = new APN(apnOptions);
+
+        before(() => {
+            apnInstance.shutdown();
+        });
+
+        after(() => {
+            connectionStub.restore();
+        });
+
+        it('should shutdown the apn provider instance', () => {
+            expect(connectionStub).to.have.been.calledOnce();
+        });
+    });
+
+    describe('invalid provider settings', () => {
+        const apnInstance = new APN();
+
+        it('should not instantiate an APN provider instance', () => {
+            expect(apnInstance.connection).to.be.null();
+        });
+
+        describe('send called if no provider instantiated', () => {
+            it('should return a rejected promise', async () => {
+                try {
+                    await apnInstance.sendAPN(regIds, data);
+                    throw new Error('failed to throw correct error');
+                } catch (e) {
+                    expect(e).to.be.an.instanceof(Error);
+                    expect(e.message).to.equal('APN connection not configured properly');
+                }
+            });
         });
     });
 });
