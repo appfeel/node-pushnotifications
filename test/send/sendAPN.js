@@ -8,6 +8,7 @@ import dirtyChai from 'dirty-chai';
 import apn from 'apn';
 import PN from '../../src';
 import APN from '../../src/sendAPN';
+import { testPushSuccess, testPushError, testPushException } from '../util';
 
 const { expect } = chai;
 chai.use(dirtyChai);
@@ -35,6 +36,11 @@ const pn = new PN({
     apn: apnOptions,
 });
 const fErr = new Error('Forced error');
+
+const testSuccess = testPushSuccess(method, regIds);
+const testError = testPushError(method, regIds, fErr.message);
+const testException = testPushException(fErr.message);
+
 let sendMethod;
 
 function sendOkMethod() {
@@ -87,25 +93,6 @@ function sendThrowExceptionMethod() {
 
 describe('push-notifications-apn', () => {
     describe('send push notifications successfully', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                    });
-                });
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sendOkMethod();
         });
@@ -115,36 +102,17 @@ describe('push-notifications-apn', () => {
         });
 
         it('all responses should be successful (callback)', (done) => {
-            pn.send(regIds, data, (err, results) => test(err, results, done));
+            pn.send(regIds, data, (err, results) => testSuccess(err, results, done));
         });
 
         it('all responses should be successful (promise)', (done) => {
             pn.send(regIds, data)
-                .then(results => test(null, results, done))
+                .then(results => testSuccess(null, results, done))
                 .catch(done);
         });
     });
 
     describe('send push notifications successfully (no payload)', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                    });
-                });
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => {
                 expect(_regIds).to.be.instanceOf(Array);
@@ -167,30 +135,11 @@ describe('push-notifications-apn', () => {
             const newData = Object.assign({}, data);
             delete newData.custom;
             delete newData.sound;
-            pn.send(regIds, newData, (err, results) => test(err, results, done));
+            pn.send(regIds, newData, (err, results) => testSuccess(err, results, done));
         });
     });
 
     describe('send silent push notifications', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                    });
-                });
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => {
                 expect(_regIds).to.be.instanceOf(Array);
@@ -223,30 +172,11 @@ describe('push-notifications-apn', () => {
                     testKey: 'testValue',
                 },
             };
-            pn.send(regIds, silentPushData, (err, results) => test(err, results, done));
+            pn.send(regIds, silentPushData, (err, results) => testSuccess(err, results, done));
         });
     });
 
     describe('send push notifications with normal priority', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(regIds.length);
-                    expect(result.failure).to.equal(0);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                    });
-                });
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => {
                 expect(_regIds).to.be.instanceOf(Array);
@@ -266,106 +196,71 @@ describe('push-notifications-apn', () => {
         it('all responses should be successful (callback no payload, no sound)', (done) => {
             const normalPrioData = Object.assign({}, data);
             normalPrioData.priority = 'normal';
-            pn.send(regIds, normalPrioData, (err, results) => test(err, results, done));
+            pn.send(regIds, normalPrioData, (err, results) => testSuccess(err, results, done));
         });
     });
 
-    {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.equal(null);
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(0);
-                    expect(result.failure).to.equal(regIds.length);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('error');
-                        expect(message.error).to.be.instanceOf(Error);
-                        expect(message.error.message).to.equal(fErr.message);
-                    });
-                });
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
-        describe('send push notifications failure (response message)', () => {
-            before(() => {
-                sendMethod = sendFailureMethod1();
-            });
-
-            after(() => {
-                sendMethod.restore();
-            });
-
-            it('all responses should be failed with response message (callback)', (done) => {
-                pn.send(regIds, data, (err, results) => test(err, results, done));
-            });
-
-            it('all responses should be failed with response message (promise)', (done) => {
-                pn.send(regIds, data)
-                    .then(results => test(null, results, done))
-                    .catch(done);
-            });
+    describe('send push notifications failure (response message)', () => {
+        before(() => {
+            sendMethod = sendFailureMethod1();
         });
 
-        describe('send push notifications failure (response reason)', () => {
-            before(() => {
-                sendMethod = sendFailureMethod2();
-            });
-
-            after(() => {
-                sendMethod.restore();
-            });
-
-            it('all responses should be failed with response reason (callback)', (done) => {
-                pn.send(regIds, data, (err, results) => test(err, results, done));
-            });
-
-            it('all responses should be failed with response reason (promise)', (done) => {
-                pn.send(regIds, data)
-                    .then(results => test(null, results, done))
-                    .catch(done);
-            });
+        after(() => {
+            sendMethod.restore();
         });
 
-        describe('send push notifications error', () => {
-            before(() => {
-                sendMethod = sendErrorMethod();
-            });
-
-            after(() => {
-                sendMethod.restore();
-            });
-
-            it('the error should be reported (callback)', (done) => {
-                pn.send(regIds, data, (err, results) => test(err, results, done));
-            });
-
-            it('the error should be reported (promise)', (done) => {
-                pn.send(regIds, data)
-                    .then(results => test(null, results, done))
-                    .catch(err => test(err, undefined, done));
-            });
+        it('all responses should be failed with response message (callback)', (done) => {
+            pn.send(regIds, data, (err, results) => testError(err, results, done));
         });
-    }
+
+        it('all responses should be failed with response message (promise)', (done) => {
+            pn.send(regIds, data)
+                .then(results => testError(null, results, done))
+                .catch(done);
+        });
+    });
+
+    describe('send push notifications failure (response reason)', () => {
+        before(() => {
+            sendMethod = sendFailureMethod2();
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be failed with response reason (callback)', (done) => {
+            pn.send(regIds, data, (err, results) => testError(err, results, done));
+        });
+
+        it('all responses should be failed with response reason (promise)', (done) => {
+            pn.send(regIds, data)
+                .then(results => testError(null, results, done))
+                .catch(done);
+        });
+    });
+
+    describe('send push notifications error', () => {
+        before(() => {
+            sendMethod = sendErrorMethod();
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('the error should be reported (callback)', (done) => {
+            pn.send(regIds, data, (err, results) => testError(err, results, done));
+        });
+
+        it('the error should be reported (promise)', (done) => {
+            pn.send(regIds, data)
+                .then(results => testError(null, results, done))
+                .catch(err => testError(err, undefined, done));
+        });
+    });
 
     describe('send push notifications throw exception', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(results).to.equal(undefined);
-                expect(err).to.be.instanceOf(Error);
-                expect(err.message).to.equal(fErr.message);
-                done();
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sendThrowExceptionMethod();
         });
@@ -375,14 +270,14 @@ describe('push-notifications-apn', () => {
         });
 
         it('the exception should be catched (callback)', (done) => {
-            pn.send(regIds, data, (err, results) => test(err, results, done))
+            pn.send(regIds, data, (err, results) => testException(err, results, done))
                 .catch(() => { }); // This is to avoid UnhandledPromiseRejectionWarning
         });
 
         it('the exception should be catched (promise)', (done) => {
             pn.send(regIds, data)
-                .then(results => test(null, results, done))
-                .catch(err => test(err, undefined, done));
+                .then(results => testException(null, results, done))
+                .catch(err => testException(err, undefined, done));
         });
     });
 

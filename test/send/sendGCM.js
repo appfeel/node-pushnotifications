@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import dirtyChai from 'dirty-chai';
 import gcm from 'node-gcm';
 import PN from '../../src';
+import { testPushSuccess, testPushError, testPushException } from '../util';
 
 const { expect } = chai;
 chai.use(dirtyChai);
@@ -25,6 +26,12 @@ const data = {
 };
 const pn = new PN();
 const fErr = new Error('Forced error');
+
+const testSuccess = testPushSuccess(method, regIds);
+const testError = testPushError(method, regIds, fErr.message);
+const testUnknownError = testPushError(method, regIds, 'unknown');
+const testException = testPushException(fErr.message);
+
 let sendMethod;
 
 function sendOkMethod() {
@@ -97,33 +104,8 @@ function sendThrowExceptionMethod() {
     });
 }
 
-const assertResults = (results) => {
-    results.forEach((result) => {
-        expect(result.method).to.equal(method);
-        expect(result.success).to.equal(regIds.length);
-        expect(result.failure).to.equal(0);
-        expect(result.message.length).to.equal(regIds.length);
-        result.message.forEach((message) => {
-            expect(message).to.have.property('regId');
-            expect(regIds).to.include(message.regId);
-            expect(message).to.have.property('originalRegId');
-            expect(regIds).to.include(message.originalRegId);
-        });
-    });
-};
-
 describe('push-notifications-gcm', () => {
     describe('send push notifications successfully', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sendOkMethod();
         });
@@ -133,27 +115,17 @@ describe('push-notifications-gcm', () => {
         });
 
         it('all responses should be successful (callback)', (done) => {
-            pn.send(regIds, data, (err, results) => test(err, results, done));
+            pn.send(regIds, data, (err, results) => testSuccess(err, results, done));
         });
 
         it('all responses should be successful (promise)', (done) => {
             pn.send(regIds, data)
-                .then(results => test(null, results, done))
+                .then(results => testSuccess(null, results, done))
                 .catch(done);
         });
     });
 
     describe('send push notifications successfully, data no title', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done();
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
                 expect(recipients).to.be.instanceOf(Object);
@@ -192,21 +164,13 @@ describe('push-notifications-gcm', () => {
         it('all responses should be successful (callback, no title)', (done) => {
             const newData = Object.assign({}, data);
             delete newData.title;
-            pn.send(regIds, newData, (err, results) => test(err, results, done)).catch(() => { });
+            const callback = (err, results) => testSuccess(err, results, done);
+            pn.send(regIds, newData, callback)
+                .catch(() => { });
         });
     });
 
     describe('send push notifications successfully, (callback, no sound, icon, msgcnt)', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
                 expect(recipients).to.be.instanceOf(Object);
@@ -250,21 +214,13 @@ describe('push-notifications-gcm', () => {
             delete newData.sound;
             newData.icon = 'myicon.png';
             newData.custom.msgcnt = 2;
-            pn.send(regIds, newData, (err, results) => test(err, results, done)).catch(() => { });
+            const callback = (err, results) => testSuccess(err, results, done);
+            pn.send(regIds, newData, callback)
+                .catch(() => { });
         });
     });
 
     describe('send push notifications successfully, (callback, no contentAvailable)', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
                 expect(recipients).to.be.instanceOf(Object);
@@ -303,21 +259,13 @@ describe('push-notifications-gcm', () => {
         it('all responses should be successful (callback, no contentAvailable)', (done) => {
             const newData = Object.assign({}, data);
             delete newData.contentAvailable;
-            pn.send(regIds, newData, (err, results) => test(err, results, done)).catch(() => { });
+            const callback = (err, results) => testSuccess(err, results, done);
+            pn.send(regIds, newData, callback)
+                .catch(() => { });
         });
     });
 
     describe('send push notifications successfully, data no body', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done();
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
                 expect(recipients).to.be.instanceOf(Object);
@@ -356,21 +304,13 @@ describe('push-notifications-gcm', () => {
         it('all responses should be successful (callback, no body)', (done) => {
             const newData = Object.assign({}, data);
             delete newData.body;
-            pn.send(regIds, newData, (err, results) => test(err, results, done)).catch(() => { });
+            const callback = (err, results) => testSuccess(err, results, done);
+            pn.send(regIds, newData, callback)
+                .catch(() => { });
         });
     });
 
     describe('send push notifications successfully, custom data string', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
                 expect(recipients).to.be.instanceOf(Object);
@@ -408,21 +348,11 @@ describe('push-notifications-gcm', () => {
 
         it('all responses should be successful (callback, custom data as string)', (done) => {
             const newData = Object.assign({}, data, { custom: 'this is a string' });
-            pn.send(regIds, newData, (err, results) => test(err, results, done));
+            pn.send(regIds, newData, (err, results) => testSuccess(err, results, done));
         });
     });
 
     describe('send push notifications successfully, custom data undefined', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
                 expect(recipients).to.be.instanceOf(Object);
@@ -461,21 +391,11 @@ describe('push-notifications-gcm', () => {
         it('all responses should be successful (callback, custom data undefined)', (done) => {
             const newData = Object.assign({}, data);
             delete newData.custom;
-            pn.send(regIds, newData, (err, results) => test(err, results, done));
+            pn.send(regIds, newData, (err, results) => testSuccess(err, results, done));
         });
     });
 
     describe('send push notifications successfully, normal priority', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
                 expect(recipients).to.be.instanceOf(Object);
@@ -506,21 +426,11 @@ describe('push-notifications-gcm', () => {
         it('all responses should be successful (callback, custom data undefined)', (done) => {
             const normalPrioData = Object.assign({}, data);
             normalPrioData.priority = 'normal';
-            pn.send(regIds, normalPrioData, (err, results) => test(err, results, done));
+            pn.send(regIds, normalPrioData, (err, results) => testSuccess(err, results, done));
         });
     });
 
     describe('send silent push notifications', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
                 expect(recipients).to.be.instanceOf(Object);
@@ -562,7 +472,7 @@ describe('push-notifications-gcm', () => {
                     testKey: 'testValue',
                 },
             };
-            pn.send(regIds, silentPushData, (err, results) => test(err, results, done));
+            pn.send(regIds, silentPushData, (err, results) => testSuccess(err, results, done));
         });
     });
 
@@ -572,16 +482,6 @@ describe('push-notifications-gcm', () => {
                 phonegap: true,
             },
         });
-
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                assertResults(results);
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
 
         before(() => {
             sendMethod = sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
@@ -616,136 +516,79 @@ describe('push-notifications-gcm', () => {
         });
 
         it('all responses should be successful (callback)', (done) => {
-            pushPhoneGap.send(regIds, data, (err, results) => test(err, results, done));
+            pushPhoneGap.send(regIds, data, (err, results) => testSuccess(err, results, done));
         });
 
         it('all responses should be successful (promise)', (done) => {
             pushPhoneGap.send(regIds, data)
-                .then(results => test(null, results, done))
+                .then(results => testSuccess(null, results, done))
                 .catch(done);
         });
     });
 
-    {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(0);
-                    expect(result.failure).to.equal(regIds.length);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('error');
-                        expect(message.error).to.be.instanceOf(Error);
-                        expect(message.error.message).to.equal(fErr.message);
-                    });
-                });
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
 
-        describe('send push notifications failure (with response)', () => {
-            before(() => {
-                sendMethod = sendFailureMethod1();
-            });
-
-            after(() => {
-                sendMethod.restore();
-            });
-
-            it('all responses should be failed (callback)', (done) => {
-                pn.send(regIds, data, (err, results) => test(err, results, done));
-            });
-
-            it('all responses should be failed (promise)', (done) => {
-                pn.send(regIds, data)
-                    .then(results => test(null, results, done))
-                    .catch(done);
-            });
+    describe('send push notifications failure (with response)', () => {
+        before(() => {
+            sendMethod = sendFailureMethod1();
         });
 
-
-        describe('send push notifications error', () => {
-            before(() => {
-                sendMethod = sendErrorMethod();
-            });
-
-            after(() => {
-                sendMethod.restore();
-            });
-
-            it('the error should be reported (callback)', (done) => {
-                pn.send(regIds, data, (err, results) => test(err, results, done));
-            });
-
-            it('the error should be reported (promise)', (done) => {
-                pn.send(regIds, data)
-                    .then(results => test(null, results, done))
-                    .catch(err => test(err, undefined, done));
-            });
+        after(() => {
+            sendMethod.restore();
         });
-    }
 
-    {
-        const test = (err, results, done) => {
-            try {
-                expect(err).to.be.null();
-                results.forEach((result) => {
-                    expect(result.method).to.equal(method);
-                    expect(result.success).to.equal(0);
-                    expect(result.failure).to.equal(regIds.length);
-                    expect(result.message.length).to.equal(regIds.length);
-                    result.message.forEach((message) => {
-                        expect(message).to.have.property('regId');
-                        expect(regIds).to.include(message.regId);
-                        expect(message).to.have.property('error');
-                        expect(message.error).to.be.instanceOf(Error);
-                        expect(message.error.message).to.equal('unknown');
-                    });
-                });
-                done(err);
-            } catch (e) {
-                done(err || e);
-            }
-        };
-        describe('send push notifications failure (without response)', () => {
-            before(() => {
-                sendMethod = sendFailureMethod2();
-            });
-
-            after(() => {
-                sendMethod.restore();
-            });
-
-            it('all responses should be failed (callback)', (done) => {
-                pn.send(regIds, data, (err, results) => test(err, results, done));
-            });
-
-            it('all responses should be failed (promise)', (done) => {
-                pn.send(regIds, data)
-                    .then(results => test(null, results, done))
-                    .catch(done);
-            });
+        it('all responses should be failed (callback)', (done) => {
+            pn.send(regIds, data, (err, results) => testError(err, results, done));
         });
-    }
+
+        it('all responses should be failed (promise)', (done) => {
+            pn.send(regIds, data)
+                .then(results => testError(null, results, done))
+                .catch(done);
+        });
+    });
+
+
+    describe('send push notifications error', () => {
+        before(() => {
+            sendMethod = sendErrorMethod();
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('the error should be reported (callback)', (done) => {
+            pn.send(regIds, data, (err, results) => testError(err, results, done));
+        });
+
+        it('the error should be reported (promise)', (done) => {
+            pn.send(regIds, data)
+                .then(results => testError(null, results, done))
+                .catch(err => testError(err, undefined, done));
+        });
+    });
+
+    describe('send push notifications failure (without response)', () => {
+        before(() => {
+            sendMethod = sendFailureMethod2();
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be failed (callback)', (done) => {
+            pn.send(regIds, data, (err, results) => testUnknownError(err, results, done));
+        });
+
+        it('all responses should be failed (promise)', (done) => {
+            pn.send(regIds, data)
+                .then(results => testUnknownError(null, results, done))
+                .catch(done);
+        });
+    });
 
     describe('send push notifications throw exception', () => {
-        const test = (err, results, done) => {
-            try {
-                expect(results).to.equal(undefined);
-                expect(err).to.be.instanceOf(Error);
-                expect(err.message).to.equal(fErr.message);
-                done();
-            } catch (e) {
-                done(err || e);
-            }
-        };
-
         before(() => {
             sendMethod = sendThrowExceptionMethod();
         });
@@ -755,14 +598,14 @@ describe('push-notifications-gcm', () => {
         });
 
         it('the exception should be catched (callback)', (done) => {
-            pn.send(regIds, data, (err, results) => test(err, results, done))
+            pn.send(regIds, data, (err, results) => testException(err, results, done))
                 .catch(() => { }); // This is to avoid UnhandledPromiseRejectionWarning
         });
 
         it('the exception should be catched (promise)', (done) => {
             pn.send(regIds, data)
-                .then(results => test(null, results, done))
-                .catch(err => test(err, undefined, done));
+                .then(results => testException(null, results, done))
+                .catch(err => testException(err, undefined, done));
         });
     });
 });
