@@ -50,7 +50,7 @@
   "dependencies": {
     "apn": "^2.2.0",
     "node-adm": "^0.9.1",
-    "node-gcm": "^0.14.10",
+    "node-gcm": "^1.0.1",
     "wns": "git://github.com/alex-friedl/wns.git#660afd2"
   },
   "devDependencies": {
