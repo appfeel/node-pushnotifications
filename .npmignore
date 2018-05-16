@@ -1,14 +1,13 @@
-# Default
-# .git
-# .DS_Store
-
+.git
+.DS_Store
 *.log
-node_modules
+node_modules/
 tmp
-.idea
+.idea/
 test/logs
-coverage
+coverage/
 .sonar
+.vscode/
 
-test
-src
+test/
+src/

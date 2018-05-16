@@ -2,6 +2,7 @@ import sendGCM from './sendGCM';
 import APN from './sendAPN';
 import sendADM from './sendADM';
 import sendWNS from './sendWNS';
+import sendWebPush from './sendWeb';
 
 const defaultSettings = {
     gcm: {
@@ -48,8 +49,16 @@ const defaultSettings = {
         headers: null,
         notificationMethod: 'sendTileSquareBlock',
     },
-    mpns: {
-        options: {},
+    web: {
+        vapidDetails: {
+            subject: '< \'mailto\' Address or URL >',
+            publicKey: '< URL Safe Base64 Encoded Public Key >',
+            privateKey: '< URL Safe Base64 Encoded Private Key >',
+        },
+        // gcmAPIKey: '< GCM API Key >',
+        // TTL: 2419200
+        // headers: { }
+        // contentEncoding: '< Encoding type, e.g.: aesgcm or aes128gcm >'
     },
     isAlwaysUseFCM: false,
 };
@@ -85,12 +94,15 @@ class PN {
         const regIdsAPN = [];
         const regIdsWNS = [];
         const regIdsADM = [];
+        const regIdsWebPush = [];
         const regIdsUnk = [];
         const regIds = Array.isArray(_regIds || []) ? _regIds || [] : [_regIds];
 
         // Classify each pushId for corresponding device
         regIds.forEach((regId) => {
-            if (this.settings.isAlwaysUseFCM) {
+            if (typeof regId === 'object') {
+                regIdsWebPush.push(regId);
+            } else if (this.settings.isAlwaysUseFCM) {
                 regIdsGCM.push(regId);
             } else if (regId.substring(0, 4) === 'http') {
                 regIdsWNS.push(regId);
@@ -124,6 +136,11 @@ class PN {
             // Amazon ADM
             if (regIdsADM.length > 0) {
                 promises.push(this.sendWith(sendADM, regIdsADM, data));
+            }
+
+            // Web Push
+            if (regIdsWebPush.length > 0) {
+                promises.push(this.sendWith(sendWebPush, regIdsWebPush, data));
             }
         } catch (err) {
             promises.push(Promise.reject(err));

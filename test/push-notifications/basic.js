@@ -19,6 +19,7 @@ describe('push-notifications: instantiation and class properties', () => {
             expect(pn.settings).to.have.property('apn');
             expect(pn.settings).to.have.property('adm');
             expect(pn.settings).to.have.property('wns');
+            expect(pn.settings).to.have.property('web');
         });
     });
 
@@ -46,6 +47,17 @@ describe('push-notifications: instantiation and class properties', () => {
                 client_id: 'client id',
                 client_secret: 'client secret',
             },
+            web: {
+                vapidDetails: {
+                    subject: '< \'mailto\' Address or URL >',
+                    publicKey: '< URL Safe Base64 Encoded Public Key >',
+                    privateKey: '< URL Safe Base64 Encoded Private Key >',
+                },
+                gcmAPIKey: 'gcmkey',
+                TTL: 2419200,
+                headers: { some: 'header' },
+                contentEncoding: 'aes128gcm',
+            },
         };
 
         before(() => {
@@ -57,6 +69,7 @@ describe('push-notifications: instantiation and class properties', () => {
             expect(pn.settings.gcm).to.eql(settings.gcm);
             expect(pn.settings.adm).to.eql(settings.adm);
             expect(pn.settings.wns).to.eql(settings.wns);
+            expect(pn.settings.web).to.eql(settings.web);
         });
     });
 
