@@ -152,7 +152,7 @@ push.send(registrationIds, data)
     .catch((err) => { ... });
 ```
 
-- `err` will be null if all went fine, will return the error otherwise.
+- `err` will be null if all went fine, otherwise will return the error from the respective provider module.
 - `result` will contain an array with the following objects (one object for each device type found in device registration id's):
 
 ```js
@@ -166,7 +166,7 @@ push.send(registrationIds, data)
             messageId: '', // (only for android) String specifying a unique ID for each successfully processed message or undefined if error
             regId: value, // The current registrationId (device token id). Beware: For Android this may change if Google invalidates the previous device token. Use "originalRegId" if you are interested in when this changed occurs.
             originalRegId: value, // (only for android) The registrationId that was sent to the push.send() method. Compare this with field "regId" in order to know when the original registrationId (device token id) gets changed.
-            error: new Error('unknown'), // If any, there will be an Error object here
+            error: 'some error', // If any, will include the error message from the respective provider module
         }],
     },
     {

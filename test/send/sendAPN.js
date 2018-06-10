@@ -36,9 +36,11 @@ const pn = new PN({
     apn: apnOptions,
 });
 const fErr = new Error('Forced error');
+const errStatusCode = '410';
 
 const testSuccess = testPushSuccess(method, regIds);
 const testError = testPushError(method, regIds, fErr.message);
+const testErrorStatusCode = testPushError(method, regIds, errStatusCode);
 const testException = testPushException(fErr.message);
 
 let sendMethod;
@@ -63,7 +65,8 @@ function sendFailureMethod1() {
     return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => Promise.resolve({
         failed: _regIds.map(regId => ({
             device: regId,
-            response: fErr.message,
+            response: {},
+            status: errStatusCode,
         })),
     }));
 }
@@ -200,7 +203,7 @@ describe('push-notifications-apn', () => {
         });
     });
 
-    describe('send push notifications failure (response message)', () => {
+    describe('send push notifications failure (no response message)', () => {
         before(() => {
             sendMethod = sendFailureMethod1();
         });
@@ -209,13 +212,13 @@ describe('push-notifications-apn', () => {
             sendMethod.restore();
         });
 
-        it('all responses should be failed with response message (callback)', (done) => {
-            pn.send(regIds, data, (err, results) => testError(err, results, done));
+        it('all responses should be failed with status code (callback)', (done) => {
+            pn.send(regIds, data, (err, results) => testErrorStatusCode(err, results, done));
         });
 
-        it('all responses should be failed with response message (promise)', (done) => {
+        it('all responses should be failed with status code (promise)', (done) => {
             pn.send(regIds, data)
-                .then(results => testError(null, results, done))
+                .then(results => testErrorStatusCode(null, results, done))
                 .catch(done);
         });
     });

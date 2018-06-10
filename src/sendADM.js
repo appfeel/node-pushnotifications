@@ -26,11 +26,12 @@ const sendADM = (regIds, _data, settings) => {
 
     regIds.forEach((regId) => {
         admSender.send(message, regId, (err, response) => {
+            const error = err instanceof Error ? err.message : response.error;
             resumed.success += err || response.error ? 0 : 1;
             resumed.failure += err || response.error ? 1 : 0;
             resumed.message.push({
                 regId,
-                error: err || (response.error ? new Error(response.error) : null),
+                error,
             });
             promises.push(Promise.resolve());
         });

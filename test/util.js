@@ -36,8 +36,8 @@ module.exports = {
                     expect(message).to.have.property('regId');
                     expect(regIds).to.include(message.regId);
                     expect(message).to.have.property('error');
-                    expect(message.error).to.be.instanceOf(Error);
-                    expect(message.error.message).to.equal(errMessage);
+                    expect(message.error).to.be.a('string');
+                    expect(message.error).to.equal(errMessage);
                 });
             });
             done(err);
