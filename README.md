@@ -55,7 +55,8 @@ const settings = {
         client_secret: null,
         notificationMethod: 'sendTileSquareBlock',
         ...
-    }
+    },
+    isAlwaysUseFCM: false, // true all messages will be sent through node-gcm (which actually uses FCM)
 };
 const PushNotifications = require('node-pushnotifications');
 const push = new PushNotifications(settings);
@@ -65,6 +66,8 @@ const push = new PushNotifications(settings);
 * APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
 * ADM options: see [node-adm](https://github.com/umano/node-adm)
 * WNS options: see [wns](https://github.com/tjanczuk/wns)
+
+- `isAlwaysUseFCM`: use node-gcm to send notifications to GCM (by default), iOS, ADM and WNS.
 
 *iOS:* It is recomended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an *Apple Push Notification Authentication Key (Sandbox & Production)* or *Apple Push Notification service SSL (Sandbox & Production)*. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. 
 

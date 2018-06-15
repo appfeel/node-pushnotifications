@@ -51,6 +51,7 @@ const defaultSettings = {
     mpns: {
         options: {},
     },
+    isAlwaysUseFCM: false,
 };
 
 class PN {
@@ -89,7 +90,9 @@ class PN {
 
         // Classify each pushId for corresponding device
         regIds.forEach((regId) => {
-            if (regId.substring(0, 4) === 'http') {
+            if (this.settings.isAlwaysUseFCM) {
+                regIdsGCM.push(regId);
+            } else if (regId.substring(0, 4) === 'http') {
                 regIdsWNS.push(regId);
             } else if (/^(amzn[0-9]*.adm)/i.test(regId)) {
                 regIdsADM.push(regId);
