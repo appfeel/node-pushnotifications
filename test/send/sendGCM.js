@@ -4,7 +4,7 @@ import sinon from 'sinon';
 import dirtyChai from 'dirty-chai';
 import gcm from 'node-gcm';
 import PN from '../../src';
-import { testPushSuccess, testPushError, testPushException } from '../util';
+import { sendOkMethodGCM, testPushSuccess, testPushError, testPushException } from '../util';
 
 const { expect } = chai;
 chai.use(dirtyChai);
@@ -33,38 +33,6 @@ const testUnknownError = testPushError(method, regIds, 'unknown');
 const testException = testPushException(fErr.message);
 
 let sendMethod;
-
-function sendOkMethod() {
-    return sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
-        expect(recipients).to.be.instanceOf(Object);
-        expect(recipients).to.have.property('registrationTokens');
-        const { registrationTokens } = recipients;
-        expect(registrationTokens).to.be.instanceOf(Array);
-        registrationTokens.forEach(regId => expect(regIds).to.include(regId));
-        expect(retries).to.be.a('number');
-        expect(message).to.be.instanceOf(gcm.Message);
-        expect(message.params.notification.title).to.eql(data.title);
-        expect(message.params.notification.body).to.eql(data.body);
-        expect(message.params.notification.sound).to.eql(data.sound);
-        expect(message.params.data.sender).to.eql(data.custom.sender);
-        expect(message.params.priority).to.equal('high');
-        // This params are duplicated in order to facilitate extraction
-        // So they are available as `gcm.notification.title` and as `title`
-        expect(message.params.data.title).to.eql(data.title);
-        expect(message.params.data.message).to.eql(data.body);
-        expect(message.params.data.sound).to.eql(data.sound);
-        cb(null, {
-            multicast_id: 'abc',
-            success: registrationTokens.length,
-            failure: 0,
-            results: registrationTokens.map(token => ({
-                message_id: '',
-                registration_id: token,
-                error: null,
-            })),
-        });
-    });
-}
 
 function sendFailureMethod1() {
     return sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
@@ -107,7 +75,7 @@ function sendThrowExceptionMethod() {
 describe('push-notifications-gcm', () => {
     describe('send push notifications successfully', () => {
         before(() => {
-            sendMethod = sendOkMethod();
+            sendMethod = sendOkMethodGCM(regIds, data);
         });
 
         after(() => {
