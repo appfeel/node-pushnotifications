@@ -40,6 +40,8 @@ module.exports = {
                     expect(message).to.have.property('error');
                     expect(message.error).to.be.instanceOf(Error);
                     expect(message.error.message).to.equal(errMessage);
+                    expect(message.errorMsg).to.be.a('string');
+                    expect(message.errorMsg).to.equal(errMessage);
                 });
             });
             done(err);

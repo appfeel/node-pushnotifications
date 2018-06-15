@@ -68,19 +68,24 @@ class APN {
                     });
                 });
                 (response.failed || []).forEach((failure) => {
+                    // See https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown#failed
                     resumed.failure += 1;
                     if (failure.error) {
                         // A transport-level error occurred (e.g. network problem)
                         resumed.message.push({
                             regId: failure.device,
                             error: failure.error,
+                            errorMsg: failure.error.message || failure.error,
                         });
                     } else {
                         // `failure.status` is the HTTP status code
                         // `failure.response` is the JSON payload
                         resumed.message.push({
                             regId: failure.device,
-                            error: new Error(failure.response.reason || failure.response),
+                            error: (failure.response.reason || failure.status)
+                                ? new Error(failure.response.reason || failure.status)
+                                : failure.response,
+                            errorMsg: failure.response.reason || failure.status,
                         });
                     }
                 });
