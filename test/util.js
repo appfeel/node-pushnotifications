@@ -1,3 +1,5 @@
+import sinon from 'sinon';
+import gcm from 'node-gcm';
 import { expect } from 'chai';
 
 module.exports = {
@@ -58,4 +60,35 @@ module.exports = {
             done(err || e);
         }
     },
+
+
+    sendOkMethodGCM: (regIds, data) => sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+        expect(recipients).to.be.instanceOf(Object);
+        expect(recipients).to.have.property('registrationTokens');
+        const { registrationTokens } = recipients;
+        expect(registrationTokens).to.be.instanceOf(Array);
+        registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+        expect(retries).to.be.a('number');
+        expect(message).to.be.instanceOf(gcm.Message);
+        expect(message.params.notification.title).to.eql(data.title);
+        expect(message.params.notification.body).to.eql(data.body);
+        expect(message.params.notification.sound).to.eql(data.sound);
+        expect(message.params.data.sender).to.eql(data.custom.sender);
+        expect(message.params.priority).to.equal('high');
+        // This params are duplicated in order to facilitate extraction
+        // So they are available as `gcm.notification.title` and as `title`
+        expect(message.params.data.title).to.eql(data.title);
+        expect(message.params.data.message).to.eql(data.body);
+        expect(message.params.data.sound).to.eql(data.sound);
+        cb(null, {
+            multicast_id: 'abc',
+            success: registrationTokens.length,
+            failure: 0,
+            results: registrationTokens.map(token => ({
+                message_id: '',
+                registration_id: token,
+                error: null,
+            })),
+        });
+    }),
 };

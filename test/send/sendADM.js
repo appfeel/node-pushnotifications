@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import adm from 'node-adm';
 import PN from '../../src';
-import { testPushSuccess, testPushError, testPushException } from '../util';
+import { sendOkMethodGCM, testPushSuccess, testPushError, testPushException } from '../util';
 
 const method = 'adm';
 const regIds = [
@@ -23,6 +23,7 @@ const pn = new PN();
 const fErr = new Error('Forced error');
 
 const testSuccess = testPushSuccess(method, regIds);
+const testSuccessGCM = testPushSuccess('gcm', regIds);
 const testError = testPushError(method, regIds, fErr.message);
 const testException = testPushException(fErr.message);
 
@@ -139,6 +140,29 @@ describe('push-notifications-adm', () => {
             pn.send(regIds, data)
                 .then(results => testException(null, results, done))
                 .catch(err => testException(err, undefined, done));
+        });
+    });
+
+    describe('send push notifications using FCM', () => {
+        const pnGCM = new PN({
+            isAlwaysUseFCM: true,
+        });
+        before(() => {
+            sendMethod = sendOkMethodGCM(regIds, data);
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be successful (callback)', (done) => {
+            pnGCM.send(regIds, data, (err, results) => testSuccessGCM(err, results, done));
+        });
+
+        it('all responses should be successful (promise)', (done) => {
+            pnGCM.send(regIds, data)
+                .then(results => testSuccessGCM(null, results, done))
+                .catch(done);
         });
     });
 });

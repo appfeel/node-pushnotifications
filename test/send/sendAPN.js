@@ -8,7 +8,7 @@ import dirtyChai from 'dirty-chai';
 import apn from 'apn';
 import PN from '../../src';
 import APN from '../../src/sendAPN';
-import { testPushSuccess, testPushError, testPushException } from '../util';
+import { sendOkMethodGCM, testPushSuccess, testPushError, testPushException } from '../util';
 
 const { expect } = chai;
 chai.use(dirtyChai);
@@ -39,6 +39,7 @@ const fErr = new Error('Forced error');
 const errStatusCode = '410';
 
 const testSuccess = testPushSuccess(method, regIds);
+const testSuccessGCM = testPushSuccess('gcm', regIds);
 const testError = testPushError(method, regIds, fErr.message);
 const testErrorStatusCode = testPushError(method, regIds, errStatusCode);
 const testException = testPushException(fErr.message);
@@ -318,6 +319,29 @@ describe('push-notifications-apn', () => {
                     expect(e.message).to.equal('APN connection not configured properly');
                 }
             });
+        });
+    });
+
+    describe('send push notifications successfully using FCM', () => {
+        const pnGCM = new PN({
+            isAlwaysUseFCM: true,
+        });
+        before(() => {
+            sendMethod = sendOkMethodGCM(regIds, data);
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be successful (callback)', (done) => {
+            pnGCM.send(regIds, data, (err, results) => testSuccessGCM(err, results, done));
+        });
+
+        it('all responses should be successful (promise)', (done) => {
+            pnGCM.send(regIds, data)
+                .then(results => testSuccessGCM(null, results, done))
+                .catch(done);
         });
     });
 });
