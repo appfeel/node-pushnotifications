@@ -68,12 +68,14 @@ class APN {
                     });
                 });
                 (response.failed || []).forEach((failure) => {
+                    // See https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown#failed
                     resumed.failure += 1;
                     if (failure.error) {
                         // A transport-level error occurred (e.g. network problem)
                         resumed.message.push({
                             regId: failure.device,
                             error: failure.error.message || failure.error,
+                            errorSrc: failure.error,
                         });
                     } else {
                         // `failure.status` is the HTTP status code
@@ -81,6 +83,9 @@ class APN {
                         resumed.message.push({
                             regId: failure.device,
                             error: failure.response.reason || failure.status,
+                            errorSrc: (failure.response.reason || failure.status)
+                                ? new Error(failure.response.reason || failure.status)
+                                : failure.response,
                         });
                     }
                 });

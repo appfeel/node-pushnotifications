@@ -14,6 +14,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                     originalRegId: value,
                     regId: value,
                     error: err instanceof Error ? err.message : err,
+                    errorSrc: err,
                 })),
             });
         } else if (response && response.results !== undefined) {
@@ -31,6 +32,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                         originalRegId: regToken,
                         regId: value.registration_id || regToken,
                         error: value.error ? (value.error.message || value.error) : null,
+                        errorSrc: value.error ? new Error(value.error) : null,
                     };
                 }),
             });
@@ -44,6 +46,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
                     originalRegId: value,
                     regId: value,
                     error: 'unknown',
+                    errorSrc: new Error('unknown'),
                 })),
             });
         }

@@ -2,16 +2,26 @@ const wns = require('wns');
 
 const method = 'wns';
 const parseErrorMessage = err => (err instanceof Error ? err.message : err);
+const parseErrorSrc = (err) => {
+    if (err instanceof Error) {
+        return err;
+    } else if (err) {
+        return new Error(err);
+    }
+    return null;
+};
 
 let resumed;
 
 function processResponse(err, response, regId) {
     const error = parseErrorMessage(err) || parseErrorMessage(response.innerError);
+    const errorSrc = parseErrorSrc(err) || parseErrorSrc(response.innerError);
     resumed.success += error ? 0 : 1;
     resumed.failure += error ? 1 : 0;
     resumed.message.push({
         regId,
         error,
+        errorSrc,
     });
 }
 
