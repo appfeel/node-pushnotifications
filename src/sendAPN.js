@@ -74,18 +74,18 @@ class APN {
                         // A transport-level error occurred (e.g. network problem)
                         resumed.message.push({
                             regId: failure.device,
-                            error: failure.error.message || failure.error,
-                            errorSrc: failure.error,
+                            error: failure.error,
+                            errorMsg: failure.error.message || failure.error,
                         });
                     } else {
                         // `failure.status` is the HTTP status code
                         // `failure.response` is the JSON payload
                         resumed.message.push({
                             regId: failure.device,
-                            error: failure.response.reason || failure.status,
-                            errorSrc: (failure.response.reason || failure.status)
+                            error: (failure.response.reason || failure.status)
                                 ? new Error(failure.response.reason || failure.status)
                                 : failure.response,
+                            errorMsg: failure.response.reason || failure.status,
                         });
                     }
                 });
