@@ -55,8 +55,8 @@ describe('push-notifications: instantiation and class properties', () => {
                 },
                 gcmAPIKey: 'gcmkey',
                 TTL: 2419200,
-                headers: { some: 'header' },
                 contentEncoding: 'aes128gcm',
+                headers: {},
             },
         };
 

@@ -1,7 +1,7 @@
 Node Push Notifications
 ========
 
-A node.js module for interfacing with Apple Push Notification, Google Cloud Messaging, Windows Push Notification and Amazon Device Messaging services.
+A node.js module for interfacing with Apple Push Notification, Google Cloud Messaging, Windows Push Notification, Web-Push Notification and Amazon Device Messaging services.
 
 [![License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://npmjs.org/package/node-pushnotifications)
 [![NPM version](http://img.shields.io/npm/v/node-pushnotifications.svg?style=flat)](https://npmjs.org/package/node-pushnotifications)
@@ -56,6 +56,17 @@ const settings = {
         notificationMethod: 'sendTileSquareBlock',
         ...
     },
+    web: {
+        vapidDetails: {
+            subject: '< \'mailto\' Address or URL >',
+            publicKey: '< URL Safe Base64 Encoded Public Key >',
+            privateKey: '< URL Safe Base64 Encoded Private Key >',
+        },
+        gcmAPIKey: 'gcmkey',
+        TTL: 2419200,
+        contentEncoding: 'aes128gcm',
+        headers: {}
+    },
     isAlwaysUseFCM: false, // true all messages will be sent through node-gcm (which actually uses FCM)
 };
 const PushNotifications = require('node-pushnotifications');
@@ -66,10 +77,11 @@ const push = new PushNotifications(settings);
 * APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
 * ADM options: see [node-adm](https://github.com/umano/node-adm)
 * WNS options: see [wns](https://github.com/tjanczuk/wns)
+* Web-push options: see [web-push](https://github.com/web-push-libs/web-push)
 
 - `isAlwaysUseFCM`: use node-gcm to send notifications to GCM (by default), iOS, ADM and WNS.
 
-*iOS:* It is recomended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an *Apple Push Notification Authentication Key (Sandbox & Production)* or *Apple Push Notification service SSL (Sandbox & Production)*. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. 
+*iOS:* It is recommended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an *Apple Push Notification Authentication Key (Sandbox & Production)* or *Apple Push Notification service SSL (Sandbox & Production)*. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. 
 
 ### 2. Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
 
@@ -183,6 +195,10 @@ push.send(registrationIds, data)
     },
     {
         method: 'adm',
+        ... // Same structure here, except for message.orignalRegId
+    },
+    {
+        method: 'webPush',
         ... // Same structure here, except for message.orignalRegId
     },
 ]
@@ -406,10 +422,21 @@ const ADMmesssage = {
 
 * [See node-adm fields](https://github.com/umano/node-adm#usage)
 
+## Web-Push
+
+Data and settings are directly forwarded to `webPush.sendNotification`. 
+Data can also be a simple string payload.
+
+```js
+webPush.sendNotification(regId, data, settings.web);
+```
+
+A working server example implementation can be found at [https://github.com/alex-friedl/webpush-example/blob/master/server/index.js](https://github.com/alex-friedl/webpush-example/blob/master/server/index.js)
 
 ## Resources
 
 - [Crossplatform integration example using this library and a React Native app](https://github.com/alex-friedl/crossplatform-push-notifications-example)
+- [Web-Push client/server example](https://github.com/alex-friedl/webpush-example)
 - [Node Push Notify from alexlds](https://github.com/alexlds/node-push-notify)
 
 ## LICENSE
