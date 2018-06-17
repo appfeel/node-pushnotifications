@@ -53,7 +53,7 @@
     "node-adm": "^0.9.1",
     "node-gcm": "^1.0.2",
     "web-push": "^3.3.1",
-    "wns": "git://github.com/alex-friedl/wns.git#660afd2"
+    "wns": "^0.5.4"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
