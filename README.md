@@ -16,6 +16,10 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 npm install node-pushnotifications --save
 ```
 
+## Requirements
+
+Node version >= 6.x.x
+
 ## Features
 
 - Powerful and intuitive.
