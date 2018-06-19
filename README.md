@@ -10,6 +10,18 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 [![Coverage Status](https://coveralls.io/repos/github/appfeel/node-pushnotifications/badge.svg?branch=master)](https://coveralls.io/github/appfeel/node-pushnotifications?branch=master)
 [![Dependencies](https://david-dm.org/appfeel/node-pushnotifications/status.svg)](https://david-dm.org/appfeel/node-pushnotifications)
 
+- [Installation](#installation)
+- [Requirements](#requirements)
+- [Features](#features)
+- [Usage](#usage)
+- [GCM](#gcm)
+- [APN](#apn)
+- [WNS](#wns)
+- [ADM](#adm)
+- [Web-Push](#web-push)
+- [Resources](#resources)
+- [LICENSE](#license)
+
 ## Installation
 
 ```bash
@@ -35,6 +47,8 @@ Node version >= 6.x.x
 Include the settings for each device type. You should only include the settings for the devices that you expect to have. I.e. if your app is only available for android or for ios, you should only include `gcm` or `apn` respectively.
 
 ```js
+import PushNotifications from 'node-pushnotifications';
+
 const settings = {
     gcm: {
         id: null,
@@ -73,7 +87,6 @@ const settings = {
     },
     isAlwaysUseFCM: false, // true all messages will be sent through node-gcm (which actually uses FCM)
 };
-const PushNotifications = require('node-pushnotifications');
 const push = new PushNotifications(settings);
 ```
 
@@ -87,7 +100,7 @@ const push = new PushNotifications(settings);
 
 *iOS:* It is recommended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an *Apple Push Notification Authentication Key (Sandbox & Production)* or *Apple Push Notification service SSL (Sandbox & Production)*. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. 
 
-### 2. Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
+### 2. Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
 
 ```js
 // Single destination
