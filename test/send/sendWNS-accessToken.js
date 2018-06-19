@@ -67,12 +67,16 @@ const wnsMethods = [
     'sendTileWidePeekImage05',
     'sendTileWidePeekImage06',
 ];
-const pn = new PN({
+
+const wnsOpts = {
     wns: {
+        client_id: 'client', // PUT YOUR WNS CLIENT ID,
+        client_secret: 'secret', // PUT YOUR WNS CLIENT SECRET,
         notificationMethod: 'sendTileSquareBlock',
         accessToken: '0',
     },
-});
+};
+const pn = new PN(wnsOpts);
 const fErr = new Error('Forced error');
 const sendWNS = {
     restore: () => {
@@ -93,6 +97,8 @@ let i = 0;
 function sendOkMethod() {
     wnsMethods.forEach((wnsMethod) => {
         sendWNS[wnsMethod] = sinon.stub(wns, wnsMethod, (channel, message, options, cb) => {
+            expect(options).to.be.an('object').includes.keys(['client_id', 'client_secret', 'accessToken']);
+            ['client_id', 'client_secret'].forEach(key => expect(options[key]).equal(wnsOpts.wns[key]));
             expect(channel).to.be.a('string');
             expect(regIds).to.include(channel);
             expect(message).to.have.deep.property('title', data.title);

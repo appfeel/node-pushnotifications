@@ -19,7 +19,13 @@ const data = {
         sender: 'appfeel-test',
     },
 };
-const pn = new PN();
+const admOpts = {
+    adm: {
+        client_id: 'client_id',
+        client_secret: 'secret',
+    },
+};
+const pn = new PN(admOpts);
 const fErr = new Error('Forced error');
 
 const testSuccess = testPushSuccess(method, regIds);
@@ -30,7 +36,11 @@ const testException = testPushException(fErr.message);
 let sendMethod;
 
 function sendOkMethod() {
-    return sinon.stub(adm.Sender.prototype, 'send', (message, regId, cb) => {
+    // Don't use arrow function because we use this!!
+    return sinon.stub(adm.Sender.prototype, 'send', function sedADM(message, regId, cb) {
+        expect(this.options).to.be.an('object').includes.keys(['client_id', 'client_secret']);
+        expect(this.options.client_id).to.equal(admOpts.adm.client_id);
+        expect(this.options.client_secret).to.equal(admOpts.adm.client_secret);
         expect(regId).to.be.a('string');
         expect(regIds).to.include(regId);
         expect(message.data).to.be.an('object');
