@@ -42,7 +42,7 @@ Node version >= 6.x.x
 
 ## Usage 
 
-### 1. Import and setup push module:
+### 1. Import and setup push module
 
 Include the settings for each device type. You should only include the settings for the devices that you expect to have. I.e. if your app is only available for android or for ios, you should only include `gcm` or `apn` respectively.
 
@@ -100,7 +100,9 @@ const push = new PushNotifications(settings);
 
 *iOS:* It is recommended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an *Apple Push Notification Authentication Key (Sandbox & Production)* or *Apple Push Notification service SSL (Sandbox & Production)*. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. 
 
-### 2. Define destination device ID. You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
+### 2. Define destination device ID
+
+You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
 
 ```js
 // Single destination
@@ -114,7 +116,9 @@ registrationIds.push('INSERT_OTHER_DEVICE_ID');
 
 *Android:* If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
 
-### 3. Create a JSON object with a title and message and send the notification.
+### 3. Send the notification
+
+Create a JSON object with a title and message and send the notification.
 
 ```js
 const data = {
