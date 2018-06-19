@@ -4,6 +4,7 @@ import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import dirtyChai from 'dirty-chai';
+import { readFileSync } from 'fs';
 
 import apn from 'apn';
 import PN from '../../src';
@@ -47,7 +48,13 @@ const testException = testPushException(fErr.message);
 let sendMethod;
 
 function sendOkMethod() {
-    return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) => {
+    // Don't use arrow function because we use this!!
+    return sinon.stub(apn.Provider.prototype, 'send', function sendAPN(message, _regIds) {
+        // TODO: validate other props? What about token?
+        expect(this.client.config).to.be.an('object').includes.keys(['cert', 'key']);
+        expect(this.client.config.cert).to.eql(readFileSync(apnOptions.cert));
+        expect(this.client.config.key).to.eql(readFileSync(apnOptions.key));
+
         expect(_regIds).to.be.instanceOf(Array);
         _regIds.forEach(regId => expect(regIds).to.include(regId));
         expect(message).to.be.instanceOf(apn.Notification);

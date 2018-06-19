@@ -55,7 +55,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) => new Promi
 
 const sendGCM = (regIds, data, settings) => {
     const opts = Object.assign({}, settings.gcm);
-    const id = { opts };
+    const { id } = opts;
     delete opts.id;
     const GCMSender = new gcm.Sender(id, opts);
     const promises = [];

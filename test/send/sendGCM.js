@@ -24,7 +24,12 @@ const data = {
         sender: 'appfeel-test',
     },
 };
-const pn = new PN();
+const gcmOpts = {
+    gcm: {
+        id: 'your id',
+    },
+};
+const pn = new PN(gcmOpts);
 const fErr = new Error('Forced error');
 
 const testSuccess = testPushSuccess(method, regIds);
@@ -35,8 +40,10 @@ const testException = testPushException(fErr.message);
 let sendMethod;
 
 function sendFailureMethod1() {
-    return sinon.stub(gcm.Sender.prototype, 'send', (message, recipients, retries, cb) => {
+    // Don't use arrow function because we use this!!
+    return sinon.stub(gcm.Sender.prototype, 'send', function SenderSend(message, recipients, retries, cb) {
         const { registrationTokens } = recipients;
+        expect(this.key).equal(gcmOpts.gcm.id);
         cb(null, {
             multicast_id: 'abc',
             success: 0,
