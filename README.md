@@ -52,7 +52,7 @@ import PushNotifications from 'node-pushnotifications';
 const settings = {
     gcm: {
         id: null,
-        phonegap: true, // phonegap compatibility mode, see below
+        phonegap: false, // phonegap compatibility mode, see below (defaults to false)
         ...
     },
     apn: {
