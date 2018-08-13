@@ -446,11 +446,12 @@ const ADMmesssage = {
 
 ## Web-Push
 
-Data and settings are directly forwarded to `webPush.sendNotification`. 
-Data can also be a simple string payload.
+Data can be passed as a simple string payload. If you do not pass a string, it will be stringied before.
+Settings are directly forwarded to `webPush.sendNotification`. 
 
 ```js
-webPush.sendNotification(regId, data, settings.web);
+const payload = typeof data === 'string' ? data : JSON.stringify(data);
+webPush.sendNotification(regId, payload, settings.web);
 ```
 
 A working server example implementation can be found at [https://github.com/alex-friedl/webpush-example/blob/master/server/index.js](https://github.com/alex-friedl/webpush-example/blob/master/server/index.js)

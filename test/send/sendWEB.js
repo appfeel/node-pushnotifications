@@ -11,6 +11,10 @@ const regIds = [
     { endpoint: 'https://android.googleapis.com/gcm/send/cfUDlZL9YBQ:APA91bExYfB9ymMLJrR6rrDDSdGR614iMWXDHYVQpE2ETwMjJrghcWDKrEHwnay5FTCI57IDZuDfSMyPKszTRwik6_LI4Be-wGb3O-ZlTLYABeRAyhNqQMgC-tDh1zL5xELer2dEZevZ', expirationTime: null, keys: { p256dh: 'BHMUZrHFDscS3VsRB8tZAXFJLYvZlgaQukwAgeHc54JOZe9X-GdHYhepFlh50QH_zlpAfkXDo29avciaRJqzTzs', auth: 'Ou2Z6b2wRZSejPkSgjykGQ' } },
 ];
 const data = 'payloadString';
+const dataObject = {
+    message: 'payload',
+    badge: 4,
+};
 const webOptions = {
     web: {
         vapidDetails: {
@@ -30,12 +34,27 @@ const testException = testPushException(pushError.message);
 
 let sendMethod;
 
-function sendOkMethod() {
+function sendOkMethod1() {
     return sinon.stub(webpush, 'sendNotification', (regId, message, settings) => {
         expect(regId).to.be.a('object');
         expect(regIds).to.include(regId);
         expect(message).to.be.a('string');
         expect(message).to.equal(data);
+        expect(settings).to.eql(webOptions.web);
+        return Promise.resolve({
+            statusCode: 200,
+            header: {},
+            body: 'Success',
+        });
+    });
+}
+
+function sendOkMethod2() {
+    return sinon.stub(webpush, 'sendNotification', (regId, message, settings) => {
+        expect(regId).to.be.a('object');
+        expect(regIds).to.include(regId);
+        expect(message).to.be.a('string');
+        expect(message).to.equal(JSON.stringify(dataObject));
         expect(settings).to.eql(webOptions.web);
         return Promise.resolve({
             statusCode: 200,
@@ -56,9 +75,9 @@ function sendThrowExceptionMethod() {
 }
 
 describe('push-notifications-web', () => {
-    describe('send push notifications successfully', () => {
+    describe('send push notifications successfully as strings', () => {
         before(() => {
-            sendMethod = sendOkMethod();
+            sendMethod = sendOkMethod1();
         });
 
         after(() => {
@@ -71,6 +90,26 @@ describe('push-notifications-web', () => {
 
         it('all responses should be successful (promise)', (done) => {
             pn.send(regIds, data)
+                .then(results => testSuccess(null, results, done))
+                .catch(done);
+        });
+    });
+
+    describe('send push notifications successfully as objects', () => {
+        before(() => {
+            sendMethod = sendOkMethod2();
+        });
+
+        after(() => {
+            sendMethod.restore();
+        });
+
+        it('all responses should be successful (callback)', (done) => {
+            pn.send(regIds, dataObject, (err, results) => testSuccess(err, results, done));
+        });
+
+        it('all responses should be successful (promise)', (done) => {
+            pn.send(regIds, dataObject)
                 .then(results => testSuccess(null, results, done))
                 .catch(done);
         });
