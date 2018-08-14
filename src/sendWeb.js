@@ -3,7 +3,8 @@ const webPush = require('web-push');
 const method = 'webPush';
 
 const sendWebPush = async (regIds, data, settings) => {
-    const promises = regIds.map(regId => (webPush.sendNotification(regId, data, settings.web)
+    const payload = typeof data === 'string' ? data : JSON.stringify(data);
+    const promises = regIds.map(regId => (webPush.sendNotification(regId, payload, settings.web)
         .then(() => ({
             success: 1,
             failure: 0,
