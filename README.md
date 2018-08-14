@@ -446,7 +446,7 @@ const ADMmesssage = {
 
 ## Web-Push
 
-Data can be passed as a simple string payload. If you do not pass a string, it will be stringied before.
+Data can be passed as a simple string payload. If you do not pass a string, the parameter value will be stringified beforehand.
 Settings are directly forwarded to `webPush.sendNotification`. 
 
 ```js

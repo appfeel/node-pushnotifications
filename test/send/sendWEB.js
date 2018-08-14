@@ -34,7 +34,7 @@ const testException = testPushException(pushError.message);
 
 let sendMethod;
 
-function sendOkMethod1() {
+function sendOkMethodAsString() {
     return sinon.stub(webpush, 'sendNotification', (regId, message, settings) => {
         expect(regId).to.be.a('object');
         expect(regIds).to.include(regId);
@@ -49,7 +49,7 @@ function sendOkMethod1() {
     });
 }
 
-function sendOkMethod2() {
+function sendOkMethodAsObject() {
     return sinon.stub(webpush, 'sendNotification', (regId, message, settings) => {
         expect(regId).to.be.a('object');
         expect(regIds).to.include(regId);
@@ -77,7 +77,7 @@ function sendThrowExceptionMethod() {
 describe('push-notifications-web', () => {
     describe('send push notifications successfully as strings', () => {
         before(() => {
-            sendMethod = sendOkMethod1();
+            sendMethod = sendOkMethodAsString();
         });
 
         after(() => {
@@ -97,7 +97,7 @@ describe('push-notifications-web', () => {
 
     describe('send push notifications successfully as objects', () => {
         before(() => {
-            sendMethod = sendOkMethod2();
+            sendMethod = sendOkMethodAsObject();
         });
 
         after(() => {
