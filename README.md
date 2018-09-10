@@ -125,6 +125,10 @@ Create a JSON object with a title and message and send the notification.
 const data = {
     title: 'New push notification', // REQUIRED for Android
     topic: 'topic', // REQUIRED for iOS (apn and gcm)
+    /* The topic of the notification. When using token-based authentication, specify the bundle ID of the app. 
+     * When using certificate-based authentication, the topic is usually your app's bundle ID.
+     * More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
+     */
     body: 'Powered by AppFeel',
     custom: {
         sender: 'AppFeel',
@@ -373,7 +377,9 @@ The following parameters are used to create an APN message:
 *data is the parameter in `push.send(registrationIds, data)`*
 
 * [See node-apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
-* **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic))
+* **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic)). When using token-based authentication, specify the bundle ID of the app. 
+When using certificate-based authentication, the topic is usually your app's bundle ID.
+More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
 
 ### Silent push notifications
 
