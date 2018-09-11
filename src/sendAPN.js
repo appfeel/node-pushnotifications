@@ -33,7 +33,8 @@ class APN {
                 'title-loc-key': data.titleLocKey,
                 'title-loc-args': data.titleLocArgs,
                 'loc-key': data.locKey,
-                'loc-args': data.bodyLocArgs,
+                // bodyLocArgs is kept for backward compatibility
+                'loc-args': data.locArgs || data.bodyLocArgs,
                 'launch-image': data.launchImage,
                 action: data.action,
             },
