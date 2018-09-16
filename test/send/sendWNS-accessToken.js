@@ -3,7 +3,9 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import wns from 'wns';
 import PN from '../../src';
-import { sendOkMethodGCM, testPushSuccess, testPushError, testPushException } from '../util';
+import {
+    sendOkMethodGCM, testPushSuccess, testPushError, testPushException,
+} from '../util';
 
 const method = 'wns';
 const regIds = [

@@ -4,7 +4,9 @@ import sinon from 'sinon';
 import dirtyChai from 'dirty-chai';
 import gcm from 'node-gcm';
 import PN from '../../src';
-import { sendOkMethodGCM, testPushSuccess, testPushError, testPushException } from '../util';
+import {
+    sendOkMethodGCM, testPushSuccess, testPushError, testPushException,
+} from '../util';
 
 const { expect } = chai;
 chai.use(dirtyChai);

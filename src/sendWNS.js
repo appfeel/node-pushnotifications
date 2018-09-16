@@ -5,7 +5,8 @@ const parseErrorMessage = err => (err instanceof Error ? err.message : err);
 const parseError = (err) => {
     if (err instanceof Error) {
         return err;
-    } else if (err) {
+    }
+    if (err) {
         return new Error(err);
     }
     return null;
@@ -75,15 +76,14 @@ const sendWNS = (_regIds, _data, settings) => {
     if (opts.accessToken) {
         sendPromises = [];
         const regIds = [..._regIds];
-        promises.push(new Promise((resolve, reject) =>
-            sendNotifications(regIds, notificationMethod, data, opts, err =>
-                (err ? reject(err) : resolve()))));
+        // eslint-disable-next-line max-len
+        promises.push(new Promise((resolve, reject) => sendNotifications(regIds, notificationMethod, data, opts, err => (err ? reject(err) : resolve()))));
     } else {
-        _regIds.forEach(regId => promises.push(new Promise(resolve =>
-            wns[notificationMethod](regId, data, opts, (err, response) => {
-                processResponse(err, response, regId);
-                resolve();
-            }))));
+        // eslint-disable-next-line max-len
+        _regIds.forEach(regId => promises.push(new Promise(resolve => wns[notificationMethod](regId, data, opts, (err, response) => {
+            processResponse(err, response, regId);
+            resolve();
+        }))));
     }
 
     return Promise.all(promises)

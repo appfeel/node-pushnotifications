@@ -9,7 +9,9 @@ import { readFileSync } from 'fs';
 import apn from 'apn';
 import PN from '../../src';
 import APN from '../../src/sendAPN';
-import { sendOkMethodGCM, testPushSuccess, testPushError, testPushException } from '../util';
+import {
+    sendOkMethodGCM, testPushSuccess, testPushError, testPushException,
+} from '../util';
 
 const { expect } = chai;
 chai.use(dirtyChai);
