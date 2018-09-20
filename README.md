@@ -152,7 +152,7 @@ const data = {
     badge: 2, // gcm for ios, apn
     sound: 'ping.aiff', // gcm, apn
     alert: { // apn, will take precedence over title and body
-        title: 'title'
+        title: 'title',
         body: 'body'
         // details: https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#convenience-setters
     },
