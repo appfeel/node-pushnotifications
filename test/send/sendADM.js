@@ -4,7 +4,8 @@ import sinon from 'sinon';
 import adm from 'node-adm';
 import PN from '../../src';
 import {
-    sendOkMethodGCM, testPushSuccess, testPushError, testPushException,
+    sendOkMethodGCM, testPushSuccess,
+    testPushError, testPushException,
 } from '../util';
 
 const method = 'adm';
