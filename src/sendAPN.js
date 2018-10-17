@@ -8,6 +8,7 @@ class APN {
         try {
             this.connection = new apn.Provider(settings);
         } catch (e) {
+            this.connectionError = e;
             this.connection = null;
         }
     }
@@ -50,7 +51,7 @@ class APN {
         });
 
         if (!this.connection) {
-            return Promise.reject(new Error('APN connection not configured properly'));
+            return Promise.reject(this.connectionError || new Error('Unkown error: APN connection not configured properly'));
         }
 
         return this.connection.send(message, regIds)

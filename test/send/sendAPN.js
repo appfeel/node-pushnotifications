@@ -10,7 +10,8 @@ import apn from 'apn';
 import PN from '../../src';
 import APN from '../../src/sendAPN';
 import {
-    sendOkMethodGCM, testPushSuccess, testPushError, testPushException,
+    sendOkMethodGCM, testPushSuccess,
+    testPushError, testPushException,
 } from '../util';
 
 const { expect } = chai;
@@ -325,7 +326,7 @@ describe('push-notifications-apn', () => {
                     throw new Error('failed to throw correct error');
                 } catch (e) {
                     expect(e).to.be.an.instanceof(Error);
-                    expect(e.message).to.equal('APN connection not configured properly');
+                    expect(e.message).to.equal('ENOENT: no such file or directory, open \'cert.pem\'');
                 }
             });
         });
