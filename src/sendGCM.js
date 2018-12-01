@@ -132,7 +132,7 @@ const sendGCM = (regIds, data, settings) => {
                 }
                 resumed.success += result.success;
                 resumed.failure += result.failure;
-                resumed.message = [...resumed.message, ...result.message];
+                resumed.message.push(...result.message);
             });
 
             return resumed;
