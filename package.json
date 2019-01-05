@@ -13,6 +13,7 @@
     "build": "./node_modules/.bin/babel src -d lib",
     "prepare": "npm run lint && npm test && npm run build",
     "lint": "eslint {src,test}/**/*.js",
+    "format": "prettier --write \"**/*.{js,json,md}\"",
     "release": "release-it"
   },
   "keywords": [
@@ -64,12 +65,17 @@
     "dirty-chai": "^2.0.1",
     "eslint": "^5.12.0",
     "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-react": "^7.12.3",
+    "husky": "^1.3.1",
     "istanbul": "^1.1.0-alpha.1",
     "mocha": "^5.2.0",
     "opn-cli": "^3.1.0",
+    "prettier": "^1.15.3",
+    "pretty-quick": "^1.8.0",
     "release-it": "^9.5.1",
     "sinon": "^1.17.7",
     "sinon-chai": "^3.3.0"
@@ -82,6 +88,11 @@
     "env": {
       "es6": true,
       "node": true
+    }
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
     }
   },
   "readmeFilename": "README.md",

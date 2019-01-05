@@ -1,10 +1,10 @@
 {
-    "dry-run": false,
-    "buildCommand": "npm run build",
-    "non-interactive": true,
-    "npm": {
-        "publish": true
-    },
-    "verbose": true,
-    "dist": false
+  "dry-run": false,
+  "buildCommand": "npm run build",
+  "non-interactive": true,
+  "npm": {
+    "publish": true
+  },
+  "verbose": true,
+  "dist": false
 }

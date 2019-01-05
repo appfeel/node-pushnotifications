@@ -1,5 +1,4 @@
-Node Push Notifications
-========
+# Node Push Notifications
 
 A node.js module for interfacing with Apple Push Notification, Google Cloud Messaging, Windows Push Notification, Web-Push Notification and Amazon Device Messaging services.
 
@@ -9,6 +8,7 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 [![Build Status](http://img.shields.io/travis/appfeel/node-pushnotifications.svg?style=flat)](https://travis-ci.org/appfeel/node-pushnotifications)
 [![Coverage Status](https://coveralls.io/repos/github/appfeel/node-pushnotifications/badge.svg?branch=master)](https://coveralls.io/github/appfeel/node-pushnotifications?branch=master)
 [![Dependencies](https://david-dm.org/appfeel/node-pushnotifications/status.svg)](https://david-dm.org/appfeel/node-pushnotifications)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 - [Installation](#installation)
 - [Requirements](#requirements)
@@ -40,7 +40,7 @@ Node version >= 6.x.x
 - Unified error handling.
 - Written in ES6, compatible with ES5 through babel transpilation.
 
-## Usage 
+## Usage
 
 ### 1. Import and setup push module
 
@@ -91,15 +91,15 @@ const settings = {
 const push = new PushNotifications(settings);
 ```
 
-* GCM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
-* APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
-* ADM options: see [node-adm](https://github.com/umano/node-adm)
-* WNS options: see [wns](https://github.com/tjanczuk/wns)
-* Web-push options: see [web-push](https://github.com/web-push-libs/web-push)
+- GCM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
+- APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
+- ADM options: see [node-adm](https://github.com/umano/node-adm)
+- WNS options: see [wns](https://github.com/tjanczuk/wns)
+- Web-push options: see [web-push](https://github.com/web-push-libs/web-push)
 
-- `isAlwaysUseFCM`: use node-gcm to send notifications to GCM (by default), iOS, ADM and WNS.
+* `isAlwaysUseFCM`: use node-gcm to send notifications to GCM (by default), iOS, ADM and WNS.
 
-*iOS:* It is recommended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an *Apple Push Notification Authentication Key (Sandbox & Production)* or *Apple Push Notification service SSL (Sandbox & Production)*. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem. 
+_iOS:_ It is recommended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an _Apple Push Notification Authentication Key (Sandbox & Production)_ or _Apple Push Notification service SSL (Sandbox & Production)_. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem.
 
 ### 2. Define destination device ID
 
@@ -115,7 +115,7 @@ registrationIds.push('INSERT_YOUR_DEVICE_ID');
 registrationIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
-*Android:* If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
+_Android:_ If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
 
 ### 3. Send the notification
 
@@ -125,7 +125,7 @@ Create a JSON object with a title and message and send the notification.
 const data = {
     title: 'New push notification', // REQUIRED for Android
     topic: 'topic', // REQUIRED for iOS (apn and gcm)
-    /* The topic of the notification. When using token-based authentication, specify the bundle ID of the app. 
+    /* The topic of the notification. When using token-based authentication, specify the bundle ID of the app.
      * When using certificate-based authentication, the topic is usually your app's bundle ID.
      * More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
      */
@@ -156,16 +156,16 @@ const data = {
         body: 'body'
         // details: https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#convenience-setters
     },
-    /* 
+    /*
      * A string is also accepted as a payload for alert
      * Your notification won't appear on ios if alert is empty object
      * If alert is an empty string the regular 'title' and 'body' will show in Notification
      */
-    // alert: '', 
+    // alert: '',
     launchImage: '', // apn and gcm for ios
     action: '', // apn and gcm for ios
     category: '', // apn and gcm for ios
-    // mdm: '', // apn and gcm for ios. Use this to send Mobile Device Management commands. 
+    // mdm: '', // apn and gcm for ios. Use this to send Mobile Device Management commands.
     // https://developer.apple.com/library/content/documentation/Miscellaneous/Reference/MobileDeviceManagementProtocolRef/3-MDM_Protocol/MDM_Protocol.html
     urlArgs: '', // apn and gcm for ios
     truncateAtWordEnd: true, // apn and gcm for ios
@@ -287,9 +287,9 @@ The following parameters are used to create a GCM message. See https://developer
     }
 ```
 
-*data is the parameter in `push.send(registrationIds, data)`*
+_data is the parameter in `push.send(registrationIds, data)`_
 
-* [See node-gcm fields](https://github.com/ToothlessGear/node-gcm#usage)
+- [See node-gcm fields](https://github.com/ToothlessGear/node-gcm#usage)
 
 **Note:** parameters are duplicated in data and in notification, so in fact they are being send as:
 
@@ -328,17 +328,17 @@ In that way, they can be accessed in android in the following two ways:
 
 ### PhoneGap compatibility mode
 
-In case your app is written with Cordova / Ionic and you are using the [PhoneGap PushPlugin](https://github.com/phonegap/phonegap-plugin-push/), 
-you can use the `phonegap` setting in order to adapt to the recommended behaviour described in 
+In case your app is written with Cordova / Ionic and you are using the [PhoneGap PushPlugin](https://github.com/phonegap/phonegap-plugin-push/),
+you can use the `phonegap` setting in order to adapt to the recommended behaviour described in
 [https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour](https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour).
 
 ```js
-    const settings = {
-        gcm: {
-            id: '<yourId>',
-            phonegap: true
-        }
-    }
+const settings = {
+  gcm: {
+    id: '<yourId>',
+    phonegap: true,
+  },
+};
 ```
 
 ## APN
@@ -375,12 +375,12 @@ The following parameters are used to create an APN message:
 }
 ```
 
-*data is the parameter in `push.send(registrationIds, data)`*
+_data is the parameter in `push.send(registrationIds, data)`_
 
-* [See node-apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
-* **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic)). When using token-based authentication, specify the bundle ID of the app. 
-When using certificate-based authentication, the topic is usually your app's bundle ID.
-More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
+- [See node-apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
+- **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic)). When using token-based authentication, specify the bundle ID of the app.
+  When using certificate-based authentication, the topic is usually your app's bundle ID.
+  More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
 
 ### Silent push notifications
 
@@ -420,9 +420,9 @@ wns[notificationMethod](regId, data, opts, (err, response) => { ... });
 
 ```
 
-*data is the parameter in `push.send(registrationIds, data)`*
+_data is the parameter in `push.send(registrationIds, data)`_
 
-* [See wns fileds](https://github.com/tjanczuk/wns)
+- [See wns fileds](https://github.com/tjanczuk/wns)
 
 **Note:** Please keep in mind that if `data.accessToken` is supplied, each push notification will be sent after the previous one has been **responded**. This is because Microsoft may send a new `accessToken` in the response and it should be used in successive requests. This can slow down the whole process depending on the number of devices to send.
 
@@ -441,20 +441,21 @@ delete data.expiry;
 delete data.timeToLive;
 
 const ADMmesssage = {
-    expiresAfter: expiry - Math.floor(Date.now() / 1000) || timeToLive || 28 * 86400,
-    consolidationKey,
-    data,
+  expiresAfter:
+    expiry - Math.floor(Date.now() / 1000) || timeToLive || 28 * 86400,
+  consolidationKey,
+  data,
 };
 ```
 
-*data is the parameter in `push.send(registrationIds, data)`*
+_data is the parameter in `push.send(registrationIds, data)`_
 
-* [See node-adm fields](https://github.com/umano/node-adm#usage)
+- [See node-adm fields](https://github.com/umano/node-adm#usage)
 
 ## Web-Push
 
 Data can be passed as a simple string payload. If you do not pass a string, the parameter value will be stringified beforehand.
-Settings are directly forwarded to `webPush.sendNotification`. 
+Settings are directly forwarded to `webPush.sendNotification`.
 
 ```js
 const payload = typeof data === 'string' ? data : JSON.stringify(data);
@@ -495,4 +496,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-*<p style="font-size: small;" align="right"><a color="#232323;" href="http://appfeel.com">Made in Barcelona with <span color="#FCB"><3</span> and <span color="#BBCCFF">Code</span></a></p>*
+_<p style="font-size: small;" align="right"><a color="#232323;" href="http://appfeel.com">Made in Barcelona with <span color="#FCB"><3</span> and <span color="#BBCCFF">Code</span></a></p>_
