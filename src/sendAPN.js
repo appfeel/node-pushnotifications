@@ -54,7 +54,7 @@ class APN {
     if (!this.connection) {
       return Promise.reject(
         this.connectionError ||
-          new Error('Unkown error: APN connection not configured properly')
+          new Error('Unknown error: APN connection not configured properly')
       );
     }
 
