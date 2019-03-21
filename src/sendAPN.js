@@ -23,7 +23,7 @@ class APN {
   sendAPN(regIds, data) {
     const message = new apn.Notification({
       retryLimit: data.retries || -1,
-      expiry: data.expiry || defaultExpiry(data.timeToLive),
+      expiry: data.timeToLive || defaultExpiry(data.expiry),
       priority: data.priority === 'normal' ? 5 : 10,
       encoding: data.encoding,
       payload: data.custom || {},

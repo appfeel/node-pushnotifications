@@ -105,12 +105,12 @@ const sendGCM = (regIds, data, settings) => {
   }
 
   const message = new gcm.Message({
-    // See https://developers.google.com/cloud-messaging/http-server-ref#table5
+    // See https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages#AndroidConfig
     collapseKey: data.collapseKey,
     priority: data.priority === 'normal' ? data.priority : 'high',
     contentAvailable: data.contentAvailable || false,
     delayWhileIdle: data.delayWhileIdle || false,
-    timeToLive:
+    ttl:
       data.expiry - Math.floor(Date.now() / 1000) ||
       data.timeToLive ||
       28 * 86400,
