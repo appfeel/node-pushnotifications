@@ -1,6 +1,5 @@
 const webPush = require('web-push');
-
-const method = 'webPush';
+const { WEB_METHOD } = require('./constants');
 
 const sendWebPush = async (regIds, data, settings) => {
   const payload = typeof data === 'string' ? data : JSON.stringify(data);
@@ -37,7 +36,7 @@ const sendWebPush = async (regIds, data, settings) => {
     failure: acc.failure + current.failure,
     message: [...acc.message, ...current.message],
   }));
-  reduced.method = method;
+  reduced.method = WEB_METHOD;
   return reduced;
 };
 

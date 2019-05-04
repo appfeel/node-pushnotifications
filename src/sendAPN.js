@@ -1,8 +1,17 @@
 const apn = require('apn');
+const R = require('ramda');
+const { DEFAULT_TTL, APN_METHOD } = require('./constants');
 
-const method = 'apn';
-const defaultExpiry = ttl =>
-  (typeof ttl === 'number' ? ttl : 28 * 86400) + Math.floor(Date.now() / 1000);
+const expiryFromTtl = ttl => ttl + Math.floor(Date.now() / 1000);
+
+const extractExpiry = R.cond([
+  [R.propIs(Number, 'expiry'), R.prop('expiry')],
+  [
+    R.propIs(Number, 'timeToLive'),
+    ({ timeToLive }) => expiryFromTtl(timeToLive),
+  ],
+  [R.T, () => expiryFromTtl(DEFAULT_TTL)],
+]);
 
 class APN {
   constructor(settings) {
@@ -23,7 +32,7 @@ class APN {
   sendAPN(regIds, data) {
     const message = new apn.Notification({
       retryLimit: data.retries || -1,
-      expiry: data.expiry || defaultExpiry(data.timeToLive),
+      expiry: extractExpiry(data),
       priority: data.priority === 'normal' ? 5 : 10,
       encoding: data.encoding,
       payload: data.custom || {},
@@ -60,7 +69,7 @@ class APN {
 
     return this.connection.send(message, regIds).then(response => {
       const resumed = {
-        method,
+        method: APN_METHOD,
         success: 0,
         failure: 0,
         message: [],

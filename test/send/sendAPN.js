@@ -237,11 +237,154 @@ describe('push-notifications-apn', () => {
     });
 
     it('all responses should be successful (callback no payload, no sound)', done => {
-      const normalPrioData = Object.assign({}, data);
-      normalPrioData.priority = 'normal';
+      const normalPrioData = Object.assign({}, data, { priority: 'normal' });
       pn.send(regIds, normalPrioData, (err, results) =>
         testSuccess(err, results, done)
       );
+    });
+  });
+
+  describe('expiry', () => {
+    describe('send push notifications with custom expiry', () => {
+      const expiry = 104;
+
+      before(() => {
+        sendMethod = sinon.stub(
+          apn.Provider.prototype,
+          'send',
+          (message, _regIds) => {
+            expect(_regIds).to.be.instanceOf(Array);
+            _regIds.forEach(regId => expect(regIds).to.include(regId));
+            expect(message).to.be.instanceOf(apn.Notification);
+            expect(message).to.have.deep.property('expiry', expiry);
+            return Promise.resolve({
+              sent: _regIds,
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('expiry takes precedence over timeToLive', done => {
+        const expiryData = Object.assign({}, data, {
+          expiry,
+          timeToLive: 2000,
+        });
+        pn.send(regIds, expiryData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe('send push notifications with expiry 0', () => {
+      const expiry = 0;
+
+      before(() => {
+        sendMethod = sinon.stub(
+          apn.Provider.prototype,
+          'send',
+          (message, _regIds) => {
+            expect(_regIds).to.be.instanceOf(Array);
+            _regIds.forEach(regId => expect(regIds).to.include(regId));
+            expect(message).to.be.instanceOf(apn.Notification);
+            expect(message).to.have.deep.property('expiry', expiry);
+            return Promise.resolve({
+              sent: _regIds,
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('expiry 0 should be accepted as a valid value', done => {
+        const expiryData = Object.assign({}, data, { expiry });
+        pn.send(regIds, expiryData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe('send push notifications with expiry calculated from timeToLive', () => {
+      const timeToLive = 200;
+      const now = 150000;
+      let clock;
+
+      before(() => {
+        const expectedExpiry = 350;
+
+        clock = sinon.useFakeTimers(now);
+
+        sendMethod = sinon.stub(
+          apn.Provider.prototype,
+          'send',
+          (message, _regIds) => {
+            expect(_regIds).to.be.instanceOf(Array);
+            _regIds.forEach(regId => expect(regIds).to.include(regId));
+            expect(message).to.be.instanceOf(apn.Notification);
+            expect(message).to.have.deep.property('expiry', expectedExpiry);
+            return Promise.resolve({
+              sent: _regIds,
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+        clock.restore();
+      });
+
+      it('expiry should be calculated correctly', done => {
+        const ttlData = Object.assign({}, data, { timeToLive });
+        pn.send(regIds, ttlData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe('send push notifications with neither expiry nor timeToLive given', () => {
+      const now = 150000;
+      let clock;
+
+      before(() => {
+        const expiryFromDefaultTtl = 2419350;
+
+        clock = sinon.useFakeTimers(now);
+
+        sendMethod = sinon.stub(
+          apn.Provider.prototype,
+          'send',
+          (message, _regIds) => {
+            expect(_regIds).to.be.instanceOf(Array);
+            _regIds.forEach(regId => expect(regIds).to.include(regId));
+            expect(message).to.be.instanceOf(apn.Notification);
+            expect(message).to.have.deep.property(
+              'expiry',
+              expiryFromDefaultTtl
+            );
+            return Promise.resolve({
+              sent: _regIds,
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+        clock.restore();
+      });
+
+      it('should set the expiry from default ttl', done => {
+        pn.send(regIds, data, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
     });
   });
 
