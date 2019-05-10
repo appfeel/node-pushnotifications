@@ -1,6 +1,14 @@
 const gcm = require('node-gcm');
+const R = require('ramda');
+const { DEFAULT_TTL, GCM_METHOD } = require('./constants');
 
-const method = 'gcm';
+const ttlFromExpiry = expiry => expiry - Math.floor(Date.now() / 1000);
+
+const extractTimeToLive = R.cond([
+  [R.propIs(Number, 'expiry'), ({ expiry }) => ttlFromExpiry(expiry)],
+  [R.propIs(Number, 'timeToLive'), R.prop('timeToLive')],
+  [R.T, R.always(DEFAULT_TTL)],
+]);
 
 const sendChunk = (GCMSender, registrationTokens, message, retries) =>
   new Promise(resolve => {
@@ -12,7 +20,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) =>
         // Response: see https://developers.google.com/cloud-messaging/http-server-ref#table5
         if (err) {
           resolve({
-            method,
+            method: GCM_METHOD,
             success: 0,
             failure: registrationTokens.length,
             message: registrationTokens.map(value => ({
@@ -25,7 +33,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) =>
         } else if (response && response.results !== undefined) {
           let regIndex = 0;
           resolve({
-            method,
+            method: GCM_METHOD,
             multicastId: response.multicast_id,
             success: response.success,
             failure: response.failure,
@@ -45,7 +53,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) =>
           });
         } else {
           resolve({
-            method,
+            method: GCM_METHOD,
             multicastId: response.multicast_id,
             success: response.success,
             failure: response.failure,
@@ -110,10 +118,7 @@ const sendGCM = (regIds, data, settings) => {
     priority: data.priority === 'normal' ? data.priority : 'high',
     contentAvailable: data.contentAvailable || false,
     delayWhileIdle: data.delayWhileIdle || false,
-    timeToLive:
-      data.expiry - Math.floor(Date.now() / 1000) ||
-      data.timeToLive ||
-      28 * 86400,
+    timeToLive: extractTimeToLive(data),
     restrictedPackageName: data.restrictedPackageName,
     dryRun: data.dryRun || false,
     data: opts.phonegap === true ? Object.assign(custom, notification) : custom, // See https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour
@@ -130,7 +135,7 @@ const sendGCM = (regIds, data, settings) => {
 
   return Promise.all(promises).then(results => {
     const resumed = {
-      method,
+      method: GCM_METHOD,
       multicastId: [],
       success: 0,
       failure: 0,

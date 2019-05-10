@@ -11,6 +11,8 @@ import {
   testPushException,
 } from '../util';
 
+const { DEFAULT_TTL } = require('../../src/constants');
+
 const { expect } = chai;
 chai.use(dirtyChai);
 
@@ -450,6 +452,184 @@ describe('push-notifications-gcm', () => {
       pn.send(regIds, normalPrioData, (err, results) =>
         testSuccess(err, results, done)
       );
+    });
+  });
+
+  describe('timeToLive', () => {
+    describe('send push notifications with custom timeToLive', () => {
+      const timeToLive = 4004;
+
+      before(() => {
+        sendMethod = sinon.stub(
+          gcm.Sender.prototype,
+          'send',
+          (message, recipients, retries, cb) => {
+            expect(recipients).to.be.instanceOf(Object);
+            expect(recipients).to.have.property('registrationTokens');
+            const { registrationTokens } = recipients;
+            expect(registrationTokens).to.be.instanceOf(Array);
+            registrationTokens.forEach(regId =>
+              expect(regIds).to.include(regId)
+            );
+            expect(message.params.timeToLive).to.equal(timeToLive);
+            cb(null, {
+              multicast_id: 'abc',
+              success: registrationTokens.length,
+              failure: 0,
+              results: registrationTokens.map(token => ({
+                message_id: '',
+                registration_id: token,
+                error: null,
+              })),
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('timeToLive set correctly', done => {
+        const expiryData = Object.assign({}, data, {
+          timeToLive,
+        });
+        pn.send(regIds, expiryData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe('send push notifications with tll 0', () => {
+      const ttl = 0;
+
+      before(() => {
+        sendMethod = sinon.stub(
+          gcm.Sender.prototype,
+          'send',
+          (message, recipients, retries, cb) => {
+            expect(recipients).to.be.instanceOf(Object);
+            expect(recipients).to.have.property('registrationTokens');
+            const { registrationTokens } = recipients;
+            expect(registrationTokens).to.be.instanceOf(Array);
+            registrationTokens.forEach(regId =>
+              expect(regIds).to.include(regId)
+            );
+            expect(message.params.timeToLive).to.equal(ttl);
+            cb(null, {
+              multicast_id: 'abc',
+              success: registrationTokens.length,
+              failure: 0,
+              results: registrationTokens.map(token => ({
+                message_id: '',
+                registration_id: token,
+                error: null,
+              })),
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('timeToLive 0 should be accepted as a valid value', done => {
+        const ttlData = Object.assign({}, data, { timeToLive: ttl });
+        pn.send(regIds, ttlData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe('send push notifications with timeToLive calculated from expiry', () => {
+      const now = 150000;
+      let clock;
+
+      before(() => {
+        const expectedTtl = 159850;
+
+        clock = sinon.useFakeTimers(now);
+
+        sendMethod = sinon.stub(
+          gcm.Sender.prototype,
+          'send',
+          (message, recipients, retries, cb) => {
+            expect(recipients).to.be.instanceOf(Object);
+            expect(recipients).to.have.property('registrationTokens');
+            const { registrationTokens } = recipients;
+            expect(registrationTokens).to.be.instanceOf(Array);
+            registrationTokens.forEach(regId =>
+              expect(regIds).to.include(regId)
+            );
+            expect(message.params.timeToLive).to.equal(expectedTtl);
+            cb(null, {
+              multicast_id: 'abc',
+              success: registrationTokens.length,
+              failure: 0,
+              results: registrationTokens.map(token => ({
+                message_id: '',
+                registration_id: token,
+                error: null,
+              })),
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+        clock.restore();
+      });
+
+      it('timeToLive should be calculated correctly from expiry. expiry takes precedence', done => {
+        const expiryData = Object.assign({}, data, {
+          expiry: 160000,
+          timeToLive: 3000,
+        });
+        pn.send(regIds, expiryData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe('send push notifications with neither expiry nor timeToLive given', () => {
+      before(() => {
+        sendMethod = sinon.stub(
+          gcm.Sender.prototype,
+          'send',
+          (message, recipients, retries, cb) => {
+            expect(recipients).to.be.instanceOf(Object);
+            expect(recipients).to.have.property('registrationTokens');
+            const { registrationTokens } = recipients;
+            expect(registrationTokens).to.be.instanceOf(Array);
+            registrationTokens.forEach(regId =>
+              expect(regIds).to.include(regId)
+            );
+            expect(message.params.timeToLive).to.equal(DEFAULT_TTL);
+            cb(null, {
+              multicast_id: 'abc',
+              success: registrationTokens.length,
+              failure: 0,
+              results: registrationTokens.map(token => ({
+                message_id: '',
+                registration_id: token,
+                error: null,
+              })),
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('should set the default expiry', done => {
+        pn.send(regIds, data, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
     });
   });
 

@@ -1,6 +1,6 @@
 const wns = require('wns');
+const { WNS_METHOD } = require('./constants');
 
-const method = 'wns';
 const parseErrorMessage = err => (err instanceof Error ? err.message : err);
 const parseError = err => {
   if (err instanceof Error) {
@@ -67,7 +67,7 @@ const sendWNS = (_regIds, _data, settings) => {
       : Object.assign({}, _data);
 
   resumed = {
-    method,
+    method: WNS_METHOD,
     success: 0,
     failure: 0,
     message: [],
