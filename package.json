@@ -51,12 +51,12 @@
     "url": "https://github.com/appfeel/node-pushnotifications.git"
   },
   "dependencies": {
-    "apn": "^2.2.0",
-    "node-adm": "^0.9.1",
-    "node-gcm": "^1.0.2",
-    "ramda": "^0.26.1",
-    "web-push": "^3.3.5",
-    "wns": "^0.5.4"
+    "apn": "2.2.0",
+    "node-adm": "0.9.1",
+    "node-gcm": "1.0.2",
+    "ramda": "0.26.1",
+    "web-push": "3.3.5",
+    "wns": "0.5.4"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
