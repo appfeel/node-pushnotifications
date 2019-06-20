@@ -151,6 +151,7 @@ const data = {
     encoding: '', // apn
     badge: 2, // gcm for ios, apn
     sound: 'ping.aiff', // gcm, apn
+    android_channel_id: '', // gcm - Android Channel ID
     alert: { // apn, will take precedence over title and body
         title: 'title',
         body: 'body'
@@ -284,6 +285,7 @@ The following parameters are used to create a GCM message. See https://developer
             body_loc_args: data.locArgs, // Android, iOS
             title_loc_key: data.titleLocKey, // Android, iOS
             title_loc_args: data.titleLocArgs, // Android, iOS
+	    android_channel_id: data.android_channel_id, // Android
         },
     }
 ```
