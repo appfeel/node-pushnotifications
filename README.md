@@ -318,7 +318,8 @@ _data is the parameter in `push.send(registrationIds, data)`_
         body_loc_key: undefined,
         body_loc_args: undefined,
         title_loc_key: undefined,
-        title_loc_args: undefined
+        title_loc_args: undefined,
+	android_channel_id: undefined
     }
 ```
 
