@@ -729,6 +729,48 @@ describe('push-notifications-gcm', () => {
     });
   });
 
+  describe('send image', () => {
+    before(() => {
+      sendMethod = sinon.stub(
+        gcm.Sender.prototype,
+        'send',
+        (message, recipients, retries, cb) => {
+          expect(recipients).to.be.instanceOf(Object);
+          expect(recipients).to.have.property('registrationTokens');
+          const { registrationTokens } = recipients;
+          expect(registrationTokens).to.be.instanceOf(Array);
+          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          expect(retries).to.be.a('number');
+          expect(message).to.be.instanceOf(gcm.Message);
+          expect(message.params.notification.image).to.equal('imageData');
+          cb(null, {
+            multicast_id: 'abc',
+            success: registrationTokens.length,
+            failure: 0,
+            results: registrationTokens.map(token => ({
+              message_id: '',
+              registration_id: token,
+              error: null,
+            })),
+          });
+        }
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('all responses should be successful (callback, custom data undefined)', done => {
+      const channelIdData = {
+        image: 'imageData',
+      };
+      pn.send(regIds, channelIdData, (err, results) =>
+        testSuccess(err, results, done)
+      );
+    });
+  });
+
   describe('send push notifications in phonegap-push compatibility mode', () => {
     const pushPhoneGap = new PN({
       gcm: {
