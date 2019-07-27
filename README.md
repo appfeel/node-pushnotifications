@@ -140,6 +140,7 @@ const data = {
     restrictedPackageName: '', // gcm for android
     dryRun: false, // gcm for android
     icon: '', // gcm for android
+    image: '', // gcm for android
     tag: '', // gcm for android
     color: '', // gcm for android
     clickAction: '', // gcm for android. In ios, category will be used if not supplied
@@ -276,6 +277,7 @@ The following parameters are used to create a GCM message. See https://developer
             title: data.title, // Android, iOS (Watch)
             body: data.body, // Android, iOS
             icon: data.icon, // Android
+	    image: data.image, // Android
             sound: data.sound, // Android, iOS
             badge: data.badge, // iOS
             tag: data.tag, // Android
@@ -310,6 +312,7 @@ _data is the parameter in `push.send(registrationIds, data)`_
         title: 'title',
         body: 'body',
         icon: undefined,
+	image: undefined,
         sound: 'mySound.aiff',
         badge: undefined,
         tag: undefined,

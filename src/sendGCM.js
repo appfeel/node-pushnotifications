@@ -79,6 +79,7 @@ const sendGCM = (regIds, data, settings) => {
     title: data.title, // Android, iOS (Watch)
     body: data.body, // Android, iOS
     icon: data.icon, // Android
+    image: data.image, // Android
     sound: data.sound, // Android, iOS
     badge: data.badge, // iOS
     tag: data.tag, // Android
