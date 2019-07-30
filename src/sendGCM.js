@@ -80,6 +80,8 @@ const sendGCM = (regIds, data, settings) => {
     body: data.body, // Android, iOS
     icon: data.icon, // Android
     image: data.image, // Android
+    picture: data.picture, // Android
+    style: data.style, // Android
     sound: data.sound, // Android, iOS
     badge: data.badge, // iOS
     tag: data.tag, // Android
