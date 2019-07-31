@@ -141,6 +141,8 @@ const data = {
     dryRun: false, // gcm for android
     icon: '', // gcm for android
     image: '', // gcm for android
+    style: '', // gcm for android
+    picture: '', // gcm for android
     tag: '', // gcm for android
     color: '', // gcm for android
     clickAction: '', // gcm for android. In ios, category will be used if not supplied
@@ -278,6 +280,8 @@ The following parameters are used to create a GCM message. See https://developer
             body: data.body, // Android, iOS
             icon: data.icon, // Android
 	    image: data.image, // Android
+	    style: data.style, // Android
+   	    picture: data.picture, // Android
             sound: data.sound, // Android, iOS
             badge: data.badge, // iOS
             tag: data.tag, // Android
@@ -313,6 +317,8 @@ _data is the parameter in `push.send(registrationIds, data)`_
         body: 'body',
         icon: undefined,
 	image: undefined,
+	style: undefined,
+	picture: undefined,
         sound: 'mySound.aiff',
         badge: undefined,
         tag: undefined,
