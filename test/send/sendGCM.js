@@ -685,7 +685,7 @@ describe('push-notifications-gcm', () => {
     });
   });
 
-  describe('send Android Channel ID', () => {
+  describe('include Android-specific fields, such as channel id, image, style etc.', () => {
     before(() => {
       sendMethod = sinon.stub(
         gcm.Sender.prototype,
@@ -700,6 +700,11 @@ describe('push-notifications-gcm', () => {
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.notification.android_channel_id).to.equal(
             'channelId'
+          );
+          expect(message.params.notification.image).to.equal('imageData');
+          expect(message.params.notification.style).to.equal('some-style');
+          expect(message.params.notification.picture).to.equal(
+            'http://example.com'
           );
           cb(null, {
             multicast_id: 'abc',
@@ -720,52 +725,13 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, custom data undefined)', done => {
-      const channelIdData = {
+      const androidData = {
         android_channel_id: 'channelId',
-      };
-      pn.send(regIds, channelIdData, (err, results) =>
-        testSuccess(err, results, done)
-      );
-    });
-  });
-
-  describe('send image', () => {
-    before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
-          expect(recipients).to.be.instanceOf(Object);
-          expect(recipients).to.have.property('registrationTokens');
-          const { registrationTokens } = recipients;
-          expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
-          expect(retries).to.be.a('number');
-          expect(message).to.be.instanceOf(gcm.Message);
-          expect(message.params.notification.image).to.equal('imageData');
-          cb(null, {
-            multicast_id: 'abc',
-            success: registrationTokens.length,
-            failure: 0,
-            results: registrationTokens.map(token => ({
-              message_id: '',
-              registration_id: token,
-              error: null,
-            })),
-          });
-        }
-      );
-    });
-
-    after(() => {
-      sendMethod.restore();
-    });
-
-    it('all responses should be successful (callback, custom data undefined)', done => {
-      const channelIdData = {
         image: 'imageData',
+        style: 'some-style',
+        picture: 'http://example.com',
       };
-      pn.send(regIds, channelIdData, (err, results) =>
+      pn.send(regIds, androidData, (err, results) =>
         testSuccess(err, results, done)
       );
     });
