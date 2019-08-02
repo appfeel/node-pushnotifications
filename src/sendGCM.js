@@ -76,6 +76,7 @@ const sendGCM = (regIds, data, settings) => {
   const GCMSender = new gcm.Sender(id, opts);
   const promises = [];
   const notification = {
+    id: data.id,
     title: data.title, // Android, iOS (Watch)
     body: data.body, // Android, iOS
     icon: data.icon, // Android
@@ -106,7 +107,7 @@ const sendGCM = (regIds, data, settings) => {
       data: data.custom,
     };
   }
-
+  custom.id = custom.id || data.id;
   custom.title = custom.title || data.title;
   custom.message = custom.message || data.body;
   custom.sound = custom.sound || data.sound;
