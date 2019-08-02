@@ -1,8 +1,11 @@
 const webPush = require('web-push');
+const { is, unless, assoc } = require('ramda');
 const { WEB_METHOD } = require('./constants');
 
+const stringify = unless(is(String), JSON.stringify);
+
 const sendWebPush = async (regIds, data, settings) => {
-  const payload = typeof data === 'string' ? data : JSON.stringify(data);
+  const payload = stringify(data);
   const promises = regIds.map(regId =>
     webPush
       .sendNotification(regId, payload, settings.web)
@@ -36,8 +39,7 @@ const sendWebPush = async (regIds, data, settings) => {
     failure: acc.failure + current.failure,
     message: [...acc.message, ...current.message],
   }));
-  reduced.method = WEB_METHOD;
-  return reduced;
+  return assoc('method', WEB_METHOD, reduced);
 };
 
 module.exports = sendWebPush;
