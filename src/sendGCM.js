@@ -77,6 +77,7 @@ const sendGCM = (regIds, data, settings) => {
   const promises = [];
   const notification = {
     id: data.id,
+    group: data.group,
     title: data.title, // Android, iOS (Watch)
     body: data.body, // Android, iOS
     icon: data.icon, // Android
@@ -108,6 +109,7 @@ const sendGCM = (regIds, data, settings) => {
     };
   }
   custom.id = custom.id || data.id;
+  custom.group = custom.group || data.group;
   custom.title = custom.title || data.title;
   custom.message = custom.message || data.body;
   custom.sound = custom.sound || data.sound;
