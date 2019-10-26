@@ -11,7 +11,7 @@ class PN {
   }
 
   setOptions(opts) {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, opts);
+    this.settings = { ...DEFAULT_SETTINGS, ...opts };
     if (this.apn) {
       this.apn.shutdown();
     }

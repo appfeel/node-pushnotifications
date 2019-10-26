@@ -161,7 +161,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, no title)', done => {
-      const newData = Object.assign({}, data);
+      const newData = { ...data };
       delete newData.title;
       const callback = (err, results) => testSuccess(err, results, done);
       pn.send(regIds, newData, callback).catch(() => {});
@@ -212,7 +212,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, no sound, icon, msgcnt)', done => {
-      const newData = Object.assign({}, data);
+      const newData = { ...data };
       delete newData.sound;
       newData.icon = 'myicon.png';
       newData.custom.msgcnt = 2;
@@ -262,7 +262,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, no contentAvailable)', done => {
-      const newData = Object.assign({}, data);
+      const newData = { ...data };
       delete newData.contentAvailable;
       const callback = (err, results) => testSuccess(err, results, done);
       pn.send(regIds, newData, callback).catch(() => {});
@@ -310,7 +310,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, no body)', done => {
-      const newData = Object.assign({}, data);
+      const newData = { ...data };
       delete newData.body;
       const callback = (err, results) => testSuccess(err, results, done);
       pn.send(regIds, newData, callback).catch(() => {});
@@ -358,7 +358,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, custom data as string)', done => {
-      const newData = Object.assign({}, data, { custom: 'this is a string' });
+      const newData = { ...data, custom: 'this is a string' };
       pn.send(regIds, newData, (err, results) =>
         testSuccess(err, results, done)
       );
@@ -406,7 +406,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, custom data undefined)', done => {
-      const newData = Object.assign({}, data);
+      const newData = { ...data };
       delete newData.custom;
       pn.send(regIds, newData, (err, results) =>
         testSuccess(err, results, done)
@@ -447,7 +447,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, custom data undefined)', done => {
-      const normalPrioData = Object.assign({}, data);
+      const normalPrioData = { ...data };
       normalPrioData.priority = 'normal';
       pn.send(regIds, normalPrioData, (err, results) =>
         testSuccess(err, results, done)
@@ -491,9 +491,7 @@ describe('push-notifications-gcm', () => {
       });
 
       it('timeToLive set correctly', done => {
-        const expiryData = Object.assign({}, data, {
-          timeToLive,
-        });
+        const expiryData = { ...data, timeToLive };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
         );
@@ -535,7 +533,7 @@ describe('push-notifications-gcm', () => {
       });
 
       it('timeToLive 0 should be accepted as a valid value', done => {
-        const ttlData = Object.assign({}, data, { timeToLive: ttl });
+        const ttlData = { ...data, timeToLive: ttl };
         pn.send(regIds, ttlData, (err, results) =>
           testSuccess(err, results, done)
         );
@@ -583,10 +581,7 @@ describe('push-notifications-gcm', () => {
       });
 
       it('timeToLive should be calculated correctly from expiry. expiry takes precedence', done => {
-        const expiryData = Object.assign({}, data, {
-          expiry: 160000,
-          timeToLive: 3000,
-        });
+        const expiryData = { ...data, expiry: 160000, timeToLive: 3000 };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
         );

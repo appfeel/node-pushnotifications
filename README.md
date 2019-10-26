@@ -175,8 +175,8 @@ const data = {
     truncateAtWordEnd: true, // apn and gcm for ios
     mutableContent: 0, // apn
     threadId: '', // apn
-    // if both expiry and timeToLive are given, expiry will take precedence
-    expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // seconds
+    pushType: undefined, // apn. valid values are 'alert' and 'background' (https://github.com/parse-community/node-apn/blob/master/doc/notification.markdown#notificationpushtype)
+    expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // unit is seconds. if both expiry and timeToLive are given, expiry will take precedence
     timeToLive: 28 * 86400,
     headers: [], // wns
     launch: '', // wns
@@ -385,6 +385,8 @@ The following parameters are used to create an APN message:
     truncateAtWordEnd: data.truncateAtWordEnd,
     collapseId: data.collapseKey,
     mutableContent: data.mutableContent || 0,
+    threadId: data.threadId,
+    pushType: data.pushType
 }
 ```
 

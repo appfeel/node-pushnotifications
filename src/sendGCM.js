@@ -70,7 +70,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) =>
   });
 
 const sendGCM = (regIds, data, settings) => {
-  const opts = Object.assign({}, settings.gcm);
+  const opts = { ...settings.gcm };
   const { id } = opts;
   delete opts.id;
   const GCMSender = new gcm.Sender(id, opts);
@@ -100,7 +100,7 @@ const sendGCM = (regIds, data, settings) => {
       message: data.custom,
     };
   } else if (typeof data.custom === 'object') {
-    custom = Object.assign({}, data.custom);
+    custom = { ...data.custom };
   } else {
     custom = {
       data: data.custom,

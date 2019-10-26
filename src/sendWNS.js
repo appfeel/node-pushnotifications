@@ -43,9 +43,7 @@ const sendWNS = (_regIds, _data, settings) => {
             regIds,
             notificationMethod,
             data,
-            Object.assign({}, opts, {
-              accessToken: response.newAccessToken,
-            }),
+            { ...opts, accessToken: response.newAccessToken },
             onFinish
           );
         });
@@ -59,12 +57,10 @@ const sendWNS = (_regIds, _data, settings) => {
   }
 
   const promises = [];
-  const opts = Object.assign({}, settings.wns);
+  const opts = { ...settings.wns };
   const { notificationMethod } = opts;
   const data =
-    notificationMethod === 'sendRaw'
-      ? JSON.stringify(_data)
-      : Object.assign({}, _data);
+    notificationMethod === 'sendRaw' ? JSON.stringify(_data) : { ..._data };
 
   resumed = {
     method: WNS_METHOD,

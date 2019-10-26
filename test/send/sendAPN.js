@@ -163,7 +163,7 @@ describe('push-notifications-apn', () => {
     });
 
     it('all responses should be successful (callback no payload, no sound)', done => {
-      const newData = Object.assign({}, data);
+      const newData = { ...data };
       delete newData.custom;
       delete newData.sound;
       pn.send(regIds, newData, (err, results) =>
@@ -237,7 +237,7 @@ describe('push-notifications-apn', () => {
     });
 
     it('all responses should be successful (callback no payload, no sound)', done => {
-      const normalPrioData = Object.assign({}, data, { priority: 'normal' });
+      const normalPrioData = { ...data, priority: 'normal' };
       pn.send(regIds, normalPrioData, (err, results) =>
         testSuccess(err, results, done)
       );
@@ -269,10 +269,7 @@ describe('push-notifications-apn', () => {
       });
 
       it('expiry takes precedence over timeToLive', done => {
-        const expiryData = Object.assign({}, data, {
-          expiry,
-          timeToLive: 2000,
-        });
+        const expiryData = { ...data, expiry, timeToLive: 2000 };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
         );
@@ -303,7 +300,7 @@ describe('push-notifications-apn', () => {
       });
 
       it('expiry 0 should be accepted as a valid value', done => {
-        const expiryData = Object.assign({}, data, { expiry });
+        const expiryData = { ...data, expiry };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
         );
@@ -341,7 +338,7 @@ describe('push-notifications-apn', () => {
       });
 
       it('expiry should be calculated correctly', done => {
-        const ttlData = Object.assign({}, data, { timeToLive });
+        const ttlData = { ...data, timeToLive };
         pn.send(regIds, ttlData, (err, results) =>
           testSuccess(err, results, done)
         );

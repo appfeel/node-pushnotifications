@@ -10,7 +10,7 @@ const sendADM = (regIds, _data, settings) => {
   };
   const promises = [];
   const admSender = new adm.Sender(settings.adm);
-  const data = Object.assign({}, _data);
+  const data = { ..._data };
   const { consolidationKey, expiry, timeToLive } = data;
 
   delete data.consolidationKey;

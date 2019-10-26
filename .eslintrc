@@ -1,6 +1,6 @@
 {
-    "extends": ["airbnb", "plugin:prettier/recommended"],
-    "env": {
-        "node": true
-    }
+  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "env": {
+    "node": true
+  }
 }
