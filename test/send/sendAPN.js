@@ -6,7 +6,7 @@ import sinonChai from 'sinon-chai';
 import dirtyChai from 'dirty-chai';
 import { readFileSync } from 'fs';
 
-import apn from 'apn';
+import apn from '@parse/node-apn';
 import PN from '../../src';
 import APN from '../../src/sendAPN';
 import {
@@ -210,6 +210,38 @@ describe('push-notifications-apn', () => {
         },
       };
       pn.send(regIds, silentPushData, (err, results) =>
+        testSuccess(err, results, done)
+      );
+    });
+  });
+
+  describe('send notifications with pushType property', () => {
+    before(() => {
+      sendMethod = sinon.stub(
+        apn.Provider.prototype,
+        'send',
+        (message, _regIds) => {
+          expect(_regIds).to.be.instanceOf(Array);
+          _regIds.forEach(regId => expect(regIds).to.include(regId));
+          expect(message).to.be.instanceOf(apn.Notification);
+          expect(message.pushType).to.equal('alert');
+          return Promise.resolve({
+            sent: _regIds,
+          });
+        }
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('all responses should be successful', done => {
+      const pushTypeData = {
+        topic: 'testTopic',
+        pushType: 'alert',
+      };
+      pn.send(regIds, pushTypeData, (err, results) =>
         testSuccess(err, results, done)
       );
     });
