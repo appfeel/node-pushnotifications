@@ -1,4 +1,4 @@
-const apn = require('apn');
+const apn = require('@parse/node-apn');
 const R = require('ramda');
 const { DEFAULT_TTL, APN_METHOD } = require('./constants');
 
@@ -58,6 +58,7 @@ class APN {
       collapseId: data.collapseKey,
       mutableContent: data.mutableContent || 0,
       threadId: data.threadId,
+      pushType: data.pushType,
     });
 
     if (!this.connection) {
