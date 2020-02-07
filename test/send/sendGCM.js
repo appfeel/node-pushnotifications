@@ -30,6 +30,7 @@ const data = {
   custom: {
     sender: 'appfeel-test',
   },
+  badge: 42,
 };
 const gcmOpts = {
   gcm: {
@@ -168,7 +169,7 @@ describe('push-notifications-gcm', () => {
     });
   });
 
-  describe('send push notifications successfully, (callback, no sound, icon, msgcnt)', () => {
+  describe('send push notifications successfully, (callback, no sound, icon, msgcnt, badge)', () => {
     before(() => {
       sendMethod = sinon.stub(
         gcm.Sender.prototype,
@@ -193,6 +194,7 @@ describe('push-notifications-gcm', () => {
           expect(message.params.data.sound).to.be.undefined();
           expect(message.params.data.icon).to.equal('myicon.png');
           expect(message.params.data.msgcnt).to.equal(2);
+          expect(message.params.notification.notification_count).to.eql(42);
           cb(null, {
             multicast_id: 'abc',
             success: registrationTokens.length,
@@ -221,7 +223,7 @@ describe('push-notifications-gcm', () => {
     });
   });
 
-  describe('send push notifications successfully, (callback, no contentAvailable)', () => {
+  describe('send push notifications successfully, (callback, no contentAvailable, notificationCount)', () => {
     before(() => {
       sendMethod = sinon.stub(
         gcm.Sender.prototype,
@@ -243,6 +245,7 @@ describe('push-notifications-gcm', () => {
           expect(message.params.data.title).to.eql(data.title);
           expect(message.params.data.message).to.eql(data.body);
           expect(message.params.data.sound).to.eql(data.sound);
+          expect(message.params.notification.notification_count).to.eql(42);
           cb(null, {
             multicast_id: 'abc',
             success: registrationTokens.length,
@@ -264,6 +267,8 @@ describe('push-notifications-gcm', () => {
     it('all responses should be successful (callback, no contentAvailable)', done => {
       const newData = { ...data };
       delete newData.contentAvailable;
+      delete newData.badge;
+      newData.notificationCount = 42;
       const callback = (err, results) => testSuccess(err, results, done);
       pn.send(regIds, newData, callback).catch(() => {});
     });

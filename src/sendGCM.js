@@ -92,6 +92,7 @@ const sendGCM = (regIds, data, settings) => {
     title_loc_key: data.titleLocKey, // Android, iOS
     title_loc_args: data.titleLocArgs, // Android, iOS
     android_channel_id: data.android_channel_id, // Android
+    notification_count: data.notificationCount || data.badge, // Android
   };
 
   let custom;
