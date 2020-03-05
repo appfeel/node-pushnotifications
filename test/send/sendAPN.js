@@ -182,8 +182,7 @@ describe('push-notifications-apn', () => {
           _regIds.forEach(regId => expect(regIds).to.include(regId));
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message.aps.sound).to.be.undefined();
-          expect(message.aps.alert.title).to.be.undefined();
-          expect(message.aps.alert.body).to.be.undefined();
+          expect(message.aps.alert).to.be.undefined();
           expect(message.aps.badge).to.be.undefined();
           expect(message.topic).to.equal('testTopic');
           expect(message.priority).to.equal(5);
@@ -204,7 +203,11 @@ describe('push-notifications-apn', () => {
       const silentPushData = {
         topic: 'testTopic',
         contentAvailable: true,
-        priority: 'normal',
+        priority: 'high',
+        silent: true,
+        alert: { title: 'ignore' },
+        badge: 'ignore',
+        sound: 'ignore',
         custom: {
           testKey: 'testValue',
         },

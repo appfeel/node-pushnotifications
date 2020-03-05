@@ -161,6 +161,7 @@ const data = {
         body: 'body'
         // details: https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#convenience-setters
     },
+    silent: false, // apn, will override badge, sound, alert and priority if set to true
     /*
      * A string is also accepted as a payload for alert
      * Your notification won't appear on ios if alert is empty object
@@ -366,9 +367,9 @@ The following parameters are used to create an APN message:
     priority: data.priority === 'normal' ? 5 : 10,
     encoding: data.encoding,
     payload: data.custom || {},
-    badge: data.badge,
-    sound: data.sound,
-    alert: data.alert || {
+    badge: data.silent === true ? undefined : data.badge,
+    badge: data.sound === true ? undefined : data.sound,
+    alert: data.sound === true ? undefined : data.alert || {
         title: data.title,
         body: data.body,
         'title-loc-key': data.titleLocKey,
@@ -402,13 +403,17 @@ _data is the parameter in `push.send(registrationIds, data)`_
 
 iOS supports silent push notifications which are not displayed to the user but only used to transmit data.
 
-You can send silent push notifications by sending a push notification with normal priority and no sound, badge or alert.
+Silent push notifications must not include sound, badge or alert and have normal priority.
+
+By setting the `silent` property to `true` the values for `sound`, `badge` and `alert` will be overridden to `undefined`.
+
+Priority will be overridden to `normal`.
 
 ```js
 const silentPushData = {
     topic: 'yourTopic',
     contentAvailable: true,
-    priority: 'normal',
+    silent: true,
     payload: {
         yourKey: 'yourValue',
         ...
