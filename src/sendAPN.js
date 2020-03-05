@@ -13,6 +13,32 @@ const extractExpiry = R.cond([
   [R.T, () => expiryFromTtl(DEFAULT_TTL)],
 ]);
 
+const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
+  R.ifElse(
+    R.propEq('silent', true),
+    R.always(undefined),
+    R.prop(propName)
+  )(data);
+
+const getDefaultAlert = data => ({
+  title: data.title,
+  body: data.body,
+  'title-loc-key': data.titleLocKey,
+  'title-loc-args': data.titleLocArgs,
+  'loc-key': data.locKey,
+  // bodyLocArgs is kept for backward compatibility
+  'loc-args': data.locArgs || data.bodyLocArgs,
+  'launch-image': data.launchImage,
+  action: data.action,
+});
+
+const pushDataWithDefaultAlert = data =>
+  R.when(
+    R.propSatisfies(R.isNil, 'alert'),
+    R.assoc('alert', getDefaultAlert(data)),
+    data
+  );
+
 class APN {
   constructor(settings) {
     try {
@@ -33,22 +59,15 @@ class APN {
     const message = new apn.Notification({
       retryLimit: data.retries || -1,
       expiry: extractExpiry(data),
-      priority: data.priority === 'normal' ? 5 : 10,
+      priority: data.priority === 'normal' || data.silent === true ? 5 : 10,
       encoding: data.encoding,
       payload: data.custom || {},
-      badge: data.badge,
-      sound: data.sound,
-      alert: data.alert || {
-        title: data.title,
-        body: data.body,
-        'title-loc-key': data.titleLocKey,
-        'title-loc-args': data.titleLocArgs,
-        'loc-key': data.locKey,
-        // bodyLocArgs is kept for backward compatibility
-        'loc-args': data.locArgs || data.bodyLocArgs,
-        'launch-image': data.launchImage,
-        action: data.action,
-      },
+      badge: getPropValueOrUndefinedIfIsSilent('badge', data),
+      sound: getPropValueOrUndefinedIfIsSilent('sound', data),
+      alert: getPropValueOrUndefinedIfIsSilent(
+        'alert',
+        pushDataWithDefaultAlert(data)
+      ),
       topic: data.topic,
       category: data.category || data.clickAction,
       contentAvailable: data.contentAvailable,
