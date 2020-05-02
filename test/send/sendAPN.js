@@ -66,7 +66,7 @@ function sendOkMethod() {
     expect(this.client.config.key).to.eql(readFileSync(apnOptions.key));
 
     expect(_regIds).to.be.instanceOf(Array);
-    _regIds.forEach(regId => expect(regIds).to.include(regId));
+    _regIds.forEach((regId) => expect(regIds).to.include(regId));
     expect(message).to.be.instanceOf(apn.Notification);
     expect(message.aps.sound).to.eql(data.sound);
     expect(message.aps.alert.title).to.eql(data.title);
@@ -82,7 +82,7 @@ function sendOkMethod() {
 function sendFailureMethod1() {
   return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) =>
     Promise.resolve({
-      failed: _regIds.map(regId => ({
+      failed: _regIds.map((regId) => ({
         device: regId,
         response: {},
         status: errStatusCode,
@@ -93,7 +93,7 @@ function sendFailureMethod1() {
 function sendFailureMethod2() {
   return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) =>
     Promise.resolve({
-      failed: _regIds.map(regId => ({
+      failed: _regIds.map((regId) => ({
         device: regId,
         response: {
           reason: fErr.message,
@@ -106,7 +106,7 @@ function sendFailureMethod2() {
 function sendErrorMethod() {
   return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) =>
     Promise.resolve({
-      failed: _regIds.map(regId => ({
+      failed: _regIds.map((regId) => ({
         device: regId,
         error: fErr,
       })),
@@ -128,13 +128,13 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback)', done => {
+    it('all responses should be successful (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testSuccess(err, results, done));
     });
 
-    it('all responses should be successful (promise)', done => {
+    it('all responses should be successful (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testSuccess(null, results, done))
+        .then((results) => testSuccess(null, results, done))
         .catch(done);
     });
   });
@@ -146,7 +146,7 @@ describe('push-notifications-apn', () => {
         'send',
         (message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach(regId => expect(regIds).to.include(regId));
+          _regIds.forEach((regId) => expect(regIds).to.include(regId));
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message.aps.alert.title).to.eql(data.title);
           expect(message.aps.alert.body).to.eql(data.body);
@@ -162,7 +162,7 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback no payload, no sound)', done => {
+    it('all responses should be successful (callback no payload, no sound)', (done) => {
       const newData = { ...data };
       delete newData.custom;
       delete newData.sound;
@@ -179,7 +179,7 @@ describe('push-notifications-apn', () => {
         'send',
         (message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach(regId => expect(regIds).to.include(regId));
+          _regIds.forEach((regId) => expect(regIds).to.include(regId));
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message.aps.sound).to.be.undefined();
           expect(message.aps.alert).to.be.undefined();
@@ -199,7 +199,7 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful', done => {
+    it('all responses should be successful', (done) => {
       const silentPushData = {
         topic: 'testTopic',
         contentAvailable: true,
@@ -225,7 +225,7 @@ describe('push-notifications-apn', () => {
         'send',
         (message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach(regId => expect(regIds).to.include(regId));
+          _regIds.forEach((regId) => expect(regIds).to.include(regId));
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message.pushType).to.equal('alert');
           return Promise.resolve({
@@ -239,7 +239,7 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful', done => {
+    it('all responses should be successful', (done) => {
       const pushTypeData = {
         topic: 'testTopic',
         pushType: 'alert',
@@ -257,7 +257,7 @@ describe('push-notifications-apn', () => {
         'send',
         (message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach(regId => expect(regIds).to.include(regId));
+          _regIds.forEach((regId) => expect(regIds).to.include(regId));
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message).to.have.deep.property('priority', 5);
           return Promise.resolve({
@@ -271,7 +271,7 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback no payload, no sound)', done => {
+    it('all responses should be successful (callback no payload, no sound)', (done) => {
       const normalPrioData = { ...data, priority: 'normal' };
       pn.send(regIds, normalPrioData, (err, results) =>
         testSuccess(err, results, done)
@@ -289,7 +289,7 @@ describe('push-notifications-apn', () => {
           'send',
           (message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach(regId => expect(regIds).to.include(regId));
+            _regIds.forEach((regId) => expect(regIds).to.include(regId));
             expect(message).to.be.instanceOf(apn.Notification);
             expect(message).to.have.deep.property('expiry', expiry);
             return Promise.resolve({
@@ -303,7 +303,7 @@ describe('push-notifications-apn', () => {
         sendMethod.restore();
       });
 
-      it('expiry takes precedence over timeToLive', done => {
+      it('expiry takes precedence over timeToLive', (done) => {
         const expiryData = { ...data, expiry, timeToLive: 2000 };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
@@ -320,7 +320,7 @@ describe('push-notifications-apn', () => {
           'send',
           (message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach(regId => expect(regIds).to.include(regId));
+            _regIds.forEach((regId) => expect(regIds).to.include(regId));
             expect(message).to.be.instanceOf(apn.Notification);
             expect(message).to.have.deep.property('expiry', expiry);
             return Promise.resolve({
@@ -334,7 +334,7 @@ describe('push-notifications-apn', () => {
         sendMethod.restore();
       });
 
-      it('expiry 0 should be accepted as a valid value', done => {
+      it('expiry 0 should be accepted as a valid value', (done) => {
         const expiryData = { ...data, expiry };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
@@ -357,7 +357,7 @@ describe('push-notifications-apn', () => {
           'send',
           (message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach(regId => expect(regIds).to.include(regId));
+            _regIds.forEach((regId) => expect(regIds).to.include(regId));
             expect(message).to.be.instanceOf(apn.Notification);
             expect(message).to.have.deep.property('expiry', expectedExpiry);
             return Promise.resolve({
@@ -372,7 +372,7 @@ describe('push-notifications-apn', () => {
         clock.restore();
       });
 
-      it('expiry should be calculated correctly', done => {
+      it('expiry should be calculated correctly', (done) => {
         const ttlData = { ...data, timeToLive };
         pn.send(regIds, ttlData, (err, results) =>
           testSuccess(err, results, done)
@@ -394,7 +394,7 @@ describe('push-notifications-apn', () => {
           'send',
           (message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach(regId => expect(regIds).to.include(regId));
+            _regIds.forEach((regId) => expect(regIds).to.include(regId));
             expect(message).to.be.instanceOf(apn.Notification);
             expect(message).to.have.deep.property(
               'expiry',
@@ -412,7 +412,7 @@ describe('push-notifications-apn', () => {
         clock.restore();
       });
 
-      it('should set the expiry from default ttl', done => {
+      it('should set the expiry from default ttl', (done) => {
         pn.send(regIds, data, (err, results) =>
           testSuccess(err, results, done)
         );
@@ -429,15 +429,15 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be failed with status code (callback)', done => {
+    it('all responses should be failed with status code (callback)', (done) => {
       pn.send(regIds, data, (err, results) =>
         testErrorStatusCode(err, results, done)
       );
     });
 
-    it('all responses should be failed with status code (promise)', done => {
+    it('all responses should be failed with status code (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testErrorStatusCode(null, results, done))
+        .then((results) => testErrorStatusCode(null, results, done))
         .catch(done);
     });
   });
@@ -451,13 +451,13 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be failed with response reason (callback)', done => {
+    it('all responses should be failed with response reason (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testError(err, results, done));
     });
 
-    it('all responses should be failed with response reason (promise)', done => {
+    it('all responses should be failed with response reason (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testError(null, results, done))
+        .then((results) => testError(null, results, done))
         .catch(done);
     });
   });
@@ -471,14 +471,14 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('the error should be reported (callback)', done => {
+    it('the error should be reported (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testError(err, results, done));
     });
 
-    it('the error should be reported (promise)', done => {
+    it('the error should be reported (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testError(null, results, done))
-        .catch(err => testError(err, undefined, done));
+        .then((results) => testError(null, results, done))
+        .catch((err) => testError(err, undefined, done));
     });
   });
 
@@ -491,16 +491,16 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('the exception should be catched (callback)', done => {
+    it('the exception should be catched (callback)', (done) => {
       pn.send(regIds, data, (err, results) =>
         testException(err, results, done)
       ).catch(() => {}); // This is to avoid UnhandledPromiseRejectionWarning
     });
 
-    it('the exception should be catched (promise)', done => {
+    it('the exception should be catched (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testException(null, results, done))
-        .catch(err => testException(err, undefined, done));
+        .then((results) => testException(null, results, done))
+        .catch((err) => testException(err, undefined, done));
     });
   });
 
@@ -555,16 +555,16 @@ describe('push-notifications-apn', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback)', done => {
+    it('all responses should be successful (callback)', (done) => {
       pnGCM.send(regIds, data, (err, results) =>
         testSuccessGCM(err, results, done)
       );
     });
 
-    it('all responses should be successful (promise)', done => {
+    it('all responses should be successful (promise)', (done) => {
       pnGCM
         .send(regIds, data)
-        .then(results => testSuccessGCM(null, results, done))
+        .then((results) => testSuccessGCM(null, results, done))
         .catch(done);
     });
   });

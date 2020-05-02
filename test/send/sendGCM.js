@@ -61,7 +61,7 @@ function sendFailureMethod1() {
       multicast_id: 'abc',
       success: 0,
       failure: regIds.length,
-      results: registrationTokens.map(token => ({
+      results: registrationTokens.map((token) => ({
         message_id: '',
         registration_id: token,
         error: fErr.message,
@@ -110,13 +110,13 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback)', done => {
+    it('all responses should be successful (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testSuccess(err, results, done));
     });
 
-    it('all responses should be successful (promise)', done => {
+    it('all responses should be successful (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testSuccess(null, results, done))
+        .then((results) => testSuccess(null, results, done))
         .catch(done);
     });
   });
@@ -131,7 +131,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.notification.title).to.be.undefined();
@@ -147,7 +149,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -161,7 +163,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, no title)', done => {
+    it('all responses should be successful (callback, no title)', (done) => {
       const newData = { ...data };
       delete newData.title;
       const callback = (err, results) => testSuccess(err, results, done);
@@ -179,7 +181,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.notification.title).to.eql(data.title);
@@ -199,7 +203,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -213,7 +217,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, no sound, icon, msgcnt)', done => {
+    it('all responses should be successful (callback, no sound, icon, msgcnt)', (done) => {
       const newData = { ...data };
       delete newData.sound;
       newData.icon = 'myicon.png';
@@ -233,7 +237,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.notification.title).to.eql(data.title);
@@ -250,7 +256,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -264,7 +270,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, no contentAvailable)', done => {
+    it('all responses should be successful (callback, no contentAvailable)', (done) => {
       const newData = { ...data };
       delete newData.contentAvailable;
       delete newData.badge;
@@ -284,7 +290,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.notification.title).to.eql(data.title);
@@ -300,7 +308,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -314,7 +322,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, no body)', done => {
+    it('all responses should be successful (callback, no body)', (done) => {
       const newData = { ...data };
       delete newData.body;
       const callback = (err, results) => testSuccess(err, results, done);
@@ -332,7 +340,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.notification.title).to.eql(data.title);
@@ -348,7 +358,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -362,7 +372,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, custom data as string)', done => {
+    it('all responses should be successful (callback, custom data as string)', (done) => {
       const newData = { ...data, custom: 'this is a string' };
       pn.send(regIds, newData, (err, results) =>
         testSuccess(err, results, done)
@@ -380,7 +390,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.an.instanceOf(gcm.Message);
           expect(message.params.notification.title).to.eql(data.title);
@@ -396,7 +408,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -410,7 +422,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, custom data undefined)', done => {
+    it('all responses should be successful (callback, custom data undefined)', (done) => {
       const newData = { ...data };
       delete newData.custom;
       pn.send(regIds, newData, (err, results) =>
@@ -429,7 +441,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.priority).to.equal('normal');
@@ -437,7 +451,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -451,7 +465,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, custom data undefined)', done => {
+    it('all responses should be successful (callback, custom data undefined)', (done) => {
       const normalPrioData = { ...data };
       normalPrioData.priority = 'normal';
       pn.send(regIds, normalPrioData, (err, results) =>
@@ -473,7 +487,7 @@ describe('push-notifications-gcm', () => {
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
             expect(registrationTokens).to.be.instanceOf(Array);
-            registrationTokens.forEach(regId =>
+            registrationTokens.forEach((regId) =>
               expect(regIds).to.include(regId)
             );
             expect(message.params.timeToLive).to.equal(timeToLive);
@@ -481,7 +495,7 @@ describe('push-notifications-gcm', () => {
               multicast_id: 'abc',
               success: registrationTokens.length,
               failure: 0,
-              results: registrationTokens.map(token => ({
+              results: registrationTokens.map((token) => ({
                 message_id: '',
                 registration_id: token,
                 error: null,
@@ -495,7 +509,7 @@ describe('push-notifications-gcm', () => {
         sendMethod.restore();
       });
 
-      it('timeToLive set correctly', done => {
+      it('timeToLive set correctly', (done) => {
         const expiryData = { ...data, timeToLive };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
@@ -515,7 +529,7 @@ describe('push-notifications-gcm', () => {
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
             expect(registrationTokens).to.be.instanceOf(Array);
-            registrationTokens.forEach(regId =>
+            registrationTokens.forEach((regId) =>
               expect(regIds).to.include(regId)
             );
             expect(message.params.timeToLive).to.equal(ttl);
@@ -523,7 +537,7 @@ describe('push-notifications-gcm', () => {
               multicast_id: 'abc',
               success: registrationTokens.length,
               failure: 0,
-              results: registrationTokens.map(token => ({
+              results: registrationTokens.map((token) => ({
                 message_id: '',
                 registration_id: token,
                 error: null,
@@ -537,7 +551,7 @@ describe('push-notifications-gcm', () => {
         sendMethod.restore();
       });
 
-      it('timeToLive 0 should be accepted as a valid value', done => {
+      it('timeToLive 0 should be accepted as a valid value', (done) => {
         const ttlData = { ...data, timeToLive: ttl };
         pn.send(regIds, ttlData, (err, results) =>
           testSuccess(err, results, done)
@@ -562,7 +576,7 @@ describe('push-notifications-gcm', () => {
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
             expect(registrationTokens).to.be.instanceOf(Array);
-            registrationTokens.forEach(regId =>
+            registrationTokens.forEach((regId) =>
               expect(regIds).to.include(regId)
             );
             expect(message.params.timeToLive).to.equal(expectedTtl);
@@ -570,7 +584,7 @@ describe('push-notifications-gcm', () => {
               multicast_id: 'abc',
               success: registrationTokens.length,
               failure: 0,
-              results: registrationTokens.map(token => ({
+              results: registrationTokens.map((token) => ({
                 message_id: '',
                 registration_id: token,
                 error: null,
@@ -585,7 +599,7 @@ describe('push-notifications-gcm', () => {
         clock.restore();
       });
 
-      it('timeToLive should be calculated correctly from expiry. expiry takes precedence', done => {
+      it('timeToLive should be calculated correctly from expiry. expiry takes precedence', (done) => {
         const expiryData = { ...data, expiry: 160000, timeToLive: 3000 };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
@@ -603,7 +617,7 @@ describe('push-notifications-gcm', () => {
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
             expect(registrationTokens).to.be.instanceOf(Array);
-            registrationTokens.forEach(regId =>
+            registrationTokens.forEach((regId) =>
               expect(regIds).to.include(regId)
             );
             expect(message.params.timeToLive).to.equal(DEFAULT_TTL);
@@ -611,7 +625,7 @@ describe('push-notifications-gcm', () => {
               multicast_id: 'abc',
               success: registrationTokens.length,
               failure: 0,
-              results: registrationTokens.map(token => ({
+              results: registrationTokens.map((token) => ({
                 message_id: '',
                 registration_id: token,
                 error: null,
@@ -625,7 +639,7 @@ describe('push-notifications-gcm', () => {
         sendMethod.restore();
       });
 
-      it('should set the default expiry', done => {
+      it('should set the default expiry', (done) => {
         pn.send(regIds, data, (err, results) =>
           testSuccess(err, results, done)
         );
@@ -643,7 +657,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.priority).to.equal('normal');
@@ -657,7 +673,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -671,7 +687,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, custom data undefined)', done => {
+    it('all responses should be successful (callback, custom data undefined)', (done) => {
       const silentPushData = {
         contentAvailable: true,
         priority: 'normal',
@@ -695,7 +711,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.params.notification.android_channel_id).to.equal(
@@ -710,7 +728,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -724,7 +742,7 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback, custom data undefined)', done => {
+    it('all responses should be successful (callback, custom data undefined)', (done) => {
       const androidData = {
         android_channel_id: 'channelId',
         image: 'imageData',
@@ -753,7 +771,9 @@ describe('push-notifications-gcm', () => {
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
           expect(registrationTokens).to.be.an.instanceOf(Array);
-          registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
           expect(message.notification).to.be.undefined();
@@ -766,7 +786,7 @@ describe('push-notifications-gcm', () => {
             multicast_id: 'abc',
             success: registrationTokens.length,
             failure: 0,
-            results: registrationTokens.map(token => ({
+            results: registrationTokens.map((token) => ({
               message_id: '',
               registration_id: token,
               error: null,
@@ -780,16 +800,16 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback)', done => {
+    it('all responses should be successful (callback)', (done) => {
       pushPhoneGap.send(regIds, data, (err, results) =>
         testSuccess(err, results, done)
       );
     });
 
-    it('all responses should be successful (promise)', done => {
+    it('all responses should be successful (promise)', (done) => {
       pushPhoneGap
         .send(regIds, data)
-        .then(results => testSuccess(null, results, done))
+        .then((results) => testSuccess(null, results, done))
         .catch(done);
     });
   });
@@ -803,13 +823,13 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be failed (callback)', done => {
+    it('all responses should be failed (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testError(err, results, done));
     });
 
-    it('all responses should be failed (promise)', done => {
+    it('all responses should be failed (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testError(null, results, done))
+        .then((results) => testError(null, results, done))
         .catch(done);
     });
   });
@@ -823,14 +843,14 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('the error should be reported (callback)', done => {
+    it('the error should be reported (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testError(err, results, done));
     });
 
-    it('the error should be reported (promise)', done => {
+    it('the error should be reported (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testError(null, results, done))
-        .catch(err => testError(err, undefined, done));
+        .then((results) => testError(null, results, done))
+        .catch((err) => testError(err, undefined, done));
     });
   });
 
@@ -843,15 +863,15 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be failed (callback)', done => {
+    it('all responses should be failed (callback)', (done) => {
       pn.send(regIds, data, (err, results) =>
         testUnknownError(err, results, done)
       );
     });
 
-    it('all responses should be failed (promise)', done => {
+    it('all responses should be failed (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testUnknownError(null, results, done))
+        .then((results) => testUnknownError(null, results, done))
         .catch(done);
     });
   });
@@ -865,16 +885,16 @@ describe('push-notifications-gcm', () => {
       sendMethod.restore();
     });
 
-    it('the exception should be catched (callback)', done => {
+    it('the exception should be catched (callback)', (done) => {
       pn.send(regIds, data, (err, results) =>
         testException(err, results, done)
       ).catch(() => {}); // This is to avoid UnhandledPromiseRejectionWarning
     });
 
-    it('the exception should be catched (promise)', done => {
+    it('the exception should be catched (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testException(null, results, done))
-        .catch(err => testException(err, undefined, done));
+        .then((results) => testException(null, results, done))
+        .catch((err) => testException(err, undefined, done));
     });
   });
 });

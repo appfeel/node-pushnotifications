@@ -110,13 +110,13 @@ describe('push-notifications-web', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback)', done => {
+    it('all responses should be successful (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testSuccess(err, results, done));
     });
 
-    it('all responses should be successful (promise)', done => {
+    it('all responses should be successful (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testSuccess(null, results, done))
+        .then((results) => testSuccess(null, results, done))
         .catch(done);
     });
   });
@@ -130,15 +130,15 @@ describe('push-notifications-web', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback)', done => {
+    it('all responses should be successful (callback)', (done) => {
       pn.send(regIds, dataObject, (err, results) =>
         testSuccess(err, results, done)
       );
     });
 
-    it('all responses should be successful (promise)', done => {
+    it('all responses should be successful (promise)', (done) => {
       pn.send(regIds, dataObject)
-        .then(results => testSuccess(null, results, done))
+        .then((results) => testSuccess(null, results, done))
         .catch(done);
     });
   });
@@ -152,13 +152,13 @@ describe('push-notifications-web', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be failed (callback)', done => {
+    it('all responses should be failed (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testError(err, results, done));
     });
 
-    it('all responses should be failed (promise)', done => {
+    it('all responses should be failed (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testError(null, results, done))
+        .then((results) => testError(null, results, done))
         .catch(done);
     });
   });
@@ -172,16 +172,16 @@ describe('push-notifications-web', () => {
       sendMethod.restore();
     });
 
-    it('the exception should be catched (callback)', done => {
+    it('the exception should be catched (callback)', (done) => {
       pn.send(regIds, data, (err, results) =>
         testException(err, results, done)
       ).catch(() => {}); // This is to avoid UnhandledPromiseRejectionWarning
     });
 
-    it('the exception should be catched (promise)', done => {
+    it('the exception should be catched (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testException(null, results, done))
-        .catch(err => testException(err, undefined, done));
+        .then((results) => testException(null, results, done))
+        .catch((err) => testException(err, undefined, done));
     });
   });
 });

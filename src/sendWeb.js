@@ -6,7 +6,7 @@ const stringify = unless(is(String), JSON.stringify);
 
 const sendWebPush = async (regIds, data, settings) => {
   const payload = stringify(data);
-  const promises = regIds.map(regId =>
+  const promises = regIds.map((regId) =>
     webPush
       .sendNotification(regId, payload, settings.web)
       .then(() => ({
@@ -19,7 +19,7 @@ const sendWebPush = async (regIds, data, settings) => {
           },
         ],
       }))
-      .catch(err => ({
+      .catch((err) => ({
         success: 0,
         failure: 1,
         message: [

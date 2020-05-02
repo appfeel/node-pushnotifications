@@ -110,7 +110,7 @@ describe('push-notifications: instantiation and class properties', () => {
     const test = (err, results, done) => {
       try {
         expect(err).to.equal(null);
-        results.forEach(result => {
+        results.forEach((result) => {
           expect(result.method).to.equal('none');
           expect(result.success).to.equal(0);
           expect(result.failure).to.equal(0);
@@ -121,14 +121,14 @@ describe('push-notifications: instantiation and class properties', () => {
         done(err || e);
       }
     };
-    it('should resolve the promise with an empty result', done => {
+    it('should resolve the promise with an empty result', (done) => {
       const pn = new PN();
       pn.send()
-        .then(results => test(null, results, done))
+        .then((results) => test(null, results, done))
         .catch(done);
     });
 
-    it('should fire callback with an empty result', done => {
+    it('should fire callback with an empty result', (done) => {
       const pn = new PN();
       pn.send(undefined, undefined, (err, results) =>
         test(null, results, done)

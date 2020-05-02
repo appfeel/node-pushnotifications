@@ -2,7 +2,7 @@ const apn = require('@parse/node-apn');
 const R = require('ramda');
 const { DEFAULT_TTL, APN_METHOD } = require('./constants');
 
-const expiryFromTtl = ttl => ttl + Math.floor(Date.now() / 1000);
+const expiryFromTtl = (ttl) => ttl + Math.floor(Date.now() / 1000);
 
 const extractExpiry = R.cond([
   [R.propIs(Number, 'expiry'), R.prop('expiry')],
@@ -20,7 +20,7 @@ const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
     R.prop(propName)
   )(data);
 
-const getDefaultAlert = data => ({
+const getDefaultAlert = (data) => ({
   title: data.title,
   body: data.body,
   'title-loc-key': data.titleLocKey,
@@ -32,7 +32,7 @@ const getDefaultAlert = data => ({
   action: data.action,
 });
 
-const pushDataWithDefaultAlert = data =>
+const pushDataWithDefaultAlert = (data) =>
   R.when(
     R.propSatisfies(R.isNil, 'alert'),
     R.assoc('alert', getDefaultAlert(data)),
@@ -87,21 +87,21 @@ class APN {
       );
     }
 
-    return this.connection.send(message, regIds).then(response => {
+    return this.connection.send(message, regIds).then((response) => {
       const resumed = {
         method: APN_METHOD,
         success: 0,
         failure: 0,
         message: [],
       };
-      (response.sent || []).forEach(token => {
+      (response.sent || []).forEach((token) => {
         resumed.success += 1;
         resumed.message.push({
           regId: token,
           error: null,
         });
       });
-      (response.failed || []).forEach(failure => {
+      (response.failed || []).forEach((failure) => {
         // See https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown#failed
         resumed.failure += 1;
         if (failure.error) {

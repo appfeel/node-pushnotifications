@@ -5,12 +5,12 @@ import { expect } from 'chai';
 export const testPushSuccess = (method, regIds) => (err, results, done) => {
   try {
     expect(err).to.equal(null);
-    results.forEach(result => {
+    results.forEach((result) => {
       expect(result.method).to.equal(method);
       expect(result.success).to.equal(regIds.length);
       expect(result.failure).to.equal(0);
       expect(result.message.length).to.equal(regIds.length);
-      result.message.forEach(message => {
+      result.message.forEach((message) => {
         expect(message).to.have.property('regId');
         expect(regIds).to.include(message.regId);
         if (method === 'gcm') {
@@ -32,12 +32,12 @@ export const testPushError = (method, regIds, errMessage) => (
 ) => {
   try {
     expect(err).to.equal(null);
-    results.forEach(result => {
+    results.forEach((result) => {
       expect(result.method).to.equal(method);
       expect(result.success).to.equal(0);
       expect(result.failure).to.equal(regIds.length);
       expect(result.message.length).to.equal(regIds.length);
-      result.message.forEach(message => {
+      result.message.forEach((message) => {
         expect(message).to.have.property('regId');
         expect(regIds).to.include(message.regId);
         expect(message).to.have.property('error');
@@ -53,7 +53,7 @@ export const testPushError = (method, regIds, errMessage) => (
   }
 };
 
-export const testPushException = errMessage => (err, results, done) => {
+export const testPushException = (errMessage) => (err, results, done) => {
   try {
     expect(results).to.equal(undefined);
     expect(err).to.be.instanceOf(Error);
@@ -73,7 +73,7 @@ export const sendOkMethodGCM = (regIds, data) =>
       expect(recipients).to.have.property('registrationTokens');
       const { registrationTokens } = recipients;
       expect(registrationTokens).to.be.instanceOf(Array);
-      registrationTokens.forEach(regId => expect(regIds).to.include(regId));
+      registrationTokens.forEach((regId) => expect(regIds).to.include(regId));
       expect(retries).to.be.a('number');
       expect(message).to.be.instanceOf(gcm.Message);
       expect(message.params.notification.title).to.eql(data.title);
@@ -90,7 +90,7 @@ export const sendOkMethodGCM = (regIds, data) =>
         multicast_id: 'abc',
         success: registrationTokens.length,
         failure: 0,
-        results: registrationTokens.map(token => ({
+        results: registrationTokens.map((token) => ({
           message_id: '',
           registration_id: token,
           error: null,

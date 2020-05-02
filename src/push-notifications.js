@@ -20,12 +20,12 @@ class PN {
 
   sendWith(method, regIds, data, cb) {
     return method(regIds, data, this.settings)
-      .then(results => {
-        (cb || (noop => noop))(null, results);
+      .then((results) => {
+        (cb || ((noop) => noop))(null, results);
         return results;
       })
-      .catch(error => {
-        (cb || (noop => noop))(error);
+      .catch((error) => {
+        (cb || ((noop) => noop))(error);
         return Promise.reject(error);
       });
   }
@@ -41,7 +41,7 @@ class PN {
     const regIds = Array.isArray(_regIds || []) ? _regIds || [] : [_regIds];
 
     // Classify each pushId for corresponding device
-    regIds.forEach(regId => {
+    regIds.forEach((regId) => {
       if (typeof regId === 'object') {
         regIdsWebPush.push(regId);
       } else if (this.settings.isAlwaysUseFCM) {
@@ -98,7 +98,7 @@ class PN {
         failure: regIdsUnk.length,
         message: [],
       };
-      regIdsUnk.forEach(regId => {
+      regIdsUnk.forEach((regId) => {
         results.message.push({
           regId,
           error: new Error('Unknown registration id'),
@@ -120,13 +120,13 @@ class PN {
     }
 
     return Promise.all(promises)
-      .then(results => {
-        const cb = callback || (noop => noop);
+      .then((results) => {
+        const cb = callback || ((noop) => noop);
         cb(null, results);
         return results;
       })
-      .catch(err => {
-        const cb = callback || (noop => noop);
+      .catch((err) => {
+        const cb = callback || ((noop) => noop);
         cb(err);
         return Promise.reject(err);
       });

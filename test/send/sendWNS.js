@@ -80,7 +80,7 @@ const pn = new PN({
 const fErr = new Error('Forced error');
 const sendWNS = {
   restore: () => {
-    wnsSendTileMethods.forEach(wnsMethod => {
+    wnsSendTileMethods.forEach((wnsMethod) => {
       sendWNS[wnsMethod].restore();
     });
   },
@@ -94,7 +94,7 @@ const testException = testPushException(fErr.message);
 let sendMethod;
 
 function sendOkMethod() {
-  wnsSendTileMethods.forEach(wnsMethod => {
+  wnsSendTileMethods.forEach((wnsMethod) => {
     sendWNS[wnsMethod] = sinon.stub(
       wns,
       wnsMethod,
@@ -113,7 +113,7 @@ function sendOkMethod() {
 }
 
 function sendFailureMethod() {
-  wnsSendTileMethods.forEach(wnsMethod => {
+  wnsSendTileMethods.forEach((wnsMethod) => {
     sendWNS[wnsMethod] = sinon.stub(
       wns,
       wnsMethod,
@@ -128,7 +128,7 @@ function sendFailureMethod() {
 }
 
 function sendErrorMethod() {
-  wnsSendTileMethods.forEach(wnsMethod => {
+  wnsSendTileMethods.forEach((wnsMethod) => {
     sendWNS[wnsMethod] = sinon.stub(
       wns,
       wnsMethod,
@@ -141,7 +141,7 @@ function sendErrorMethod() {
 }
 
 function sendThrowExceptionMethod() {
-  wnsSendTileMethods.forEach(wnsMethod => {
+  wnsSendTileMethods.forEach((wnsMethod) => {
     sendWNS[wnsMethod] = sinon.stub(wns, wnsMethod, () => {
       throw fErr;
     });
@@ -159,13 +159,13 @@ describe('push-notifications-wns', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback)', done => {
+    it('all responses should be successful (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testSuccess(err, results, done));
     });
 
-    it('all responses should be successful (promise)', done => {
+    it('all responses should be successful (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testSuccess(null, results, done))
+        .then((results) => testSuccess(null, results, done))
         .catch(done);
     });
 
@@ -191,9 +191,9 @@ describe('push-notifications-wns', () => {
         pn.settings.wns.notificationMethod = 'sendTileSquareBlock';
       });
 
-      it('should send the correct payload as a raw string', done => {
+      it('should send the correct payload as a raw string', (done) => {
         pn.send(regIds, data)
-          .then(results => testSuccess(null, results, done))
+          .then((results) => testSuccess(null, results, done))
           .catch(done);
       });
     });
@@ -208,13 +208,13 @@ describe('push-notifications-wns', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be failed (callback)', done => {
+    it('all responses should be failed (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testError(err, results, done));
     });
 
-    it('all responses should be failed (promise)', done => {
+    it('all responses should be failed (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testError(null, results, done))
+        .then((results) => testError(null, results, done))
         .catch(done);
     });
   });
@@ -228,14 +228,14 @@ describe('push-notifications-wns', () => {
       sendMethod.restore();
     });
 
-    it('the error should be reported (callback)', done => {
+    it('the error should be reported (callback)', (done) => {
       pn.send(regIds, data, (err, results) => testError(err, results, done));
     });
 
-    it('the error should be reported (promise)', done => {
+    it('the error should be reported (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testError(null, results, done))
-        .catch(err => testError(err, undefined, done));
+        .then((results) => testError(null, results, done))
+        .catch((err) => testError(err, undefined, done));
     });
   });
 
@@ -248,16 +248,16 @@ describe('push-notifications-wns', () => {
       sendMethod.restore();
     });
 
-    it('the exception should be catched (callback)', done => {
+    it('the exception should be catched (callback)', (done) => {
       pn.send(regIds, data, (err, results) =>
         testException(err, results, done)
       ).catch(() => {}); // This is to avoid UnhandledPromiseRejectionWarning
     });
 
-    it('the exception should be catched (promise)', done => {
+    it('the exception should be catched (promise)', (done) => {
       pn.send(regIds, data)
-        .then(results => testException(null, results, done))
-        .catch(err => testException(err, undefined, done));
+        .then((results) => testException(null, results, done))
+        .catch((err) => testException(err, undefined, done));
     });
   });
 
@@ -273,16 +273,16 @@ describe('push-notifications-wns', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful (callback)', done => {
+    it('all responses should be successful (callback)', (done) => {
       pnGCM.send(regIds, data, (err, results) =>
         testSuccessGCM(err, results, done)
       );
     });
 
-    it('all responses should be successful (promise)', done => {
+    it('all responses should be successful (promise)', (done) => {
       pnGCM
         .send(regIds, data)
-        .then(results => testSuccessGCM(null, results, done))
+        .then((results) => testSuccessGCM(null, results, done))
         .catch(done);
     });
   });

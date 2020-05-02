@@ -45,7 +45,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
           method: method.name,
           success: 1,
           failure: 0,
-          message: _regIds.map(regId => ({ regId })),
+          message: _regIds.map((regId) => ({ regId })),
         };
         switch (regIds.indexOf(_regIds[0])) {
           case 0:
@@ -79,7 +79,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
             break;
         }
         expect(data).to.equal(data);
-        _regIds.forEach(regId => expect(regIds).to.include(regId));
+        _regIds.forEach((regId) => expect(regIds).to.include(regId));
         expect(cb).to.equal(undefined);
         return Promise.resolve(result);
       }
@@ -111,16 +111,16 @@ describe('push-notifications: call with registration ids for android, ios, windo
     expect(regIds).to.include(result.message[0].regId);
   };
 
-  const assertPushResultsForArrayInput = result => {
+  const assertPushResultsForArrayInput = (result) => {
     const expectedNumRegIds = result.method === 'sendGCM' ? 3 : 1;
     assertPushResults(result, expectedNumRegIds);
   };
 
-  const assertPushResultsForStringInput = result => {
+  const assertPushResultsForStringInput = (result) => {
     assertPushResults(result, 1);
   };
 
-  it('should call the correct method for each registration id (array) and should resolve with results (callback)', done => {
+  it('should call the correct method for each registration id (array) and should resolve with results (callback)', (done) => {
     pn.send(regIds, data, (err, results) => {
       try {
         expect(err).to.equal(null);
@@ -132,18 +132,18 @@ describe('push-notifications: call with registration ids for android, ios, windo
     });
   });
 
-  it('should call the correct method for each registration id (array) and should resolve with results (promise)', done => {
+  it('should call the correct method for each registration id (array) and should resolve with results (promise)', (done) => {
     pn.send(regIds, data)
-      .then(results => {
+      .then((results) => {
         results.forEach(assertPushResultsForArrayInput);
         done();
       })
       .catch(done);
   });
 
-  it('should call the correct method for each registration id (string) and should resolve with results (callback)', done => {
+  it('should call the correct method for each registration id (string) and should resolve with results (callback)', (done) => {
     const promises = [];
-    regIds.forEach(regId => {
+    regIds.forEach((regId) => {
       promises.push(
         pn.send(regId, data, (err, results) => {
           expect(err).to.equal(null);
@@ -154,11 +154,11 @@ describe('push-notifications: call with registration ids for android, ios, windo
     Promise.all(promises).then(() => done(), done);
   });
 
-  it('should call the correct method for each registration id (string) and should resolve with results (promise)', done => {
+  it('should call the correct method for each registration id (string) and should resolve with results (promise)', (done) => {
     const promises = [];
-    regIds.forEach(regId => {
+    regIds.forEach((regId) => {
       promises.push(
-        pn.send(regId, data).then(results => {
+        pn.send(regId, data).then((results) => {
           results.forEach(assertPushResultsForStringInput);
         })
       );
@@ -181,8 +181,8 @@ describe('push-notifications: error while sending push notifications', () => {
     sendWith.restore();
   });
 
-  it('should catch an error occurred during push notifications sending (callback)', done => {
-    pn.send(regIds, data, err => {
+  it('should catch an error occurred during push notifications sending (callback)', (done) => {
+    pn.send(regIds, data, (err) => {
       try {
         expect(err).to.be.instanceOf(Error);
         expect(err.message).to.equal(fErr.message);
@@ -193,14 +193,14 @@ describe('push-notifications: error while sending push notifications', () => {
     }).catch(() => {}); // This is to avoid UnhandledPromiseRejectionWarning
   });
 
-  it('should catch an error occurred during push notifications sending (promise)', done => {
+  it('should catch an error occurred during push notifications sending (promise)', (done) => {
     pn.send(regIds, data)
       .then(() => {
         done(
           'An error should have been thrown and catched by promise .catch method'
         );
       })
-      .catch(err => {
+      .catch((err) => {
         try {
           expect(err).to.be.instanceOf(Error);
           expect(err.message).to.equal(fErr.message);

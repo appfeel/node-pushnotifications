@@ -2,7 +2,7 @@ const gcm = require('node-gcm');
 const R = require('ramda');
 const { DEFAULT_TTL, GCM_METHOD } = require('./constants');
 
-const ttlFromExpiry = expiry => expiry - Math.floor(Date.now() / 1000);
+const ttlFromExpiry = (expiry) => expiry - Math.floor(Date.now() / 1000);
 
 const extractTimeToLive = R.cond([
   [R.propIs(Number, 'expiry'), ({ expiry }) => ttlFromExpiry(expiry)],
@@ -11,7 +11,7 @@ const extractTimeToLive = R.cond([
 ]);
 
 const sendChunk = (GCMSender, registrationTokens, message, retries) =>
-  new Promise(resolve => {
+  new Promise((resolve) => {
     GCMSender.send(
       message,
       { registrationTokens },
@@ -23,7 +23,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) =>
             method: GCM_METHOD,
             success: 0,
             failure: registrationTokens.length,
-            message: registrationTokens.map(value => ({
+            message: registrationTokens.map((value) => ({
               originalRegId: value,
               regId: value,
               error: err,
@@ -37,7 +37,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) =>
             multicastId: response.multicast_id,
             success: response.success,
             failure: response.failure,
-            message: response.results.map(value => {
+            message: response.results.map((value) => {
               const regToken = registrationTokens[regIndex];
               regIndex += 1;
               return {
@@ -57,7 +57,7 @@ const sendChunk = (GCMSender, registrationTokens, message, retries) =>
             multicastId: response.multicast_id,
             success: response.success,
             failure: response.failure,
-            message: registrationTokens.map(value => ({
+            message: registrationTokens.map((value) => ({
               originalRegId: value,
               regId: value,
               error: new Error('unknown'),
@@ -138,7 +138,7 @@ const sendGCM = (regIds, data, settings) => {
     chunk += 1;
   } while (1000 * chunk < regIds.length);
 
-  return Promise.all(promises).then(results => {
+  return Promise.all(promises).then((results) => {
     const resumed = {
       method: GCM_METHOD,
       multicastId: [],
@@ -147,7 +147,7 @@ const sendGCM = (regIds, data, settings) => {
       message: [],
     };
 
-    results.forEach(result => {
+    results.forEach((result) => {
       if (result.multicastId) {
         resumed.multicastId.push(result.multicastId);
       }

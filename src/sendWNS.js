@@ -1,8 +1,8 @@
 const wns = require('wns');
 const { WNS_METHOD } = require('./constants');
 
-const parseErrorMessage = err => (err instanceof Error ? err.message : err);
-const parseError = err => {
+const parseErrorMessage = (err) => (err instanceof Error ? err.message : err);
+const parseError = (err) => {
   if (err instanceof Error) {
     return err;
   }
@@ -83,16 +83,16 @@ const sendWNS = (_regIds, _data, settings) => {
     // eslint-disable-next-line max-len
     promises.push(
       new Promise((resolve, reject) =>
-        sendNotifications(regIds, notificationMethod, data, opts, err =>
+        sendNotifications(regIds, notificationMethod, data, opts, (err) =>
           err ? reject(err) : resolve()
         )
       )
     );
   } else {
     // eslint-disable-next-line max-len
-    _regIds.forEach(regId =>
+    _regIds.forEach((regId) =>
       promises.push(
-        new Promise(resolve =>
+        new Promise((resolve) =>
           wns[notificationMethod](regId, data, opts, (err, response) => {
             processResponse(err, response, regId);
             resolve();

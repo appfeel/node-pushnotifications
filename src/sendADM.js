@@ -24,7 +24,7 @@ const sendADM = (regIds, _data, settings) => {
     data,
   };
 
-  regIds.forEach(regId => {
+  regIds.forEach((regId) => {
     admSender.send(message, regId, (err, response) => {
       const errorMsg = err instanceof Error ? err.message : response.error;
       const error = err || (response.error ? new Error(response.error) : null);
