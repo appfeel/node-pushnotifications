@@ -218,6 +218,38 @@ describe('push-notifications-apn', () => {
     });
   });
 
+  describe('send notifications with mutableContent=1', () => {
+    before(() => {
+      sendMethod = sinon.stub(
+        apn.Provider.prototype,
+        'send',
+        (message, _regIds) => {
+          expect(_regIds).to.be.instanceOf(Array);
+          _regIds.forEach((regId) => expect(regIds).to.include(regId));
+          expect(message).to.be.instanceOf(apn.Notification);
+          expect(message.aps['mutable-content']).to.equal(1);
+          return Promise.resolve({
+            sent: _regIds,
+          });
+        }
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('all responses should be successful', (done) => {
+      const mutablePushData = {
+        topic: 'testTopic',
+        mutableContent: true,
+      };
+      pn.send(regIds, mutablePushData, (err, results) =>
+        testSuccess(err, results, done)
+      );
+    });
+  });
+
   describe('send notifications with pushType property', () => {
     before(() => {
       sendMethod = sinon.stub(
