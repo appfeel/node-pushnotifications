@@ -814,6 +814,127 @@ describe('push-notifications-gcm', () => {
     });
   });
 
+  describe('send push notifications with { recipients: {to}}', () => {
+    const recipient = 'recipientTo';
+    const dataRecipientsTo = { ...data, recipients: { to: recipient } };
+    const testSuccessRecipientTo = testPushSuccess(method, [recipient]);
+
+    before(() => {
+      sendMethod = sinon.stub(
+        gcm.Sender.prototype,
+        'send',
+        (message, recipients, retries, cb) => {
+          expect(recipients).to.be.instanceOf(Object);
+          expect(recipients).to.have.property('to');
+          expect(recipients).to.not.have.property('registrationTokens');
+          const { to } = recipients;
+          expect(to).to.be.a('string');
+          expect(to).to.equal(recipient);
+          expect(retries).to.be.a('number');
+          expect(message).to.be.instanceOf(gcm.Message);
+          expect(message.params.notification.title).to.eql(data.title);
+          expect(message.params.notification.body).to.eql(data.body);
+          expect(message.params.notification.sound).to.eql(data.sound);
+          expect(message.params.data.sender).to.eql(data.custom.sender);
+          expect(message.params.priority).to.equal('high');
+          expect(message.params.data.title).to.eql(data.title);
+          expect(message.params.data.message).to.eql(data.body);
+          expect(message.params.data.sound).to.eql(data.sound);
+          cb(null, {
+            multicast_id: 'abc',
+            success: 1,
+            failure: 0,
+            results: [
+              {
+                message_id: '',
+                registration_id: to,
+                error: null,
+              },
+            ],
+          });
+        }
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('all responses should be successful (callback)', (done) => {
+      pn.send(regIds, dataRecipientsTo, (err, results) =>
+        testSuccessRecipientTo(err, results, done)
+      );
+    });
+
+    it('all responses should be successful (promise)', (done) => {
+      pn.send(regIds, dataRecipientsTo)
+        .then((results) => testSuccessRecipientTo(null, results, done))
+        .catch(done);
+    });
+  });
+
+  describe('send push notifications with { recipients: {condition}}', () => {
+    const recipient = 'recipientCondition';
+    const dataRecipientsCondition = {
+      ...data,
+      recipients: { condition: recipient },
+    };
+    const testSuccessRecipientCondition = testPushSuccess(method, [recipient]);
+
+    before(() => {
+      sendMethod = sinon.stub(
+        gcm.Sender.prototype,
+        'send',
+        (message, recipients, retries, cb) => {
+          expect(recipients).to.be.instanceOf(Object);
+          expect(recipients).to.have.property('condition');
+          expect(recipients).to.not.have.property('registrationTokens');
+          const { condition } = recipients;
+          expect(condition).to.be.a('string');
+          expect(condition).to.equal(recipient);
+          expect(retries).to.be.a('number');
+          expect(message).to.be.instanceOf(gcm.Message);
+          expect(message.params.notification.title).to.eql(data.title);
+          expect(message.params.notification.body).to.eql(data.body);
+          expect(message.params.notification.sound).to.eql(data.sound);
+          expect(message.params.data.sender).to.eql(data.custom.sender);
+          expect(message.params.priority).to.equal('high');
+          expect(message.params.data.title).to.eql(data.title);
+          expect(message.params.data.message).to.eql(data.body);
+          expect(message.params.data.sound).to.eql(data.sound);
+          cb(null, {
+            multicast_id: 'abc',
+            success: 1,
+            failure: 0,
+            results: [
+              {
+                message_id: '',
+                registration_id: condition,
+                error: null,
+              },
+            ],
+          });
+        }
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('all responses should be successful (callback)', (done) => {
+      pn.send(regIds, dataRecipientsCondition, (err, results) =>
+        testSuccessRecipientCondition(err, results, done)
+      );
+    });
+
+    it('all responses should be successful (promise)', (done) => {
+      pn.send(regIds, dataRecipientsCondition)
+        .then((results) => testSuccessRecipientCondition(null, results, done))
+        .catch(done);
+    });
+  });
+
   describe('send push notifications failure (with response)', () => {
     before(() => {
       sendMethod = sendFailureMethod1();

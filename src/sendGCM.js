@@ -10,63 +10,74 @@ const extractTimeToLive = R.cond([
   [R.T, R.always(DEFAULT_TTL)],
 ]);
 
-const sendChunk = (GCMSender, registrationTokens, message, retries) =>
+const pathIsString = R.pathSatisfies(R.is(String));
+
+const containsValidRecipients = R.either(
+  pathIsString(['recipients', 'to']),
+  pathIsString(['recipients', 'condition'])
+);
+
+const propValueToSingletonArray = (propName) =>
+  R.compose(R.of, R.prop(propName));
+
+const getRecipientList = R.cond([
+  [R.has('registrationTokens'), R.prop('registrationTokens')],
+  [R.has('to'), propValueToSingletonArray('to')],
+  [R.has('condition'), propValueToSingletonArray('condition')],
+]);
+
+const sendChunk = (GCMSender, recipients, message, retries) =>
   new Promise((resolve) => {
-    GCMSender.send(
-      message,
-      { registrationTokens },
-      retries,
-      (err, response) => {
-        // Response: see https://developers.google.com/cloud-messaging/http-server-ref#table5
-        if (err) {
-          resolve({
-            method: GCM_METHOD,
-            success: 0,
-            failure: registrationTokens.length,
-            message: registrationTokens.map((value) => ({
-              originalRegId: value,
-              regId: value,
-              error: err,
-              errorMsg: err instanceof Error ? err.message : err,
-            })),
-          });
-        } else if (response && response.results !== undefined) {
-          let regIndex = 0;
-          resolve({
-            method: GCM_METHOD,
-            multicastId: response.multicast_id,
-            success: response.success,
-            failure: response.failure,
-            message: response.results.map((value) => {
-              const regToken = registrationTokens[regIndex];
-              regIndex += 1;
-              return {
-                messageId: value.message_id,
-                originalRegId: regToken,
-                regId: value.registration_id || regToken,
-                error: value.error ? new Error(value.error) : null,
-                errorMsg: value.error
-                  ? value.error.message || value.error
-                  : null,
-              };
-            }),
-          });
-        } else {
-          resolve({
-            method: GCM_METHOD,
-            multicastId: response.multicast_id,
-            success: response.success,
-            failure: response.failure,
-            message: registrationTokens.map((value) => ({
-              originalRegId: value,
-              regId: value,
-              error: new Error('unknown'),
-              errorMsg: 'unknown',
-            })),
-          });
-        }
+    const recipientList = getRecipientList(recipients);
+
+    GCMSender.send(message, recipients, retries, (err, response) => {
+      // Response: see https://developers.google.com/cloud-messaging/http-server-ref#table5
+      if (err) {
+        resolve({
+          method: GCM_METHOD,
+          success: 0,
+          failure: recipientList.length,
+          message: recipientList.map((value) => ({
+            originalRegId: value,
+            regId: value,
+            error: err,
+            errorMsg: err instanceof Error ? err.message : err,
+          })),
+        });
+      } else if (response && response.results !== undefined) {
+        let regIndex = 0;
+        resolve({
+          method: GCM_METHOD,
+          multicastId: response.multicast_id,
+          success: response.success,
+          failure: response.failure,
+          message: response.results.map((value) => {
+            const regToken = recipientList[regIndex];
+            regIndex += 1;
+            return {
+              messageId: value.message_id,
+              originalRegId: regToken,
+              regId: value.registration_id || regToken,
+              error: value.error ? new Error(value.error) : null,
+              errorMsg: value.error ? value.error.message || value.error : null,
+            };
+          }),
+        });
+      } else {
+        resolve({
+          method: GCM_METHOD,
+          multicastId: response.multicast_id,
+          success: response.success,
+          failure: response.failure,
+          message: recipientList.map((value) => ({
+            originalRegId: value,
+            regId: value,
+            error: new Error('unknown'),
+            errorMsg: 'unknown',
+          })),
+        });
       }
-    );
+    });
   });
 
 const sendGCM = (regIds, data, settings) => {
@@ -131,12 +142,22 @@ const sendGCM = (regIds, data, settings) => {
   });
   let chunk = 0;
 
-  // Split in 1.000 chunks, see https://developers.google.com/cloud-messaging/http-server-ref#table1
-  do {
-    const tokens = regIds.slice(chunk * 1000, (chunk + 1) * 1000);
-    promises.push(sendChunk(GCMSender, tokens, message, data.retries || 0));
-    chunk += 1;
-  } while (1000 * chunk < regIds.length);
+  /* allow to override device tokens with custom `to` or `condition` field:
+   * https://github.com/ToothlessGear/node-gcm#recipients */
+  if (containsValidRecipients(data)) {
+    promises.push(
+      sendChunk(GCMSender, data.recipients, message, data.retries || 0)
+    );
+  } else {
+    // Split tokens in 1.000 chunks, see https://developers.google.com/cloud-messaging/http-server-ref#table1
+    do {
+      const registrationTokens = regIds.slice(chunk * 1000, (chunk + 1) * 1000);
+      promises.push(
+        sendChunk(GCMSender, { registrationTokens }, message, data.retries || 0)
+      );
+      chunk += 1;
+    } while (1000 * chunk < regIds.length);
+  }
 
   return Promise.all(promises).then((results) => {
     const resumed = {

@@ -115,7 +115,16 @@ registrationIds.push('INSERT_YOUR_DEVICE_ID');
 registrationIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
-_Android:_ If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
+**Android:**
+
+- If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
+- You are able to send to device groups or other custom recipients instead of using a list of device tokens (see [node-gcm docs](https://github.com/ToothlessGear/node-gcm#recipients)). Documentation can be found in the GCM section..
+
+Example:
+
+```javascript
+const data = { ...data, recipients };
+```
 
 ### 3. Send the notification
 
@@ -340,6 +349,24 @@ In that way, they can be accessed in android in the following two ways:
     String title = extras.getString("title");
     title = title != null ? title : extras.getString("gcm.notification.title");
 ```
+
+### Send to custom recipients (device groups or topics)
+
+In order to override the default behaviour of sending the notifications to a list of device tokens,
+you can pass a `recipients` field with your desired recipients. Supported fields are `to` and `condition` as documented in the [node-gcm docs](https://github.com/ToothlessGear/node-gcm#recipients).
+
+Example:
+
+```javascript
+const dataWithRecipientTo = { ...yourData, recipients: { to: 'topicName' } };
+const dataWithRecipientCondition = { ...yourData, recipients: { condition: 'topicName' } };
+
+push.send(registrationIds, dataWithRecipientTo)
+    .then((results) => { ... })
+    .catch((err) => { ... });
+```
+
+Be aware that the presence of a valid `data.recipient` field will take precendence over any Android device tokens passed with the `registrationIds`.
 
 ### PhoneGap compatibility mode
 
