@@ -441,7 +441,7 @@ const silentPushData = {
     topic: 'yourTopic',
     contentAvailable: true,
     silent: true,
-    payload: {
+    custom: {
         yourKey: 'yourValue',
         ...
     }
