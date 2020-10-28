@@ -26,20 +26,23 @@ const sendADM = (regIds, _data, settings) => {
   };
 
   regIds.forEach((regId) => {
-    promises.push(new Promise((resolve) => {
-      admSender.send(message, regId, (err, response) => {
-        const errorMsg = err instanceof Error ? err.message : response.error;
-        const error = err || (response.error ? new Error(response.error) : null);
-        resumed.success += error ? 0 : 1;
-        resumed.failure += error ? 1 : 0;
-        resumed.message.push({
-          regId,
-          error,
-          errorMsg,
+    promises.push(
+      new Promise((resolve) => {
+        admSender.send(message, regId, (err, response) => {
+          const errorMsg = err instanceof Error ? err.message : response.error;
+          const error =
+            err || (response.error ? new Error(response.error) : null);
+          resumed.success += error ? 0 : 1;
+          resumed.failure += error ? 1 : 0;
+          resumed.message.push({
+            regId,
+            error,
+            errorMsg,
+          });
+          resolve();
         });
-        resolve();
-      });
-    }));
+      })
+    );
   });
 
   return Promise.all(promises).then(() => resumed);
