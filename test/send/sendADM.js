@@ -57,7 +57,7 @@ function sendOkMethod() {
     expect(message.data).to.be.an('object');
     expect(message.data.title).to.eql(data.title);
     expect(message.data.body).to.eql(data.body);
-    expect(message.data.custom).to.eql(data.custom);
+    expect(message.data.sender).to.eql(data.custom.sender);
     cb(null, {});
   });
 }
