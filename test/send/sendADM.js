@@ -42,24 +42,24 @@ let sendMethod;
 
 function sendOkMethod() {
   // Don't use arrow function because we use this!!
-  return sinon.stub(adm.Sender.prototype, 'send', function sedADM(
-    message,
-    regId,
-    cb
-  ) {
-    expect(this.options)
-      .to.be.an('object')
-      .includes.keys(['client_id', 'client_secret']);
-    expect(this.options.client_id).to.equal(admOpts.adm.client_id);
-    expect(this.options.client_secret).to.equal(admOpts.adm.client_secret);
-    expect(regId).to.be.a('string');
-    expect(regIds).to.include(regId);
-    expect(message.data).to.be.an('object');
-    expect(message.data.title).to.eql(data.title);
-    expect(message.data.body).to.eql(data.body);
-    expect(message.data.sender).to.eql(data.custom.sender);
-    cb(null, {});
-  });
+  return sinon.stub(
+    adm.Sender.prototype,
+    'send',
+    function sedADM(message, regId, cb) {
+      expect(this.options)
+        .to.be.an('object')
+        .includes.keys(['client_id', 'client_secret']);
+      expect(this.options.client_id).to.equal(admOpts.adm.client_id);
+      expect(this.options.client_secret).to.equal(admOpts.adm.client_secret);
+      expect(regId).to.be.a('string');
+      expect(regIds).to.include(regId);
+      expect(message.data).to.be.an('object');
+      expect(message.data.title).to.eql(data.title);
+      expect(message.data.body).to.eql(data.body);
+      expect(message.data.sender).to.eql(data.custom.sender);
+      cb(null, {});
+    }
+  );
 }
 
 function sendFailureMethod() {

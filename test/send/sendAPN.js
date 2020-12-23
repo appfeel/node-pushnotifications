@@ -54,29 +54,30 @@ let sendMethod;
 
 function sendOkMethod() {
   // Don't use arrow function because we use this!!
-  return sinon.stub(apn.Provider.prototype, 'send', function sendAPN(
-    message,
-    _regIds
-  ) {
-    // TODO: validate other props? What about token?
-    expect(this.client.config)
-      .to.be.an('object')
-      .includes.keys(['cert', 'key']);
-    expect(this.client.config.cert).to.eql(readFileSync(apnOptions.cert));
-    expect(this.client.config.key).to.eql(readFileSync(apnOptions.key));
+  return sinon.stub(
+    apn.Provider.prototype,
+    'send',
+    function sendAPN(message, _regIds) {
+      // TODO: validate other props? What about token?
+      expect(this.client.config)
+        .to.be.an('object')
+        .includes.keys(['cert', 'key']);
+      expect(this.client.config.cert).to.eql(readFileSync(apnOptions.cert));
+      expect(this.client.config.key).to.eql(readFileSync(apnOptions.key));
 
-    expect(_regIds).to.be.instanceOf(Array);
-    _regIds.forEach((regId) => expect(regIds).to.include(regId));
-    expect(message).to.be.instanceOf(apn.Notification);
-    expect(message.aps.sound).to.eql(data.sound);
-    expect(message.aps.alert.title).to.eql(data.title);
-    expect(message.aps.alert.body).to.equal(data.body);
-    expect(message.priority).to.equal(10);
-    expect(message.payload).to.eql(data.custom);
-    return Promise.resolve({
-      sent: _regIds,
-    });
-  });
+      expect(_regIds).to.be.instanceOf(Array);
+      _regIds.forEach((regId) => expect(regIds).to.include(regId));
+      expect(message).to.be.instanceOf(apn.Notification);
+      expect(message.aps.sound).to.eql(data.sound);
+      expect(message.aps.alert.title).to.eql(data.title);
+      expect(message.aps.alert.body).to.equal(data.body);
+      expect(message.priority).to.equal(10);
+      expect(message.payload).to.eql(data.custom);
+      return Promise.resolve({
+        sent: _regIds,
+      });
+    }
+  );
 }
 
 function sendFailureMethod1() {
