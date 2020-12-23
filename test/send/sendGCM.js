@@ -776,7 +776,7 @@ describe('push-notifications-gcm', () => {
           );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
-          expect(message.notification).to.be.undefined();
+          expect(message.params.notification).to.be.undefined();
           expect(message.params.data.sender).to.eql(data.custom.sender);
           expect(message.params.data.title).to.eql(data.title);
           expect(message.params.data.body).to.eql(data.body);
