@@ -124,15 +124,15 @@ const sendGCM = (regIds, data, settings) => {
   custom.sound = custom.sound || data.sound;
   custom.icon = custom.icon || data.icon;
   custom.msgcnt = custom.msgcnt || data.badge;
-  if ((opts.phonegap === true || opts.silent === true) && data.contentAvailable) {
+  if (opts.phonegap === true && data.contentAvailable) {
     custom['content-available'] = 1;
   }
 
   const message = new gcm.Message({
     // See https://developers.google.com/cloud-messaging/http-server-ref#table5
     collapseKey: data.collapseKey,
-    priority: data.priority === 'normal' ? data.priority : 'high',
-    contentAvailable: data.contentAvailable || false,
+    priority: data.priority === 'normal' || data.silent ? 'normal' : 'high',
+    contentAvailable: data.silent ? true : data.contentAvailable || false,
     delayWhileIdle: data.delayWhileIdle || false,
     timeToLive: extractTimeToLive(data),
     restrictedPackageName: data.restrictedPackageName,

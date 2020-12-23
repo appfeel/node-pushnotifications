@@ -357,7 +357,6 @@ GCM supports silent push notifications which are not displayed to the user but o
 ```js
 const silentPushData = {
     topic: 'yourTopic',
-    contentAvailable: true,
     silent: true,
     custom: {
         yourKey: 'yourValue',
@@ -366,7 +365,7 @@ const silentPushData = {
 }
 ```
 
-Internally, `silent: true` will tell `node-gcm` _not_ to send the `notification` property and only send the `custom` property. If you don't specify `silent: true` then the push notifications will still be visible on the device. Note that this is essentially the same behavior as `phoneGap: true` except that it does not touch the `content-available` setting like `phoneGap`.
+Internally, `silent: true` will tell `node-gcm` _not_ to send the `notification` property and only send the `custom` property. If you don't specify `silent: true` then the push notifications will still be visible on the device. Note that this is nearly the same behavior as `phoneGap: true` and will set `content-available` to `true`.
 
 ### Send to custom recipients (device groups or topics)
 

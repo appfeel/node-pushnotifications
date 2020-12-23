@@ -661,6 +661,7 @@ describe('push-notifications-gcm', () => {
           );
           expect(retries).to.be.a('number');
           expect(message).to.be.instanceOf(gcm.Message);
+          expect(message.params.notification).to.be.undefined();
           expect(message.params.priority).to.equal('normal');
           expect(message.params.contentAvailable).to.be.true();
           expect(message.params.data.testKey).to.eql('testValue');
@@ -688,8 +689,8 @@ describe('push-notifications-gcm', () => {
 
     it('all responses should be successful (callback, custom data undefined)', (done) => {
       const silentPushData = {
-        contentAvailable: true,
-        priority: 'normal',
+        priority: 'high',
+        silent: true,
         custom: {
           testKey: 'testValue',
         },
