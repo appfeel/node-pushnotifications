@@ -366,7 +366,7 @@ const silentPushData = {
 }
 ```
 
-Internally, `silent: true` will tell `node-gcm` _not_ to send the `notification` property and only send the `custom` property. If you don't specify `silent: true` then the push notifications will still be visible on the device.
+Internally, `silent: true` will tell `node-gcm` _not_ to send the `notification` property and only send the `custom` property. If you don't specify `silent: true` then the push notifications will still be visible on the device. Note that this is essentially the same behavior as `phoneGap: true` except that it does not touch the `content-available` setting like `phoneGap`.
 
 ### Send to custom recipients (device groups or topics)
 
