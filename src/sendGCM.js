@@ -124,7 +124,7 @@ const sendGCM = (regIds, data, settings) => {
   custom.sound = custom.sound || data.sound;
   custom.icon = custom.icon || data.icon;
   custom.msgcnt = custom.msgcnt || data.badge;
-  if (opts.phonegap === true && data.contentAvailable) {
+  if ((opts.phonegap === true || opts.silent === true) && data.contentAvailable) {
     custom['content-available'] = 1;
   }
 
