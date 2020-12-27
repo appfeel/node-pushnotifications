@@ -131,14 +131,15 @@ const sendGCM = (regIds, data, settings) => {
   const message = new gcm.Message({
     // See https://developers.google.com/cloud-messaging/http-server-ref#table5
     collapseKey: data.collapseKey,
-    priority: data.priority === 'normal' ? data.priority : 'high',
-    contentAvailable: data.contentAvailable || false,
+    priority: data.priority === 'normal' || data.silent ? 'normal' : 'high',
+    contentAvailable: data.silent ? true : data.contentAvailable || false,
     delayWhileIdle: data.delayWhileIdle || false,
     timeToLive: extractTimeToLive(data),
     restrictedPackageName: data.restrictedPackageName,
     dryRun: data.dryRun || false,
     data: opts.phonegap === true ? Object.assign(custom, notification) : custom, // See https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour
-    notification: opts.phonegap === true ? undefined : notification,
+    notification:
+      opts.phonegap === true || data.silent === true ? undefined : notification,
   });
   let chunk = 0;
 

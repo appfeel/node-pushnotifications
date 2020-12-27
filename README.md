@@ -170,7 +170,7 @@ const data = {
         body: 'body'
         // details: https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#convenience-setters
     },
-    silent: false, // apn, will override badge, sound, alert and priority if set to true
+    silent: false, // gcm, apn, will override badge, sound, alert and priority if set to true on iOS, will omit `notification` property and send as data-only on Android/GCM
     /*
      * A string is also accepted as a payload for alert
      * Your notification won't appear on ios if alert is empty object
@@ -349,6 +349,23 @@ In that way, they can be accessed in android in the following two ways:
     String title = extras.getString("title");
     title = title != null ? title : extras.getString("gcm.notification.title");
 ```
+
+### Silent push notifications
+
+GCM supports silent push notifications which are not displayed to the user but only used to transmit data.
+
+```js
+const silentPushData = {
+    topic: 'yourTopic',
+    silent: true,
+    custom: {
+        yourKey: 'yourValue',
+        ...
+    }
+}
+```
+
+Internally, `silent: true` will tell `node-gcm` _not_ to send the `notification` property and only send the `custom` property. If you don't specify `silent: true` then the push notifications will still be visible on the device. Note that this is nearly the same behavior as `phoneGap: true` and will set `content-available` to `true`.
 
 ### Send to custom recipients (device groups or topics)
 
