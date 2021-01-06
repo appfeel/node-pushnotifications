@@ -156,9 +156,9 @@ const data = {
     color: '', // gcm for android
     clickAction: '', // gcm for android. In ios, category will be used if not supplied
     locKey: '', // gcm, apn
-    locArgs: '', // gcm, apn
     titleLocKey: '', // gcm, apn
-    titleLocArgs: '', // gcm, apn
+    locArgs: undefined, // gcm, apn
+    titleLocArgs: undefined, // gcm, apn
     retries: 1, // gcm, apn
     encoding: '', // apn
     badge: 2, // gcm for ios, apn
