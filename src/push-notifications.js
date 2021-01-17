@@ -41,15 +41,20 @@ class PN {
   getPushMethodByRegId(regId) {
     if (typeof regId === 'object') {
       return WEB_METHOD;
-    } else if (this.settings.isAlwaysUseFCM) {
+    }
+    if (this.settings.isAlwaysUseFCM) {
       return GCM_METHOD;
-    } else if (regId.substring(0, 4) === 'http') {
+    }
+    if (regId.substring(0, 4) === 'http') {
       return WNS_METHOD;
-    } else if (/^(amzn[0-9]*.adm)/i.test(regId)) {
+    }
+    if (/^(amzn[0-9]*.adm)/i.test(regId)) {
       return ADM_METHOD;
-    } else if (regId.length > 64) {
+    }
+    if (regId.length > 64) {
       return GCM_METHOD;
-    } else if (regId.length === 64) {
+    }
+    if (regId.length === 64) {
       return APN_METHOD;
     }
     return UNKNOWN_METHOD;
