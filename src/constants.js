@@ -5,6 +5,7 @@ module.exports = {
   ADM_METHOD: 'adm',
   WNS_METHOD: 'wns',
   WEB_METHOD: 'webPush',
+  UNKNOWN_METHOD: 'unknown',
   DEFAULT_SETTINGS: {
     gcm: {
       id: null, // PUT YOUR GCM SERVER API KEY,
