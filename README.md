@@ -157,8 +157,8 @@ const data = {
     clickAction: '', // gcm for android. In ios, category will be used if not supplied
     locKey: '', // gcm, apn
     titleLocKey: '', // gcm, apn
-    locArgs: undefined, // gcm, apn
-    titleLocArgs: undefined, // gcm, apn
+    locArgs: undefined, // gcm, apn. Expected format: Stringified Array
+    titleLocArgs: undefined, // gcm, apn. Expected format: Stringified Array
     retries: 1, // gcm, apn
     encoding: '', // apn
     badge: 2, // gcm for ios, apn
@@ -290,9 +290,9 @@ The following parameters are used to create a GCM message. See https://developer
             title: data.title, // Android, iOS (Watch)
             body: data.body, // Android, iOS
             icon: data.icon, // Android
-	    image: data.image, // Android
-	    style: data.style, // Android
-   	    picture: data.picture, // Android
+            image: data.image, // Android
+            style: data.style, // Android
+            picture: data.picture, // Android
             sound: data.sound, // Android, iOS
             badge: data.badge, // iOS
             tag: data.tag, // Android
@@ -302,7 +302,7 @@ The following parameters are used to create a GCM message. See https://developer
             body_loc_args: data.locArgs, // Android, iOS
             title_loc_key: data.titleLocKey, // Android, iOS
             title_loc_args: data.titleLocArgs, // Android, iOS
-	    android_channel_id: data.android_channel_id, // Android
+	        android_channel_id: data.android_channel_id, // Android
         },
     }
 ```
