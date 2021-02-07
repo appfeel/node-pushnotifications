@@ -71,6 +71,16 @@ function sendOkMethod() {
       expect(message.aps.sound).to.eql(data.sound);
       expect(message.aps.alert.title).to.eql(data.title);
       expect(message.aps.alert.body).to.equal(data.body);
+      expect(message.aps.alert).to.eql({
+        body: data.body,
+        title: data.title,
+        action: undefined,
+        'launch-image': undefined,
+        'title-loc-key': undefined,
+        'title-loc-args': undefined,
+        'loc-key': undefined,
+        'loc-args': undefined,
+      });
       expect(message.priority).to.equal(10);
       expect(message.payload).to.eql(data.custom);
       return Promise.resolve({
@@ -447,6 +457,118 @@ describe('push-notifications-apn', () => {
 
       it('should set the expiry from default ttl', (done) => {
         pn.send(regIds, data, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+  });
+
+  describe('parse title-loc-args and loc-args', () => {
+    describe('when valid string args are passed in alert object', () => {
+      before(() => {
+        sendMethod = sinon.stub(
+          apn.Provider.prototype,
+          'send',
+          (message, _regIds) => {
+            expect(_regIds).to.be.instanceOf(Array);
+            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            expect(message).to.be.instanceOf(apn.Notification);
+            expect(message.aps.alert['title-loc-args']).to.deep.equal([
+              { a: 1 },
+            ]);
+            expect(message.aps.alert['loc-args']).to.deep.equal([{ b: 2 }]);
+            return Promise.resolve({
+              sent: _regIds,
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('should parse the stringified arrays to JSON', (done) => {
+        const locArgsData = {
+          ...data,
+          alert: {
+            'title-loc-args': '[{"a":1}]',
+            'loc-args': '[{"b":2}]',
+          },
+        };
+        pn.send(regIds, locArgsData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe('when valid string args are passed in top-level data', () => {
+      before(() => {
+        sendMethod = sinon.stub(
+          apn.Provider.prototype,
+          'send',
+          (message, _regIds) => {
+            expect(_regIds).to.be.instanceOf(Array);
+            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            expect(message).to.be.instanceOf(apn.Notification);
+            expect(message.aps.alert['title-loc-args']).to.deep.equal([
+              { a: 1 },
+            ]);
+            expect(message.aps.alert['loc-args']).to.deep.equal([{ b: 2 }]);
+            return Promise.resolve({
+              sent: _regIds,
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('should parse the stringified arrays to JSON', (done) => {
+        const locArgsData = {
+          ...data,
+          titleLocArgs: '[{"a":1}]',
+          locArgs: '[{"b":2}]',
+        };
+        pn.send(regIds, locArgsData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe("when args can't be parsed to JSON", () => {
+      before(() => {
+        sendMethod = sinon.stub(
+          apn.Provider.prototype,
+          'send',
+          (message, _regIds) => {
+            expect(_regIds).to.be.instanceOf(Array);
+            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            expect(message).to.be.instanceOf(apn.Notification);
+            expect(message.aps.alert['title-loc-args']).to.be.undefined();
+            expect(message.aps.alert['loc-args']).to.be.undefined();
+            return Promise.resolve({
+              sent: _regIds,
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('should leave the input as is', (done) => {
+        const invalidLocArgsData = {
+          ...data,
+          alert: {
+            'title-loc-args': '[{a:1}]',
+            'loc-args': '[{b:2}]',
+          },
+        };
+        pn.send(regIds, invalidLocArgsData, (err, results) =>
           testSuccess(err, results, done)
         );
       });
