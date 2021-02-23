@@ -53,7 +53,7 @@
   "dependencies": {
     "@parse/node-apn": "4.0.0",
     "node-adm": "0.9.1",
-    "node-gcm": "1.0.3",
+    "node-gcm": "1.0.4",
     "ramda": "0.27.1",
     "web-push": "3.4.4",
     "wns": "0.5.4"
