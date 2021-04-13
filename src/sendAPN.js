@@ -50,6 +50,12 @@ const alertOrDefault = (data) =>
 const getParsedAlertOrDefault = (data) =>
   R.pipe(alertOrDefault(data), alertLocArgsToJSON)(data);
 
+const getDeviceTokenOrSelf = R.ifElse(
+  R.has('device'),
+  R.prop('device'),
+  R.identity
+);
+
 class APN {
   constructor(settings) {
     try {
@@ -108,7 +114,7 @@ class APN {
       (response.sent || []).forEach((token) => {
         resumed.success += 1;
         resumed.message.push({
-          regId: token,
+          regId: getDeviceTokenOrSelf(token),
           error: null,
         });
       });

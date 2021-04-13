@@ -84,7 +84,7 @@ function sendOkMethod() {
       expect(message.priority).to.equal(10);
       expect(message.payload).to.eql(data.custom);
       return Promise.resolve({
-        sent: _regIds,
+        sent: _regIds.map((device) => ({ device })),
       });
     }
   );
