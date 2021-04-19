@@ -72,17 +72,17 @@ class PN {
 
     // Classify each pushId for corresponding device
     regIds.forEach((regId) => {
-      const pushMetdod = this.getPushMethodByRegId(regId);
+      const pushMethod = this.getPushMethodByRegId(regId);
 
-      if (pushMetdod === WEB_METHOD) {
+      if (pushMethod === WEB_METHOD) {
         regIdsWebPush.push(regId);
-      } else if (pushMetdod === GCM_METHOD) {
+      } else if (pushMethod === GCM_METHOD) {
         regIdsGCM.push(regId);
-      } else if (pushMetdod === WNS_METHOD) {
+      } else if (pushMethod === WNS_METHOD) {
         regIdsWNS.push(regId);
-      } else if (pushMetdod === ADM_METHOD) {
+      } else if (pushMethod === ADM_METHOD) {
         regIdsADM.push(regId);
-      } else if (pushMetdod === APN_METHOD) {
+      } else if (pushMethod === APN_METHOD) {
         regIdsAPN.push(regId);
       } else {
         regIdsUnk.push(regId);

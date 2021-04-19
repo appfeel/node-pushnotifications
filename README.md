@@ -115,6 +115,8 @@ registrationIds.push('INSERT_YOUR_DEVICE_ID');
 registrationIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
+The `PN.send()` method later detects device type and therefore used push method, based on the id stucture. Check out the method `PN.getPushMethodByRegId` how this detection works.
+
 **Android:**
 
 - If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
