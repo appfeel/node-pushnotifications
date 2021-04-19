@@ -20,6 +20,15 @@ const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
     R.prop(propName)
   )(data);
 
+const toJSONorUndefined = R.tryCatch(JSON.parse, R.always(undefined));
+
+const alertLocArgsToJSON = R.evolve({
+  alert: {
+    'title-loc-args': toJSONorUndefined,
+    'loc-args': toJSONorUndefined,
+  },
+});
+
 const getDefaultAlert = (data) => ({
   title: data.title,
   body: data.body,
@@ -32,12 +41,20 @@ const getDefaultAlert = (data) => ({
   action: data.action,
 });
 
-const pushDataWithDefaultAlert = (data) =>
+const alertOrDefault = (data) =>
   R.when(
     R.propSatisfies(R.isNil, 'alert'),
-    R.assoc('alert', getDefaultAlert(data)),
-    data
+    R.assoc('alert', getDefaultAlert(data))
   );
+
+const getParsedAlertOrDefault = (data) =>
+  R.pipe(alertOrDefault(data), alertLocArgsToJSON)(data);
+
+const getDeviceTokenOrSelf = R.ifElse(
+  R.has('device'),
+  R.prop('device'),
+  R.identity
+);
 
 class APN {
   constructor(settings) {
@@ -66,7 +83,7 @@ class APN {
       sound: getPropValueOrUndefinedIfIsSilent('sound', data),
       alert: getPropValueOrUndefinedIfIsSilent(
         'alert',
-        pushDataWithDefaultAlert(data)
+        getParsedAlertOrDefault(data)
       ),
       topic: data.topic,
       category: data.category || data.clickAction,
@@ -97,7 +114,7 @@ class APN {
       (response.sent || []).forEach((token) => {
         resumed.success += 1;
         resumed.message.push({
-          regId: token,
+          regId: getDeviceTokenOrSelf(token),
           error: null,
         });
       });

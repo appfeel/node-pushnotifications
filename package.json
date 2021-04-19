@@ -1,7 +1,7 @@
 {
   "name": "node-pushnotifications",
   "description": "A cross-platform push service for node.js",
-  "version": "1.6.0",
+  "version": "1.6.3",
   "author": {
     "name": "AppFeel",
     "email": "info@appfeel.com"
@@ -15,7 +15,8 @@
     "format": "prettier --write \"**/*.{js,json,md,yml}\"",
     "ci": "npm run build && npm run test-cover && npm run lint",
     "prepublishOnly": "npm run lint && npm test && npm run build",
-    "release": "release-it"
+    "release": "release-it",
+    "prepare": "husky install"
   },
   "keywords": [
     "notifications",
@@ -53,31 +54,31 @@
   "dependencies": {
     "@parse/node-apn": "4.0.0",
     "node-adm": "0.9.1",
-    "node-gcm": "1.0.3",
+    "node-gcm": "1.0.4",
     "ramda": "0.27.1",
     "web-push": "3.4.4",
     "wns": "0.5.4"
   },
   "devDependencies": {
-    "@babel/cli": "7.12.10",
-    "@babel/core": "7.12.10",
-    "@babel/preset-env": "7.12.11",
-    "@babel/register": "7.12.10",
-    "chai": "4.2.0",
+    "@babel/cli": "7.13.14",
+    "@babel/core": "7.13.15",
+    "@babel/preset-env": "7.13.15",
+    "@babel/register": "7.13.14",
+    "chai": "4.3.4",
     "coveralls": "3.1.0",
     "dirty-chai": "2.0.1",
-    "eslint": "7.17.0",
+    "eslint": "7.24.0",
     "eslint-config-airbnb-base": "14.2.1",
-    "eslint-config-prettier": "7.1.0",
+    "eslint-config-prettier": "8.2.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-prettier": "3.3.1",
-    "husky": "4.3.6",
-    "mocha": "8.2.1",
+    "husky": "6.0.0",
+    "mocha": "8.3.2",
     "nyc": "15.1.0",
     "opn-cli": "5.0.0",
     "prettier": "2.2.1",
     "pretty-quick": "3.1.0",
-    "release-it": "14.2.2",
+    "release-it": "14.6.1",
     "sinon": "1.17.7",
     "sinon-chai": "3.5.0"
   },
@@ -89,11 +90,6 @@
     "env": {
       "es6": true,
       "node": true
-    }
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
     }
   },
   "readmeFilename": "README.md",
