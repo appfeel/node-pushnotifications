@@ -3,7 +3,15 @@ import APN from './sendAPN';
 import sendADM from './sendADM';
 import sendWNS from './sendWNS';
 import sendWebPush from './sendWeb';
-import { DEFAULT_SETTINGS } from './constants';
+import {
+  DEFAULT_SETTINGS,
+  UNKNOWN_METHOD,
+  WEB_METHOD,
+  WNS_METHOD,
+  ADM_METHOD,
+  GCM_METHOD,
+  APN_METHOD,
+} from './constants';
 
 class PN {
   constructor(options) {
@@ -30,6 +38,28 @@ class PN {
       });
   }
 
+  getPushMethodByRegId(regId) {
+    if (typeof regId === 'object') {
+      return WEB_METHOD;
+    }
+    if (this.settings.isAlwaysUseFCM) {
+      return GCM_METHOD;
+    }
+    if (regId.substring(0, 4) === 'http') {
+      return WNS_METHOD;
+    }
+    if (/^(amzn[0-9]*.adm)/i.test(regId)) {
+      return ADM_METHOD;
+    }
+    if (regId.length > 64) {
+      return GCM_METHOD;
+    }
+    if (regId.length === 64) {
+      return APN_METHOD;
+    }
+    return UNKNOWN_METHOD;
+  }
+
   send(_regIds, data, callback) {
     const promises = [];
     const regIdsGCM = [];
@@ -42,17 +72,17 @@ class PN {
 
     // Classify each pushId for corresponding device
     regIds.forEach((regId) => {
-      if (typeof regId === 'object') {
+      const pushMethod = this.getPushMethodByRegId(regId);
+
+      if (pushMethod === WEB_METHOD) {
         regIdsWebPush.push(regId);
-      } else if (this.settings.isAlwaysUseFCM) {
+      } else if (pushMethod === GCM_METHOD) {
         regIdsGCM.push(regId);
-      } else if (regId.substring(0, 4) === 'http') {
+      } else if (pushMethod === WNS_METHOD) {
         regIdsWNS.push(regId);
-      } else if (/^(amzn[0-9]*.adm)/i.test(regId)) {
+      } else if (pushMethod === ADM_METHOD) {
         regIdsADM.push(regId);
-      } else if (regId.length > 64) {
-        regIdsGCM.push(regId);
-      } else if (regId.length === 64) {
+      } else if (pushMethod === APN_METHOD) {
         regIdsAPN.push(regId);
       } else {
         regIdsUnk.push(regId);
