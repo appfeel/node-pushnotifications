@@ -1,8 +1,11 @@
 const gcm = require('node-gcm');
 const R = require('ramda');
-const { DEFAULT_TTL, GCM_METHOD } = require('./constants');
+const { DEFAULT_TTL, GCM_METHOD, GCM_MAX_TTL } = require('./constants');
 
-const ttlFromExpiry = (expiry) => expiry - Math.floor(Date.now() / 1000);
+const ttlFromExpiry = R.compose(
+  R.min(GCM_MAX_TTL),
+  (expiry) => expiry - Math.floor(Date.now() / 1000)
+);
 
 const extractTimeToLive = R.cond([
   [R.propIs(Number, 'expiry'), ({ expiry }) => ttlFromExpiry(expiry)],
