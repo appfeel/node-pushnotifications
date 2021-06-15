@@ -11,7 +11,7 @@ import {
   testPushException,
 } from '../util';
 
-const { DEFAULT_TTL } = require('../../src/constants');
+const { DEFAULT_TTL, GCM_MAX_TTL } = require('../../src/constants');
 
 const { expect } = chai;
 chai.use(dirtyChai);
@@ -600,6 +600,52 @@ describe('push-notifications-gcm', () => {
 
       it('timeToLive should be calculated correctly from expiry. expiry takes precedence', (done) => {
         const expiryData = { ...data, expiry: 160000, timeToLive: 3000 };
+        pn.send(regIds, expiryData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
+    describe('send push notifications with timeToLive calculated from expiry must not exceed max TTL', () => {
+      const now = 150000;
+      let clock;
+
+      before(() => {
+        clock = sinon.useFakeTimers(now);
+
+        sendMethod = sinon.stub(
+          gcm.Sender.prototype,
+          'send',
+          (message, recipients, retries, cb) => {
+            expect(recipients).to.be.instanceOf(Object);
+            expect(recipients).to.have.property('registrationTokens');
+            const { registrationTokens } = recipients;
+            expect(registrationTokens).to.be.instanceOf(Array);
+            registrationTokens.forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
+            expect(message.params.timeToLive).to.equal(GCM_MAX_TTL);
+            cb(null, {
+              multicast_id: 'abc',
+              success: registrationTokens.length,
+              failure: 0,
+              results: registrationTokens.map((token) => ({
+                message_id: '',
+                registration_id: token,
+                error: null,
+              })),
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+        clock.restore();
+      });
+
+      it('timeToLive from expiry must not exceed max TTL', (done) => {
+        const expiryData = { ...data, expiry: 16000000, timeToLive: 3000 };
         pn.send(regIds, expiryData, (err, results) =>
           testSuccess(err, results, done)
         );
