@@ -163,4 +163,4 @@ class PN {
   }
 }
 
-module.exports = PN;
+export default PN;
