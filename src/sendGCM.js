@@ -134,7 +134,7 @@ const sendGCM = (regIds, data, settings) => {
   const message = new gcm.Message({
     // See https://developers.google.com/cloud-messaging/http-server-ref#table5
     collapseKey: data.collapseKey,
-    priority: data.priority === 'normal' || data.silent ? 'normal' : 'high',
+    priority: data.priority === 'normal' ? 'normal' : 'high',
     contentAvailable: data.silent ? true : data.contentAvailable || false,
     delayWhileIdle: data.delayWhileIdle || false,
     timeToLive: extractTimeToLive(data),
