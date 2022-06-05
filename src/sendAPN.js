@@ -97,6 +97,10 @@ class APN {
       pushType: data.pushType,
     });
 
+    if (data.rawPayload) {
+      message.rawPayload = data.rawPayload;
+    }
+
     if (!this.connection) {
       return Promise.reject(
         this.connectionError ||
