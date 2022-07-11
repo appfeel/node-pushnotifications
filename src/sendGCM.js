@@ -89,7 +89,7 @@ const sendGCM = (regIds, data, settings) => {
   delete opts.id;
   const GCMSender = new gcm.Sender(id, opts);
   const promises = [];
-  const notification = {
+  const notification = data.fcm_notification || {
     title: data.title, // Android, iOS (Watch)
     body: data.body, // Android, iOS
     icon: data.icon, // Android
