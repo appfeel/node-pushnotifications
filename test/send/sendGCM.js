@@ -658,6 +658,48 @@ describe('push-notifications-gcm', () => {
       });
     });
 
+    describe('send push notifications with timeToLive calculated from expiry must not be negative', () => {
+      const expiredTimestampDate = Math.floor(Date.now() / 1000) - 1;
+
+      before(() => {
+        sendMethod = sinon.stub(
+          gcm.Sender.prototype,
+          'send',
+          (message, recipients, retries, cb) => {
+            expect(recipients).to.be.instanceOf(Object);
+            expect(recipients).to.have.property('registrationTokens');
+            const { registrationTokens } = recipients;
+            expect(registrationTokens).to.be.instanceOf(Array);
+            registrationTokens.forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
+            expect(message.params.timeToLive).to.equal(0);
+            cb(null, {
+              multicast_id: 'abc',
+              success: registrationTokens.length,
+              failure: 0,
+              results: registrationTokens.map((token) => ({
+                message_id: '',
+                registration_id: token,
+                error: null,
+              })),
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('timeToLive from expiry must not exceed max TTL', (done) => {
+        const expiryData = { ...data, expiry: expiredTimestampDate };
+        pn.send(regIds, expiryData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
     describe('send push notifications with neither expiry nor timeToLive given', () => {
       before(() => {
         sendMethod = sinon.stub(

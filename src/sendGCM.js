@@ -4,6 +4,7 @@ const { DEFAULT_TTL, GCM_METHOD, GCM_MAX_TTL } = require('./constants');
 
 const ttlFromExpiry = R.compose(
   R.min(GCM_MAX_TTL),
+  R.max(0),
   (expiry) => expiry - Math.floor(Date.now() / 1000)
 );
 
