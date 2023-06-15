@@ -154,6 +154,8 @@ describe('push-notifications: instantiation and class properties', () => {
         'amzn1mQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw',
       iOSRegId:
         '43e798c31a282d129a34d84472bbdd7632562ff0732b58a85a27c5d9fdf59b69',
+      iOSRegIdLong:
+        '80C2D3913EE662DD25C5A3B7FCC8CBBADCA9DA429D13F106F37BF8EA268AFC610824D1B378D6E5FAFA86C63A63FDADA7A9067E1B0BC461E4020346199000D26418F38E73E32174D69F69DC35BEA27CE5',
       windowsPhoneRegId:
         'https://db5.notify.windows.com/?token=AwYAAAD8sfbDrL9h7mN%2bmwlkSkQZCIfv4QKeu1hYRipj2zNvXaMi9ZAax%2f6CDfysyHp61STCO1pCFPt%2b9L4Jod72JhIcjDr8b2GxuUOBMTP%2b6%2bqxEfSB9iZfSATdZbdF7cJHSRA%3d',
       amazonRegId:
@@ -165,53 +167,144 @@ describe('push-notifications: instantiation and class properties', () => {
           auth: 'userAuthSecret',
         },
       },
+      androidObject: {
+        id: 'APA91bFQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw',
+        type: 'gcm',
+      },
+      androidObjectWhatever: {
+        id: 'whatever',
+        type: 'gcm',
+      },
+      iosObject: {
+        id: '43e798c31a282d129a34d84472bbdd7632562ff0732b58a85a27c5d9fdf59b69',
+        type: 'apn',
+      },
+      iosObjectWhatever: {
+        id: 'whatever',
+        type: 'apn',
+      },
       unknownRegId: 'abcdef',
     };
 
     it('Android / GCM', () => {
       let pn = new PN();
-      expect(pn.getPushMethodByRegId(regIds.androidRegId)).to.equal(GCM_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.androidRegId).regId).to.equal(
+        regIds.androidRegId
+      );
+      expect(pn.getPushMethodByRegId(regIds.androidRegId).pushMethod).to.equal(
+        GCM_METHOD
+      );
 
       expect(
-        pn.getPushMethodByRegId(regIds.androidWithAdmSubstringRegId)
+        pn.getPushMethodByRegId(regIds.androidWithAdmSubstringRegId).regId
+      ).to.equal(regIds.androidWithAdmSubstringRegId);
+      expect(
+        pn.getPushMethodByRegId(regIds.androidWithAdmSubstringRegId).pushMethod
       ).to.equal(GCM_METHOD);
 
       expect(
-        pn.getPushMethodByRegId(regIds.androidWithAmznSubscringRegId)
+        pn.getPushMethodByRegId(regIds.androidWithAmznSubscringRegId).regId
+      ).to.equal(regIds.androidWithAmznSubscringRegId);
+      expect(
+        pn.getPushMethodByRegId(regIds.androidWithAmznSubscringRegId).pushMethod
       ).to.equal(GCM_METHOD);
 
       const settings = {
         isAlwaysUseFCM: true,
       };
       pn = new PN(settings);
-      expect(pn.getPushMethodByRegId(regIds.unknownRegId)).to.equal(GCM_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.unknownRegId).regId).to.equal(
+        regIds.unknownRegId
+      );
+      expect(pn.getPushMethodByRegId(regIds.unknownRegId).pushMethod).to.equal(
+        GCM_METHOD
+      );
+
+      expect(pn.getPushMethodByRegId(regIds.androidObject).regId).to.equal(
+        regIds.androidObject.id
+      );
+      expect(pn.getPushMethodByRegId(regIds.androidObject).pushMethod).to.equal(
+        GCM_METHOD
+      );
+
+      expect(
+        pn.getPushMethodByRegId(regIds.androidObjectWhatever).regId
+      ).to.equal(regIds.androidObjectWhatever.id);
+      expect(
+        pn.getPushMethodByRegId(regIds.androidObjectWhatever).pushMethod
+      ).to.equal(GCM_METHOD);
     });
 
     it('iOS / APN', () => {
       const pn = new PN();
-      expect(pn.getPushMethodByRegId(regIds.iOSRegId)).to.equal(APN_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.iOSRegId).regId).to.equal(
+        regIds.iOSRegId
+      );
+      expect(pn.getPushMethodByRegId(regIds.iOSRegId).pushMethod).to.equal(
+        APN_METHOD
+      );
+
+      expect(pn.getPushMethodByRegId(regIds.iosObject).regId).to.equal(
+        regIds.iosObject.id
+      );
+      expect(pn.getPushMethodByRegId(regIds.iosObject).pushMethod).to.equal(
+        APN_METHOD
+      );
+
+      expect(pn.getPushMethodByRegId(regIds.iosObjectWhatever).regId).to.equal(
+        regIds.iosObjectWhatever.id
+      );
+      expect(
+        pn.getPushMethodByRegId(regIds.iosObjectWhatever).pushMethod
+      ).to.equal(APN_METHOD);
+    });
+
+    it('iOS / APN long', () => {
+      const pn = new PN();
+      expect(pn.getPushMethodByRegId(regIds.iOSRegIdLong).regId).to.equal(
+        regIds.iOSRegIdLong
+      );
+      expect(pn.getPushMethodByRegId(regIds.iOSRegIdLong).pushMethod).to.equal(
+        APN_METHOD
+      );
     });
 
     it('Windows Phone / WNS', () => {
       const pn = new PN();
-      expect(pn.getPushMethodByRegId(regIds.windowsPhoneRegId)).to.equal(
-        WNS_METHOD
+      expect(pn.getPushMethodByRegId(regIds.windowsPhoneRegId).regId).to.equal(
+        regIds.windowsPhoneRegId
       );
+      expect(
+        pn.getPushMethodByRegId(regIds.windowsPhoneRegId).pushMethod
+      ).to.equal(WNS_METHOD);
     });
 
     it('Amazon / ADM', () => {
       const pn = new PN();
-      expect(pn.getPushMethodByRegId(regIds.amazonRegId)).to.equal(ADM_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.amazonRegId).regId).to.equal(
+        regIds.amazonRegId
+      );
+      expect(pn.getPushMethodByRegId(regIds.amazonRegId).pushMethod).to.equal(
+        ADM_METHOD
+      );
     });
 
     it('Web / WEB', () => {
       const pn = new PN();
-      expect(pn.getPushMethodByRegId(regIds.webRegId)).to.equal(WEB_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.webRegId).regId).to.equal(
+        regIds.webRegId
+      );
+      expect(pn.getPushMethodByRegId(regIds.webRegId).pushMethod).to.equal(
+        WEB_METHOD
+      );
     });
 
     it('Unknown / UNKNOWN', () => {
       const pn = new PN();
-      expect(pn.getPushMethodByRegId(regIds.unknownRegId)).to.equal(
+      expect(pn.getPushMethodByRegId(regIds.unknownRegId).regId).to.equal(
+        regIds.unknownRegId
+      );
+      expect(pn.getPushMethodByRegId(regIds.unknownRegId).pushMethod).to.equal(
         UNKNOWN_METHOD
       );
     });

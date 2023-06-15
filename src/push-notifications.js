@@ -41,25 +41,39 @@ class PN {
   }
 
   getPushMethodByRegId(regId) {
-    if (typeof regId === 'object') {
-      return WEB_METHOD;
+    if (typeof regId === 'object' && !regId.type) {
+      return { regId, pushMethod: WEB_METHOD };
     }
+
+    if (typeof regId === 'object' && regId.id && regId.type) {
+      return { regId: regId.id, pushMethod: regId.type };
+    }
+
     if (this.settings.isAlwaysUseFCM) {
-      return GCM_METHOD;
+      return { regId, pushMethod: GCM_METHOD };
     }
+
     if (regId.substring(0, 4) === 'http') {
-      return WNS_METHOD;
+      return { regId, pushMethod: WNS_METHOD };
     }
+
     if (/^(amzn[0-9]*.adm)/i.test(regId)) {
-      return ADM_METHOD;
+      return { regId, pushMethod: ADM_METHOD };
     }
+
+    // TODO: show a warning "deprecated, use at your own risk"
+    if (
+      (regId.length === 64 || regId.length === 160) &&
+      /^[a-fA-F0-9]+$/.test(regId)
+    ) {
+      return { regId, pushMethod: APN_METHOD };
+    }
+
     if (regId.length > 64) {
-      return GCM_METHOD;
+      return { regId, pushMethod: GCM_METHOD };
     }
-    if (regId.length === 64) {
-      return APN_METHOD;
-    }
-    return UNKNOWN_METHOD;
+
+    return { regId, pushMethod: UNKNOWN_METHOD };
   }
 
   send(_regIds, data, callback) {
@@ -73,8 +87,8 @@ class PN {
     const regIds = Array.isArray(_regIds || []) ? _regIds || [] : [_regIds];
 
     // Classify each pushId for corresponding device
-    regIds.forEach((regId) => {
-      const pushMethod = this.getPushMethodByRegId(regId);
+    regIds.forEach((regIdOriginal) => {
+      const { regId, pushMethod } = this.getPushMethodByRegId(regIdOriginal);
 
       if (pushMethod === WEB_METHOD) {
         regIdsWebPush.push(regId);
@@ -166,3 +180,8 @@ class PN {
 }
 
 module.exports = PN;
+module.exports.WEB = WEB_METHOD;
+module.exports.WNS = WNS_METHOD;
+module.exports.ADM = ADM_METHOD;
+module.exports.GCM = GCM_METHOD;
+module.exports.APN = APN_METHOD;
