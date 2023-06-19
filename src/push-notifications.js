@@ -41,14 +41,19 @@ class PN {
   }
 
   getPushMethodByRegId(regId) {
-    if (typeof regId === 'object' && !regId.type) {
+    if (typeof regId === 'object' && (!regId.type || !regId.id)) {
       return { regId, pushMethod: WEB_METHOD };
     }
 
     if (typeof regId === 'object' && regId.id && regId.type) {
-      return { regId: regId.id, pushMethod: regId.type };
+      return {
+        regId: regId.id,
+        pushMethod: this.settings.isAlwaysUseFCM ? GCM_METHOD : regId.type,
+      };
     }
 
+    // TODO: deprecated, remove of all cases below in v3.0
+    // and review test cases
     if (this.settings.isAlwaysUseFCM) {
       return { regId, pushMethod: GCM_METHOD };
     }
@@ -61,7 +66,6 @@ class PN {
       return { regId, pushMethod: ADM_METHOD };
     }
 
-    // TODO: show a warning "deprecated, use at your own risk"
     if (
       (regId.length === 64 || regId.length === 160) &&
       /^[a-fA-F0-9]+$/.test(regId)
