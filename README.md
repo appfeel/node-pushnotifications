@@ -140,9 +140,9 @@ Where type can be one of: 'apn', 'gcm', 'adm', 'wns', 'webPush'. The types are a
 import { WEB, WNS, ADM, GCM, APN } from 'node-pushnotifications';
 
 const regId = {
-    id: 'INSERT_YOUR_DEVICE_ID',
-    type: APN.
-}
+  id: 'INSERT_YOUR_DEVICE_ID',
+  type: APN,
+};
 ```
 
 In case of webPush, `id` needs to be as defined below for `Web subscription`.
