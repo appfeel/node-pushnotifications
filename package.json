@@ -75,10 +75,10 @@
     "husky": "7.0.4",
     "mocha": "9.2.2",
     "nyc": "15.1.0",
-    "opn-cli": "5.0.0",
+    "open-cli": "7.2.0",
     "prettier": "2.6.1",
     "pretty-quick": "3.1.3",
-    "release-it": "14.13.1",
+    "release-it": "15.11.0",
     "sinon": "1.17.7",
     "sinon-chai": "3.5.0"
   },
