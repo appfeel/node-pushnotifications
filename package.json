@@ -53,6 +53,7 @@
   },
   "dependencies": {
     "@parse/node-apn": "5.1.3",
+    "firebase-admin": "11.10.1",
     "node-adm": "0.9.1",
     "node-gcm": "1.0.5",
     "ramda": "0.28.0",

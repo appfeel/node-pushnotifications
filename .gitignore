@@ -11,3 +11,4 @@ coverage
 lib
 release.sh
 .nyc_output
+test.js

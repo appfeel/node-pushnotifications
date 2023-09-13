@@ -1,28 +1,11 @@
 const gcm = require('node-gcm');
 const R = require('ramda');
-const { DEFAULT_TTL, GCM_METHOD, GCM_MAX_TTL } = require('./constants');
-
-const ttlFromExpiry = R.compose(
-  R.min(GCM_MAX_TTL),
-  R.max(0),
-  (expiry) => expiry - Math.floor(Date.now() / 1000)
-);
-
-const extractTimeToLive = R.cond([
-  [R.propIs(Number, 'expiry'), ({ expiry }) => ttlFromExpiry(expiry)],
-  [R.propIs(Number, 'timeToLive'), R.prop('timeToLive')],
-  [R.T, R.always(DEFAULT_TTL)],
-]);
-
-const pathIsString = R.pathSatisfies(R.is(String));
-
-const containsValidRecipients = R.either(
-  pathIsString(['recipients', 'to']),
-  pathIsString(['recipients', 'condition'])
-);
-
-const propValueToSingletonArray = (propName) =>
-  R.compose(R.of, R.prop(propName));
+const { GCM_METHOD } = require('./constants');
+const {
+  ttlAndroid,
+  containsValidRecipients,
+  propValueToSingletonArray,
+} = require('./utils/tools');
 
 const getRecipientList = R.cond([
   [R.has('registrationTokens'), R.prop('registrationTokens')],
@@ -138,7 +121,7 @@ const sendGCM = (regIds, data, settings) => {
     priority: data.priority === 'normal' ? 'normal' : 'high',
     contentAvailable: data.silent ? true : data.contentAvailable || false,
     delayWhileIdle: data.delayWhileIdle || false,
-    timeToLive: extractTimeToLive(data),
+    timeToLive: ttlAndroid(data),
     restrictedPackageName: data.restrictedPackageName,
     dryRun: data.dryRun || false,
     data: opts.phonegap === true ? Object.assign(custom, notification) : custom, // See https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour

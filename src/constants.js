@@ -3,6 +3,7 @@ module.exports = {
   GCM_MAX_TTL: 2419200, // 4 weeks in seconds (https://firebase.google.com/docs/cloud-messaging/http-server-ref#downstream-http-messages-json)
   APN_METHOD: 'apn',
   GCM_METHOD: 'gcm',
+  FCM_METHOD: 'fcm',
   ADM_METHOD: 'adm',
   WNS_METHOD: 'wns',
   WEB_METHOD: 'webPush',
@@ -10,6 +11,10 @@ module.exports = {
   DEFAULT_SETTINGS: {
     gcm: {
       id: null, // PUT YOUR GCM SERVER API KEY,
+    },
+    fcm: {
+      appName: null,
+      serviceAccountKey: null,
     },
     apn: {
       // See options at https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown
@@ -65,5 +70,6 @@ module.exports = {
       // contentEncoding: '< Encoding type, e.g.: aesgcm or aes128gcm >'
     },
     isAlwaysUseFCM: false,
+    useFCMMethodInsteadOfGCM: false,
   },
 };
