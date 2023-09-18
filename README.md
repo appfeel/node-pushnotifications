@@ -103,6 +103,8 @@ _iOS:_ It is recommended to use [provider authentication tokens](https://develop
 
 ### 2. Define destination device ID
 
+Registration id's should be defined as objects (or strings which is not recommended and should be used at your own risk, it is kept for backwards compatibility).
+
 You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
 
 ```js
@@ -116,6 +118,56 @@ registrationIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
 The `PN.send()` method later detects device type and therefore used push method, based on the id stucture. Check out the method `PN.getPushMethodByRegId` how this detection works.
+
+Actually there are several different supported reg id's:
+
+#### Object regId
+
+It can be of 2 types:
+
+- Mobile regId:
+
+```json
+{
+  "id": "INSERT_YOUR_DEVICE_ID",
+  "type": "apn"
+}
+```
+
+Where type can be one of: 'apn', 'gcm', 'adm', 'wns', 'webPush'. The types are available as constants:
+
+```js
+import { WEB, WNS, ADM, GCM, APN } from 'node-pushnotifications';
+
+const regId = {
+  id: 'INSERT_YOUR_DEVICE_ID',
+  type: APN,
+};
+```
+
+In case of webPush, `id` needs to be as defined below for `Web subscription`.
+
+- Web subscription see [web-push](https://www.npmjs.com/package/web-push)
+
+```json
+{
+  "endpoint": "< Push Subscription URL >",
+  "keys": {
+    "p256dh": "< User Public Encryption Key >",
+    "auth": "< User Auth Secret >"
+  }
+}
+```
+
+#### String regId (not recommended)
+
+It is not recommended, as Apple stays that the [reg id is of variable length](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622958-application), which makes difficult to identify if it is a APN regId or GCM regId.
+
+- `regId.substring(0, 4) === 'http'`: 'wns'
+- `/^(amzn[0-9]*.adm)/i.test(regId)`: 'adm'
+- `(regId.length === 64 || regId.length === 160) && /^[a-fA-F0-9]+$/.test(regId)`: 'apn'
+- `regId.length > 64`: 'gcm'
+- otherwise: 'unknown' (the notification will not be sent)
 
 **Android:**
 

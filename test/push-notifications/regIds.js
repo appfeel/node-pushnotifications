@@ -13,6 +13,7 @@ const regIds = [
   'APA9admQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw', // android with adm substring
   'amzn1mQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw', // android with anzm start
   '43e798c31a282d129a34d84472bbdd7632562ff0732b58a85a27c5d9fdf59b69', // ios
+  '80C2D3913EE662DD25C5A3B7FCC8CBBADCA9DA429D13F106F37BF8EA268AFC610824D1B378D6E5FAFA86C63A63FDADA7A9067E1B0BC461E4020346199000D26418F38E73E32174D69F69DC35BEA27CE5', // ios
   'https://db5.notify.windows.com/?token=AwYAAAD8sfbDrL9h7mN%2bmwlkSkQZCIfv4QKeu1hYRipj2zNvXaMi9ZAax%2f6CDfysyHp61STCO1pCFPt%2b9L4Jod72JhIcjDr8b2GxuUOBMTP%2b6%2bqxEfSB9iZfSATdZbdF7cJHSRA%3d', // windows phone
   'amzn1.adm-registration.v2.Y29tLmFtYXpvbi5EZXZpY2VNZXNzYWdpbmcuUmVnaXN0cmF0aW9uSWRFbmNyeXB0aW9uS2V5ITEhOE9rZ2h5TXlhVEFFczg2ejNWL3JMcmhTa255Uk5BclhBbE1XMFZzcnU1aFF6cTlvdU5FbVEwclZmdk5oTFBVRXVDN1luQlRSNnRVRUViREdQSlBvSzRNaXVRRUlyUy9NYWZCYS9VWTJUaGZwb3ZVTHhlRTM0MGhvampBK01hVktsMEhxakdmQStOSXRjUXBTQUhNU1NlVVVUVkFreVRhRTBCYktaQ2ZkUFdqSmIwcHgzRDhMQnllVXdxQ2EwdHNXRmFVNklYL0U4UXovcHg0K3Jjb25VbVFLRUVVOFVabnh4RDhjYmtIcHd1ZThiekorbGtzR2taMG95cC92Y3NtZytrcTRPNjhXUUpiZEk3QzFvQThBRTFWWXM2NHkyMjdYVGV5RlhhMWNHS0k9IW5GNEJMSXNleC9xbWpHSU52NnczY0E9PQ', // amazon
   {
@@ -55,18 +56,19 @@ describe('push-notifications: call with registration ids for android, ios, windo
             break;
 
           case 3:
+          case 4:
             expect(method.name).to.equal(sendApnFunctionName);
             break;
 
-          case 4:
+          case 5:
             expect(method).to.equal(sendWNS);
             break;
 
-          case 5:
+          case 6:
             expect(method).to.equal(sendADM);
             break;
 
-          case 6:
+          case 7:
             expect(method).to.equal(sendWeb);
             break;
 
@@ -112,7 +114,12 @@ describe('push-notifications: call with registration ids for android, ios, windo
   };
 
   const assertPushResultsForArrayInput = (result) => {
-    const expectedNumRegIds = result.method === 'sendGCM' ? 3 : 1;
+    let expectedNumRegIds = 1;
+    if (result.method === 'sendGCM') {
+      expectedNumRegIds = 3;
+    } else if (result.method === 'bound sendAPN') {
+      expectedNumRegIds = 2;
+    }
     assertPushResults(result, expectedNumRegIds);
   };
 
