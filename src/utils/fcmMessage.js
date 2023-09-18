@@ -32,7 +32,7 @@ class FcmMessage {
   }
 
   static buildAndroidMessage(params) {
-    const message = buildGsmMessage(params);
+    const message = buildGsmMessage(params, {});
 
     const androidMessage = message.toJson();
 
@@ -42,7 +42,7 @@ class FcmMessage {
     delete androidMessage.mutable_content;
     delete androidMessage.delay_while_idle;
     delete androidMessage.time_to_live;
-    delete androidMessage.dryRun;
+    delete androidMessage.dry_run;
     delete androidMessage.data;
 
     return androidMessage;
