@@ -50,6 +50,7 @@ class FcmMessage {
 
   static buildApnsMessage(params) {
     const message = buildApnsMessage(params);
+    delete message.payload;
 
     const headers = message.headers() || {};
     const payload = message.toJSON() || {};
