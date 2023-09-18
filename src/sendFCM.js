@@ -16,7 +16,7 @@ const getRecipientList = R.cond([
 ]);
 
 const sendChunk = (firebaseApp, recipients, message) => {
-  const firebaseMessage = message.build(recipients);
+  const firebaseMessage = message.buildWithRecipients(recipients);
 
   console.log('[firebaseMessage]', JSON.stringify(firebaseMessage, null, 5));
 

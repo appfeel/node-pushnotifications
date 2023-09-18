@@ -1,11 +1,7 @@
 const apn = require('@parse/node-apn');
 const R = require('ramda');
 const { APN_METHOD } = require('./constants');
-const {
-  expiryApns,
-  getPropValueOrUndefinedIfIsSilent,
-  getParsedAlertOrDefault,
-} = require('./utils/tools');
+const { buildApnsMessage } = require('./utils/tools');
 
 const getDeviceTokenOrSelf = R.ifElse(
   R.has('device'),
@@ -30,33 +26,7 @@ class APN {
   }
 
   sendAPN(regIds, data) {
-    const message = new apn.Notification({
-      retryLimit: data.retries || -1,
-      expiry: expiryApns(data),
-      priority: data.priority === 'normal' || data.silent === true ? 5 : 10,
-      encoding: data.encoding,
-      payload: data.custom || {},
-      badge: getPropValueOrUndefinedIfIsSilent('badge', data),
-      sound: getPropValueOrUndefinedIfIsSilent('sound', data),
-      alert: getPropValueOrUndefinedIfIsSilent(
-        'alert',
-        getParsedAlertOrDefault(data)
-      ),
-      topic: data.topic,
-      category: data.category || data.clickAction,
-      contentAvailable: data.contentAvailable,
-      mdm: data.mdm,
-      urlArgs: data.urlArgs,
-      truncateAtWordEnd: data.truncateAtWordEnd,
-      collapseId: data.collapseKey,
-      mutableContent: data.mutableContent || 0,
-      threadId: data.threadId,
-      pushType: data.pushType,
-    });
-
-    if (data.rawPayload) {
-      message.rawPayload = data.rawPayload;
-    }
+    const message = buildApnsMessage(data);
 
     if (!this.connection) {
       return Promise.reject(
