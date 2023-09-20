@@ -34,7 +34,10 @@ const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
     R.prop(propName)
   )(data);
 
-const toJSONorUndefined = R.tryCatch(JSON.parse, R.always(undefined));
+const toJSONorUndefined = R.when(
+  R.is.bind(null, String),
+  R.tryCatch(JSON.parse, R.always(undefined))
+);
 
 const alertLocArgsToJSON = R.evolve({
   alert: {
@@ -87,9 +90,9 @@ const buildGsmNotification = (data) => {
     color: data.color,
     click_action: data.clickAction || data.category,
     body_loc_key: data.locKey,
-    body_loc_args: data.locArgs,
+    body_loc_args: toJSONorUndefined(data.locArgs),
     title_loc_key: data.titleLocKey,
-    title_loc_args: data.titleLocArgs,
+    title_loc_args: toJSONorUndefined(data.titleLocArgs),
     android_channel_id: data.android_channel_id,
     notification_count: data.notificationCount || data.badge,
   };
