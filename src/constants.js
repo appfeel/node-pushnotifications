@@ -15,6 +15,7 @@ module.exports = {
     fcm: {
       appName: null,
       serviceAccountKey: null,
+      credential: null,
     },
     apn: {
       // See options at https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown

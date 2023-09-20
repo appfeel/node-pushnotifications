@@ -22,7 +22,7 @@ const sendChunk = (firebaseApp, recipients, message) => {
 
   return firebaseAdmin
     .messaging(firebaseApp)
-    .sendEachForMulticast(firebaseMessage, message.dryRun)
+    .sendEachForMulticast(firebaseMessage)
     .then((response, err) => {
       const recipientList = getRecipientList(recipients);
       if (err) {
@@ -74,7 +74,9 @@ const sendChunk = (firebaseApp, recipients, message) => {
 const sendFCM = (regIds, data, settings) => {
   const appName = `${settings.fcm.appName}`;
   const opts = {
-    credential: firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
+    credential:
+      settings.fcm.credential ||
+      firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
   };
   const firebaseApp = firebaseAdmin.initializeApp(opts, appName);
   firebaseAdmin.INTERNAL.appStore.removeApp(appName);
