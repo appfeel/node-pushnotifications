@@ -59,12 +59,22 @@ class FcmMessage {
   }
 
   static build(params) {
+    const providersExclude = params.providersExclude || [];
+    delete params.providersExclude;
+
     const data = this.normalizeDataParams(params.custom);
 
-    const android = this.buildAndroidMessage(params);
-    const apns = this.buildApnsMessage(params);
+    const createParams = { data };
 
-    return new this({ data, android, apns });
+    if (!providersExclude.includes('apns')) {
+      createParams.apns = this.buildApnsMessage(params);
+    }
+
+    if (!providersExclude.includes('android')) {
+      createParams.android = this.buildAndroidMessage(params);
+    }
+
+    return new this(createParams);
   }
 }
 
