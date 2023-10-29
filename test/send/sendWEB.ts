@@ -49,7 +49,7 @@ const pushError = new webpush.WebPushError(
   400,
   {},
   'errorBody',
-  {}
+  '{}'
 );
 
 const testSuccess = testPushSuccess(method, regIds);
@@ -59,43 +59,49 @@ const testException = testPushException(pushError.message);
 let sendMethod;
 
 function sendOkMethodAsString() {
-  return sinon.stub(webpush, 'sendNotification', (regId, message, settings) => {
-    expect(regId).to.be.a('object');
-    expect(regIds).to.include(regId);
-    expect(message).to.be.a('string');
-    expect(message).to.equal(data);
-    expect(settings).to.eql(webOptions.web);
-    return Promise.resolve({
-      statusCode: 200,
-      header: {},
-      body: 'Success',
+  return sinon
+    .stub(webpush, 'sendNotification')
+    .callsFake((regId, message, settings) => {
+      expect(regId).to.be.a('object');
+      expect(regIds).to.include(regId);
+      expect(message).to.be.a('string');
+      expect(message).to.equal(data);
+      expect(settings).to.eql(webOptions.web);
+      return Promise.resolve({
+        statusCode: 200,
+        header: {},
+        body: 'Success',
+        headers: {},
+      });
     });
-  });
 }
 
 function sendOkMethodAsObject() {
-  return sinon.stub(webpush, 'sendNotification', (regId, message, settings) => {
-    expect(regId).to.be.a('object');
-    expect(regIds).to.include(regId);
-    expect(message).to.be.a('string');
-    expect(message).to.equal(JSON.stringify(dataObject));
-    expect(settings).to.eql(webOptions.web);
-    return Promise.resolve({
-      statusCode: 200,
-      header: {},
-      body: 'Success',
+  return sinon
+    .stub(webpush, 'sendNotification')
+    .callsFake((regId, message, settings) => {
+      expect(regId).to.be.a('object');
+      expect(regIds).to.include(regId);
+      expect(message).to.be.a('string');
+      expect(message).to.equal(JSON.stringify(dataObject));
+      expect(settings).to.eql(webOptions.web);
+      return Promise.resolve({
+        statusCode: 200,
+        header: {},
+        body: 'Success',
+        headers: {},
+      });
     });
-  });
 }
 
 function sendFailureMethod() {
-  return sinon.stub(webpush, 'sendNotification', () =>
-    Promise.reject(pushError)
-  );
+  return sinon
+    .stub(webpush, 'sendNotification')
+    .callsFake(() => Promise.reject(pushError));
 }
 
 function sendThrowExceptionMethod() {
-  return sinon.stub(webpush, 'sendNotification', () => {
+  return sinon.stub(webpush, 'sendNotification').callsFake(() => {
     throw pushError;
   });
 }

@@ -1,17 +1,21 @@
-const adm = require('node-adm');
-const { ADM_METHOD } = require('./constants');
+import adm from 'node-adm';
+import { Data, DefaultSettings, RegIdType } from './types';
 
-const sendADM = (regIds, _data, settings) => {
-  const resumed = {
-    method: ADM_METHOD,
+const sendADM = async (
+  regIds: string[],
+  _data: Data,
+  settings: DefaultSettings
+) => {
+  const resumed: any = {
+    method: RegIdType.adm,
     success: 0,
     failure: 0,
     message: [],
   };
-  const promises = [];
+  const promises: any[] = [];
   const admSender = new adm.Sender(settings.adm);
   const data = { ..._data };
-  const { consolidationKey, expiry, timeToLive, custom } = data;
+  const { consolidationKey, expiry, timeToLive, custom = {} } = data;
 
   delete data.consolidationKey;
   delete data.expiry;
@@ -19,10 +23,11 @@ const sendADM = (regIds, _data, settings) => {
   delete data.custom;
 
   const message = {
-    expiresAfter:
-      expiry - Math.floor(Date.now() / 1000) || timeToLive || 28 * 86400,
+    expiresAfter: expiry
+      ? expiry - Math.floor(Date.now() / 1000) || timeToLive || 28 * 86400
+      : undefined,
     consolidationKey,
-    data: { ...data, ...custom },
+    data: { ...data, ...(typeof custom === 'object' ? custom : {}) },
   };
 
   regIds.forEach((regId) => {
@@ -39,13 +44,14 @@ const sendADM = (regIds, _data, settings) => {
             error,
             errorMsg,
           });
-          resolve();
+          resolve(true);
         });
       })
     );
   });
 
-  return Promise.all(promises).then(() => resumed);
+  await Promise.all(promises);
+  return resumed;
 };
 
-module.exports = sendADM;
+export default sendADM;

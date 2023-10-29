@@ -72,11 +72,12 @@ const wnsSendTileMethods = [
   'sendTileWidePeekImage05',
   'sendTileWidePeekImage06',
 ];
-const pn = new PN({
+const options = {
   wns: {
     notificationMethod: 'sendTileSquareBlock',
   },
-});
+};
+const pn = new PN(options);
 const fErr = new Error('Forced error');
 const sendWNS = {
   restore: () => {
@@ -84,6 +85,7 @@ const sendWNS = {
       sendWNS[wnsMethod].restore();
     });
   },
+  sendRaw: () => {},
 };
 
 const testSuccess = testPushSuccess(method, regIds);
@@ -95,10 +97,9 @@ let sendMethod;
 
 function sendOkMethod() {
   wnsSendTileMethods.forEach((wnsMethod) => {
-    sendWNS[wnsMethod] = sinon.stub(
-      wns,
-      wnsMethod,
-      (channel, message, options, cb) => {
+    sendWNS[wnsMethod] = sinon
+      .stub(wns, wnsMethod)
+      .callsFake((channel, message, options, cb) => {
         expect(channel).to.be.a('string');
         expect(regIds).to.include(channel);
         expect(message).to.be.an('object');
@@ -106,43 +107,38 @@ function sendOkMethod() {
         expect(message).to.have.deep.property('body', data.body);
         expect(message).to.have.deep.property('custom', data.custom);
         cb(null, {});
-      }
-    );
+      });
   });
   return sendWNS;
 }
 
 function sendFailureMethod() {
   wnsSendTileMethods.forEach((wnsMethod) => {
-    sendWNS[wnsMethod] = sinon.stub(
-      wns,
-      wnsMethod,
-      (channel, message, options, cb) => {
+    sendWNS[wnsMethod] = sinon
+      .stub(wns, wnsMethod)
+      .callsFake((channel, message, options, cb) => {
         cb(null, {
           innerError: fErr.message,
         });
-      }
-    );
+      });
   });
   return sendWNS;
 }
 
 function sendErrorMethod() {
   wnsSendTileMethods.forEach((wnsMethod) => {
-    sendWNS[wnsMethod] = sinon.stub(
-      wns,
-      wnsMethod,
-      (channel, message, options, cb) => {
+    sendWNS[wnsMethod] = sinon
+      .stub(wns, wnsMethod)
+      .callsFake((channel, message, options, cb) => {
         cb(fErr);
-      }
-    );
+      });
   });
   return sendWNS;
 }
 
 function sendThrowExceptionMethod() {
   wnsSendTileMethods.forEach((wnsMethod) => {
-    sendWNS[wnsMethod] = sinon.stub(wns, wnsMethod, () => {
+    sendWNS[wnsMethod] = sinon.stub(wns, wnsMethod).callsFake(() => {
       throw fErr;
     });
   });
@@ -171,24 +167,38 @@ describe('push-notifications-wns', () => {
 
     describe('sendRaw', () => {
       before(() => {
-        sendWNS.sendRaw = sinon.stub(
-          wns,
-          'sendRaw',
-          (channel, message, options, cb) => {
+        sendWNS.sendRaw = sinon
+          .stub(wns, 'sendRaw')
+          .callsFake((channel, message, options, cb) => {
             expect(channel).to.be.a('string');
             expect(regIds).to.include(channel);
             expect(message).to.be.a('string');
             expect(message).to.equal(JSON.stringify(data));
             cb(null, {});
-          }
-        );
+          });
         sendMethod = sendWNS;
-        pn.settings.wns.notificationMethod = 'sendRaw';
+        pn.setOptions({
+          ...options,
+          ...{
+            wns: {
+              ...options.wns,
+              notificationMethod: 'sendRaw',
+            },
+          },
+        });
       });
 
       after(() => {
         sendMethod.restore();
-        pn.settings.wns.notificationMethod = 'sendTileSquareBlock';
+        pn.setOptions({
+          ...options,
+          ...{
+            wns: {
+              ...options.wns,
+              notificationMethod: 'sendTileSquareBlock',
+            },
+          },
+        });
       });
 
       it('should send the correct payload as a raw string', (done) => {

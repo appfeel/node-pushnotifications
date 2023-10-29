@@ -1,16 +1,16 @@
 {
   "name": "node-pushnotifications",
   "description": "A cross-platform push service for node.js",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "author": {
     "name": "AppFeel",
     "email": "info@appfeel.com"
   },
   "scripts": {
     "coveralls": "cat ./coverage/lcov.info | coveralls",
-    "test-cover": "nyc --reporter=lcov mocha test/ -- --require @babel/register --recursive; open-cli ./coverage/lcov-report/index.html",
-    "test": "mocha test/ --require @babel/register --recursive",
-    "build": "./node_modules/.bin/babel src -d lib",
+    "test-cover": "cross-env TS_NODE_PROJECT='./tsconfig.test.json' nyc --reporter=lcov mocha; open-cli ./coverage/lcov-report/index.html",
+    "test": "cross-env TS_NODE_PROJECT='./tsconfig.test.json' mocha",
+    "build": "babel src -d lib --extensions '.js,.jsx,.es,.es6,.mjs,.ts,.tsx'",
     "lint": "eslint {src,test}/**/*.js",
     "format": "prettier --write \"**/*.{js,json,md,yml}\"",
     "ci": "npm run build && npm run test-cover && npm run lint",
@@ -60,12 +60,22 @@
     "wns": "0.5.4"
   },
   "devDependencies": {
-    "@babel/cli": "7.17.6",
-    "@babel/core": "7.17.8",
+    "@babel/cli": "7.23.0",
+    "@babel/core": "7.23.2",
+    "@babel/plugin-transform-modules-commonjs": "7.23.0",
     "@babel/preset-env": "7.16.11",
-    "@babel/register": "7.17.7",
-    "chai": "4.3.6",
+    "@babel/preset-typescript": "7.23.2",
+    "@babel/register": "7.22.15",
+    "@types/chai": "4.3.9",
+    "@types/dirty-chai": "2.0.3",
+    "@types/mocha": "10.0.3",
+    "@types/node": "20.3.2",
+    "@types/ramda": "0.29.2",
+    "@types/sinon-chai": "3.2.11",
+    "@types/web-push": "3.6.2",
+    "chai": "4.3.10",
     "coveralls": "3.1.1",
+    "cross-env": "7.0.3",
     "dirty-chai": "2.0.1",
     "eslint": "8.12.0",
     "eslint-config-airbnb-base": "15.0.0",
@@ -73,14 +83,15 @@
     "eslint-plugin-import": "2.25.4",
     "eslint-plugin-prettier": "4.0.0",
     "husky": "7.0.4",
-    "mocha": "9.2.2",
+    "mocha": "10.2.0",
     "nyc": "15.1.0",
     "open-cli": "7.2.0",
     "prettier": "2.6.1",
     "pretty-quick": "3.1.3",
     "release-it": "15.11.0",
-    "sinon": "1.17.7",
-    "sinon-chai": "3.5.0"
+    "sinon": "17.0.0",
+    "sinon-chai": "3.7.0",
+    "ts-node": "10.9.1"
   },
   "engines": {
     "node": ">=12.x.x"

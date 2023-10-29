@@ -7,7 +7,7 @@ import dirtyChai from 'dirty-chai';
 import { readFileSync } from 'fs';
 
 import apn from '@parse/node-apn';
-import PN from '../../src';
+import PN, { Data } from '../../src';
 import APN from '../../src/sendAPN';
 import {
   sendOkMethodGCM,
@@ -26,7 +26,7 @@ const regIds = [
   '43e798c31a282d129a34d84472bbdd7632562ff0732b58a85a27c5d9fdf59b69',
   '43e798c31a282d129a34d84472bbdd7632562ff0732b58a85a27c5d9fdf59b69',
 ];
-const data = {
+const data: Data = {
   title: 'title',
   body: 'body',
   sound: 'mySound.aiff',
@@ -54,10 +54,9 @@ let sendMethod;
 
 function sendOkMethod() {
   // Don't use arrow function because we use this!!
-  return sinon.stub(
-    apn.Provider.prototype,
-    'send',
-    function sendAPN(message, _regIds) {
+  return sinon
+    .stub(apn.Provider.prototype, 'send')
+    .callsFake(function sendAPN(message, _regIds) {
       // TODO: validate other props? What about token?
       expect(this.client.config)
         .to.be.an('object')
@@ -66,11 +65,13 @@ function sendOkMethod() {
       expect(this.client.config.key).to.eql(readFileSync(apnOptions.key));
 
       expect(_regIds).to.be.instanceOf(Array);
-      _regIds.forEach((regId) => expect(regIds).to.include(regId));
+      (_regIds as string[]).forEach((regId) =>
+        expect(regIds).to.include(regId)
+      );
       expect(message).to.be.instanceOf(apn.Notification);
       expect(message.aps.sound).to.eql(data.sound);
-      expect(message.aps.alert.title).to.eql(data.title);
-      expect(message.aps.alert.body).to.equal(data.body);
+      expect((message.aps.alert as apn.ApsAlert).title).to.eql(data.title);
+      expect((message.aps.alert as apn.ApsAlert).body).to.equal(data.body);
       expect(message.aps.alert).to.eql({
         body: data.body,
         title: data.title,
@@ -84,49 +85,59 @@ function sendOkMethod() {
       expect(message.priority).to.equal(10);
       expect(message.payload).to.eql(data.custom);
       return Promise.resolve({
-        sent: _regIds.map((device) => ({ device })),
+        sent: (_regIds as string[]).map((device) => ({ device })),
+        failed: [],
       });
-    }
-  );
+    });
 }
 
 function sendFailureMethod1() {
-  return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) =>
-    Promise.resolve({
-      failed: _regIds.map((regId) => ({
-        device: regId,
-        response: {},
-        status: errStatusCode,
-      })),
-    })
-  );
+  return sinon
+    .stub(apn.Provider.prototype, 'send')
+    .callsFake((_message, _regIds) =>
+      Promise.resolve({
+        sent: [],
+        failed: (_regIds as string[]).map((regId) => ({
+          device: regId,
+          error: new Error(`${errStatusCode}`),
+        })),
+      })
+    );
 }
 function sendFailureMethod2() {
-  return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) =>
-    Promise.resolve({
-      failed: _regIds.map((regId) => ({
-        device: regId,
-        response: {
-          reason: fErr.message,
-        },
-      })),
-    })
-  );
+  return sinon
+    .stub(apn.Provider.prototype, 'send')
+    .callsFake((_message, _regIds) =>
+      Promise.resolve({
+        sent: [],
+        failed: (_regIds as string[]).map((regId) => ({
+          device: regId,
+          response: {
+            reason: fErr.message,
+          },
+        })),
+      })
+    );
 }
 
 function sendErrorMethod() {
-  return sinon.stub(apn.Provider.prototype, 'send', (message, _regIds) =>
-    Promise.resolve({
-      failed: _regIds.map((regId) => ({
-        device: regId,
-        error: fErr,
-      })),
-    })
-  );
+  return sinon
+    .stub(apn.Provider.prototype, 'send')
+    .callsFake((message, _regIds) =>
+      Promise.resolve({
+        sent: [],
+        failed: (_regIds as string[]).map((regId) => ({
+          device: regId,
+          error: fErr,
+        })),
+      })
+    );
 }
 
 function sendThrowExceptionMethod() {
-  return sinon.stub(apn.Provider.prototype, 'send', () => Promise.reject(fErr));
+  return sinon
+    .stub(apn.Provider.prototype, 'send')
+    .callsFake(() => Promise.reject(fErr));
 }
 
 describe('push-notifications-apn', () => {
@@ -152,21 +163,22 @@ describe('push-notifications-apn', () => {
 
   describe('send push notifications successfully (no payload)', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        apn.Provider.prototype,
-        'send',
-        (message, _regIds) => {
+      sendMethod = sinon
+        .stub(apn.Provider.prototype, 'send')
+        .callsFake((message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach((regId) => expect(regIds).to.include(regId));
+          (_regIds as string[]).forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(message).to.be.instanceOf(apn.Notification);
-          expect(message.aps.alert.title).to.eql(data.title);
-          expect(message.aps.alert.body).to.eql(data.body);
+          expect((message.aps.alert as apn.ApsAlert).title).to.eql(data.title);
+          expect((message.aps.alert as apn.ApsAlert).body).to.eql(data.body);
           expect(message.payload).to.eql({});
           return Promise.resolve({
-            sent: _regIds,
+            sent: (_regIds as string[]).map((device) => ({ device })),
+            failed: [],
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -185,12 +197,13 @@ describe('push-notifications-apn', () => {
 
   describe('send silent push notifications', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        apn.Provider.prototype,
-        'send',
-        (message, _regIds) => {
+      sendMethod = sinon
+        .stub(apn.Provider.prototype, 'send')
+        .callsFake((message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach((regId) => expect(regIds).to.include(regId));
+          (_regIds as string[]).forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message.aps.sound).to.be.undefined();
           expect(message.aps.alert).to.be.undefined();
@@ -200,10 +213,10 @@ describe('push-notifications-apn', () => {
           expect(message.aps['content-available']).to.equal(1);
           expect(message.payload).to.eql({ testKey: 'testValue' });
           return Promise.resolve({
-            sent: _regIds,
+            sent: (_regIds as string[]).map((device) => ({ device })),
+            failed: [],
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -231,19 +244,20 @@ describe('push-notifications-apn', () => {
 
   describe('send notifications with mutableContent=1', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        apn.Provider.prototype,
-        'send',
-        (message, _regIds) => {
+      sendMethod = sinon
+        .stub(apn.Provider.prototype, 'send')
+        .callsFake((message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach((regId) => expect(regIds).to.include(regId));
+          (_regIds as string[]).forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message.aps['mutable-content']).to.equal(1);
           return Promise.resolve({
-            sent: _regIds,
+            sent: (_regIds as string[]).map((device) => ({ device })),
+            failed: [],
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -263,19 +277,20 @@ describe('push-notifications-apn', () => {
 
   describe('send notifications with pushType property', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        apn.Provider.prototype,
-        'send',
-        (message, _regIds) => {
+      sendMethod = sinon
+        .stub(apn.Provider.prototype, 'send')
+        .callsFake((message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach((regId) => expect(regIds).to.include(regId));
+          (_regIds as string[]).forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message.pushType).to.equal('alert');
           return Promise.resolve({
-            sent: _regIds,
+            sent: (_regIds as string[]).map((device) => ({ device })),
+            failed: [],
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -295,19 +310,20 @@ describe('push-notifications-apn', () => {
 
   describe('send push notifications with normal priority', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        apn.Provider.prototype,
-        'send',
-        (message, _regIds) => {
+      sendMethod = sinon
+        .stub(apn.Provider.prototype, 'send')
+        .callsFake((message, _regIds) => {
           expect(_regIds).to.be.instanceOf(Array);
-          _regIds.forEach((regId) => expect(regIds).to.include(regId));
+          (_regIds as string[]).forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
           expect(message).to.be.instanceOf(apn.Notification);
           expect(message).to.have.deep.property('priority', 5);
           return Promise.resolve({
-            sent: _regIds,
+            sent: (_regIds as string[]).map((device) => ({ device })),
+            failed: [],
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -327,19 +343,20 @@ describe('push-notifications-apn', () => {
       const expiry = 104;
 
       before(() => {
-        sendMethod = sinon.stub(
-          apn.Provider.prototype,
-          'send',
-          (message, _regIds) => {
+        sendMethod = sinon
+          .stub(apn.Provider.prototype, 'send')
+          .callsFake((message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            (_regIds as string[]).forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
             expect(message).to.be.instanceOf(apn.Notification);
             expect(message).to.have.deep.property('expiry', expiry);
             return Promise.resolve({
-              sent: _regIds,
+              sent: (_regIds as string[]).map((device) => ({ device })),
+              failed: [],
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -358,19 +375,20 @@ describe('push-notifications-apn', () => {
       const expiry = 0;
 
       before(() => {
-        sendMethod = sinon.stub(
-          apn.Provider.prototype,
-          'send',
-          (message, _regIds) => {
+        sendMethod = sinon
+          .stub(apn.Provider.prototype, 'send')
+          .callsFake((message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            (_regIds as string[]).forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
             expect(message).to.be.instanceOf(apn.Notification);
             expect(message).to.have.deep.property('expiry', expiry);
             return Promise.resolve({
-              sent: _regIds,
+              sent: (_regIds as string[]).map((device) => ({ device })),
+              failed: [],
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -395,19 +413,20 @@ describe('push-notifications-apn', () => {
 
         clock = sinon.useFakeTimers(now);
 
-        sendMethod = sinon.stub(
-          apn.Provider.prototype,
-          'send',
-          (message, _regIds) => {
+        sendMethod = sinon
+          .stub(apn.Provider.prototype, 'send')
+          .callsFake((message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            (_regIds as string[]).forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
             expect(message).to.be.instanceOf(apn.Notification);
             expect(message).to.have.deep.property('expiry', expectedExpiry);
             return Promise.resolve({
-              sent: _regIds,
+              sent: (_regIds as string[]).map((device) => ({ device })),
+              failed: [],
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -432,22 +451,23 @@ describe('push-notifications-apn', () => {
 
         clock = sinon.useFakeTimers(now);
 
-        sendMethod = sinon.stub(
-          apn.Provider.prototype,
-          'send',
-          (message, _regIds) => {
+        sendMethod = sinon
+          .stub(apn.Provider.prototype, 'send')
+          .callsFake((message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            (_regIds as string[]).forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
             expect(message).to.be.instanceOf(apn.Notification);
             expect(message).to.have.deep.property(
               'expiry',
               expiryFromDefaultTtl
             );
             return Promise.resolve({
-              sent: _regIds,
+              sent: (_regIds as string[]).map((device) => ({ device })),
+              failed: [],
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -466,22 +486,25 @@ describe('push-notifications-apn', () => {
   describe('parse title-loc-args and loc-args', () => {
     describe('when valid string args are passed in alert object', () => {
       before(() => {
-        sendMethod = sinon.stub(
-          apn.Provider.prototype,
-          'send',
-          (message, _regIds) => {
+        sendMethod = sinon
+          .stub(apn.Provider.prototype, 'send')
+          .callsFake((message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            (_regIds as string[]).forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
             expect(message).to.be.instanceOf(apn.Notification);
-            expect(message.aps.alert['title-loc-args']).to.deep.equal([
-              { a: 1 },
-            ]);
-            expect(message.aps.alert['loc-args']).to.deep.equal([{ b: 2 }]);
+            expect(
+              (message.aps.alert as apn.ApsAlert)['title-loc-args']
+            ).to.deep.equal([{ a: 1 }]);
+            expect(
+              (message.aps.alert as apn.ApsAlert)['loc-args']
+            ).to.deep.equal([{ b: 2 }]);
             return Promise.resolve({
-              sent: _regIds,
+              sent: (_regIds as string[]).map((device) => ({ device })),
+              failed: [],
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -504,22 +527,25 @@ describe('push-notifications-apn', () => {
 
     describe('when valid string args are passed in top-level data', () => {
       before(() => {
-        sendMethod = sinon.stub(
-          apn.Provider.prototype,
-          'send',
-          (message, _regIds) => {
+        sendMethod = sinon
+          .stub(apn.Provider.prototype, 'send')
+          .callsFake((message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            (_regIds as string[]).forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
             expect(message).to.be.instanceOf(apn.Notification);
-            expect(message.aps.alert['title-loc-args']).to.deep.equal([
-              { a: 1 },
-            ]);
-            expect(message.aps.alert['loc-args']).to.deep.equal([{ b: 2 }]);
+            expect(
+              (message.aps.alert as apn.ApsAlert)['title-loc-args']
+            ).to.deep.equal([{ a: 1 }]);
+            expect(
+              (message.aps.alert as apn.ApsAlert)['loc-args']
+            ).to.deep.equal([{ b: 2 }]);
             return Promise.resolve({
-              sent: _regIds,
+              sent: (_regIds as string[]).map((device) => ({ device })),
+              failed: [],
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -540,20 +566,25 @@ describe('push-notifications-apn', () => {
 
     describe("when args can't be parsed to JSON", () => {
       before(() => {
-        sendMethod = sinon.stub(
-          apn.Provider.prototype,
-          'send',
-          (message, _regIds) => {
+        sendMethod = sinon
+          .stub(apn.Provider.prototype, 'send')
+          .callsFake((message, _regIds) => {
             expect(_regIds).to.be.instanceOf(Array);
-            _regIds.forEach((regId) => expect(regIds).to.include(regId));
+            (_regIds as string[]).forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
             expect(message).to.be.instanceOf(apn.Notification);
-            expect(message.aps.alert['title-loc-args']).to.be.undefined();
-            expect(message.aps.alert['loc-args']).to.be.undefined();
+            expect(
+              (message.aps.alert as apn.ApsAlert)['title-loc-args']
+            ).to.be.undefined();
+            expect(
+              (message.aps.alert as apn.ApsAlert)['loc-args']
+            ).to.be.undefined();
             return Promise.resolve({
-              sent: _regIds,
+              sent: (_regIds as string[]).map((device) => ({ device })),
+              failed: [],
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -677,10 +708,10 @@ describe('push-notifications-apn', () => {
   });
 
   describe('invalid provider settings', () => {
-    const apnInstance = new APN();
+    const apnInstance = new APN({});
 
     it('should not instantiate an APN provider instance', () => {
-      expect(apnInstance.connection).to.be.null();
+      expect((<any>apnInstance).connectionn).to.be.undefined();
     });
 
     describe('send called if no provider instantiated', () => {
@@ -691,7 +722,7 @@ describe('push-notifications-apn', () => {
         } catch (e) {
           expect(e).to.be.an.instanceof(Error);
           expect(e.message).to.equal(
-            "ENOENT: no such file or directory, open 'cert.pem'"
+            "Error: ENOENT: no such file or directory, open 'cert.pem'"
           );
         }
       });

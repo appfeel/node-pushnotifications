@@ -49,10 +49,9 @@ let sendMethod;
 
 function sendFailureMethod1() {
   // Don't use arrow function because we use this!!
-  return sinon.stub(
-    gcm.Sender.prototype,
-    'send',
-    function SenderSend(message, recipients, retries, cb) {
+  return sinon
+    .stub(gcm.Sender.prototype, 'send')
+    .callsFake(function SenderSend(message, recipients, retries, cb) {
       const { registrationTokens } = recipients;
       expect(this.key).equal(gcmOpts.gcm.id);
       cb(null, {
@@ -65,36 +64,31 @@ function sendFailureMethod1() {
           error: fErr.message,
         })),
       });
-    }
-  );
+    });
 }
 
 function sendFailureMethod2() {
-  return sinon.stub(
-    gcm.Sender.prototype,
-    'send',
-    (message, recipients, retries, cb) => {
+  return sinon
+    .stub(gcm.Sender.prototype, 'send')
+    .callsFake((message, recipients, retries, cb) => {
       cb(null, {
         multicast_id: 'abc',
         success: 0,
         failure: regIds.length,
       });
-    }
-  );
+    });
 }
 
 function sendErrorMethod() {
-  return sinon.stub(
-    gcm.Sender.prototype,
-    'send',
-    (message, recipients, retries, cb) => {
+  return sinon
+    .stub(gcm.Sender.prototype, 'send')
+    .callsFake((message, recipients, retries, cb) => {
       cb(fErr);
-    }
-  );
+    });
 }
 
 function sendThrowExceptionMethod() {
-  return sinon.stub(gcm.Sender.prototype, 'send', () => {
+  return sinon.stub(gcm.Sender.prototype, 'send').callsFake(() => {
     throw fErr;
   });
 }
@@ -122,10 +116,9 @@ describe('push-notifications-gcm', () => {
 
   describe('send push notifications successfully, data no title', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -154,8 +147,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -163,7 +155,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, no title)', (done) => {
-      const newData = { ...data };
+      const newData: any = { ...data };
       delete newData.title;
       const callback = (err, results) => testSuccess(err, results, done);
       pn.send(regIds, newData, callback).catch(() => {});
@@ -172,10 +164,9 @@ describe('push-notifications-gcm', () => {
 
   describe('send push notifications successfully, (callback, no sound, icon, msgcnt, badge)', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -208,8 +199,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -217,7 +207,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, no sound, icon, msgcnt)', (done) => {
-      const newData = { ...data };
+      const newData: any = { ...data };
       delete newData.sound;
       newData.icon = 'myicon.png';
       newData.custom.msgcnt = 2;
@@ -228,10 +218,9 @@ describe('push-notifications-gcm', () => {
 
   describe('send push notifications successfully, (callback, no contentAvailable, notificationCount)', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -261,8 +250,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -270,7 +258,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, no contentAvailable)', (done) => {
-      const newData = { ...data };
+      const newData: any = { ...data };
       delete newData.contentAvailable;
       delete newData.badge;
       newData.notificationCount = 42;
@@ -281,10 +269,9 @@ describe('push-notifications-gcm', () => {
 
   describe('send push notifications successfully, data no body', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -313,8 +300,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -322,7 +308,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, no body)', (done) => {
-      const newData = { ...data };
+      const newData: any = { ...data };
       delete newData.body;
       const callback = (err, results) => testSuccess(err, results, done);
       pn.send(regIds, newData, callback).catch(() => {});
@@ -331,10 +317,9 @@ describe('push-notifications-gcm', () => {
 
   describe('send push notifications successfully, custom data string', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -363,8 +348,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -381,10 +365,9 @@ describe('push-notifications-gcm', () => {
 
   describe('send push notifications successfully, custom data undefined', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -413,8 +396,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -422,7 +404,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, custom data undefined)', (done) => {
-      const newData = { ...data };
+      const newData: any = { ...data };
       delete newData.custom;
       pn.send(regIds, newData, (err, results) =>
         testSuccess(err, results, done)
@@ -432,10 +414,9 @@ describe('push-notifications-gcm', () => {
 
   describe('send push notifications successfully, normal priority', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -456,8 +437,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -465,7 +445,7 @@ describe('push-notifications-gcm', () => {
     });
 
     it('all responses should be successful (callback, custom data undefined)', (done) => {
-      const normalPrioData = { ...data };
+      const normalPrioData: any = { ...data };
       normalPrioData.priority = 'normal';
       pn.send(regIds, normalPrioData, (err, results) =>
         testSuccess(err, results, done)
@@ -478,10 +458,9 @@ describe('push-notifications-gcm', () => {
       const timeToLive = 4004;
 
       before(() => {
-        sendMethod = sinon.stub(
-          gcm.Sender.prototype,
-          'send',
-          (message, recipients, retries, cb) => {
+        sendMethod = sinon
+          .stub(gcm.Sender.prototype, 'send')
+          .callsFake((message, recipients, retries, cb) => {
             expect(recipients).to.be.instanceOf(Object);
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
@@ -500,8 +479,7 @@ describe('push-notifications-gcm', () => {
                 error: null,
               })),
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -520,10 +498,9 @@ describe('push-notifications-gcm', () => {
       const ttl = 0;
 
       before(() => {
-        sendMethod = sinon.stub(
-          gcm.Sender.prototype,
-          'send',
-          (message, recipients, retries, cb) => {
+        sendMethod = sinon
+          .stub(gcm.Sender.prototype, 'send')
+          .callsFake((message, recipients, retries, cb) => {
             expect(recipients).to.be.instanceOf(Object);
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
@@ -542,8 +519,7 @@ describe('push-notifications-gcm', () => {
                 error: null,
               })),
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -567,10 +543,9 @@ describe('push-notifications-gcm', () => {
 
         clock = sinon.useFakeTimers(now);
 
-        sendMethod = sinon.stub(
-          gcm.Sender.prototype,
-          'send',
-          (message, recipients, retries, cb) => {
+        sendMethod = sinon
+          .stub(gcm.Sender.prototype, 'send')
+          .callsFake((message, recipients, retries, cb) => {
             expect(recipients).to.be.instanceOf(Object);
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
@@ -589,8 +564,7 @@ describe('push-notifications-gcm', () => {
                 error: null,
               })),
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -613,10 +587,9 @@ describe('push-notifications-gcm', () => {
       before(() => {
         clock = sinon.useFakeTimers(now);
 
-        sendMethod = sinon.stub(
-          gcm.Sender.prototype,
-          'send',
-          (message, recipients, retries, cb) => {
+        sendMethod = sinon
+          .stub(gcm.Sender.prototype, 'send')
+          .callsFake((message, recipients, retries, cb) => {
             expect(recipients).to.be.instanceOf(Object);
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
@@ -635,8 +608,7 @@ describe('push-notifications-gcm', () => {
                 error: null,
               })),
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -654,10 +626,9 @@ describe('push-notifications-gcm', () => {
 
     describe('send push notifications with neither expiry nor timeToLive given', () => {
       before(() => {
-        sendMethod = sinon.stub(
-          gcm.Sender.prototype,
-          'send',
-          (message, recipients, retries, cb) => {
+        sendMethod = sinon
+          .stub(gcm.Sender.prototype, 'send')
+          .callsFake((message, recipients, retries, cb) => {
             expect(recipients).to.be.instanceOf(Object);
             expect(recipients).to.have.property('registrationTokens');
             const { registrationTokens } = recipients;
@@ -676,8 +647,7 @@ describe('push-notifications-gcm', () => {
                 error: null,
               })),
             });
-          }
-        );
+          });
       });
 
       after(() => {
@@ -694,10 +664,9 @@ describe('push-notifications-gcm', () => {
 
   describe('send silent push notifications', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -725,8 +694,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -749,10 +717,9 @@ describe('push-notifications-gcm', () => {
 
   describe('include Android-specific fields, such as channel id, image, style etc.', () => {
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -780,8 +747,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -809,10 +775,9 @@ describe('push-notifications-gcm', () => {
     });
 
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('registrationTokens');
           const { registrationTokens } = recipients;
@@ -838,8 +803,7 @@ describe('push-notifications-gcm', () => {
               error: null,
             })),
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -866,10 +830,9 @@ describe('push-notifications-gcm', () => {
     const testSuccessRecipientTo = testPushSuccess(method, [recipient]);
 
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('to');
           expect(recipients).to.not.have.property('registrationTokens');
@@ -898,8 +861,7 @@ describe('push-notifications-gcm', () => {
               },
             ],
           });
-        }
-      );
+        });
     });
 
     after(() => {
@@ -928,10 +890,9 @@ describe('push-notifications-gcm', () => {
     const testSuccessRecipientCondition = testPushSuccess(method, [recipient]);
 
     before(() => {
-      sendMethod = sinon.stub(
-        gcm.Sender.prototype,
-        'send',
-        (message, recipients, retries, cb) => {
+      sendMethod = sinon
+        .stub(gcm.Sender.prototype, 'send')
+        .callsFake((message, recipients, retries, cb) => {
           expect(recipients).to.be.instanceOf(Object);
           expect(recipients).to.have.property('condition');
           expect(recipients).to.not.have.property('registrationTokens');
@@ -960,8 +921,7 @@ describe('push-notifications-gcm', () => {
               },
             ],
           });
-        }
-      );
+        });
     });
 
     after(() => {

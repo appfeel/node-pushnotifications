@@ -1,14 +1,23 @@
-const webPush = require('web-push');
-const { is, unless, assoc } = require('ramda');
-const { WEB_METHOD } = require('./constants');
+import webPush from 'web-push';
+import { is, unless, assoc } from 'ramda';
+import { Data, DefaultSettings, RegIdType } from './types';
 
 const stringify = unless(is(String), JSON.stringify);
 
-const sendWebPush = async (regIds, data, settings) => {
+const sendWebPush = async (
+  regIds: (string | webPush.PushSubscription)[],
+  data: Data,
+  settings: DefaultSettings
+) => {
   const payload = stringify(data);
   const promises = regIds.map((regId) =>
     webPush
-      .sendNotification(regId, payload, settings.web)
+      // regId might be a JSON string
+      .sendNotification(
+        typeof regId === 'string' ? JSON.parse(regId) : regId,
+        payload,
+        settings.web
+      )
       .then(() => ({
         success: 1,
         failure: 0,
@@ -39,7 +48,7 @@ const sendWebPush = async (regIds, data, settings) => {
     failure: acc.failure + current.failure,
     message: [...acc.message, ...current.message],
   }));
-  return assoc('method', WEB_METHOD, reduced);
+  return assoc('method', RegIdType.web, reduced);
 };
 
-module.exports = sendWebPush;
+export default sendWebPush;

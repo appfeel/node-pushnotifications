@@ -101,10 +101,9 @@ let i = 0;
 
 function sendOkMethod() {
   wnsMethods.forEach((wnsMethod) => {
-    sendWNS[wnsMethod] = sinon.stub(
-      wns,
-      wnsMethod,
-      (channel, message, options, cb) => {
+    sendWNS[wnsMethod] = sinon
+      .stub(wns, wnsMethod)
+      .callsFake((channel, message, options, cb) => {
         expect(options)
           .to.be.an('object')
           .includes.keys(['client_id', 'client_secret', 'accessToken']);
@@ -122,33 +121,30 @@ function sendOkMethod() {
         cb(null, {
           newAccessToken: `${i}`,
         });
-      }
-    );
+      });
   });
   return sendWNS;
 }
 
 function sendFailureMethod() {
   wnsMethods.forEach((wnsMethod) => {
-    sendWNS[wnsMethod] = sinon.stub(
-      wns,
-      wnsMethod,
-      (channel, message, options, cb) => {
+    sendWNS[wnsMethod] = sinon
+      .stub(wns, wnsMethod)
+      .callsFake((channel, message, options, cb) => {
         expect(options.accessToken).to.equal(`${i}`);
         i += 1;
         cb(null, {
           innerError: fErr.message,
           newAccessToken: `${i}`,
         });
-      }
-    );
+      });
   });
   return sendWNS;
 }
 
 function sendThrowExceptionMethod() {
   wnsMethods.forEach((wnsMethod) => {
-    sendWNS[wnsMethod] = sinon.stub(wns, wnsMethod, () => {
+    sendWNS[wnsMethod] = sinon.stub(wns, wnsMethod).callsFake(() => {
       throw fErr;
     });
   });

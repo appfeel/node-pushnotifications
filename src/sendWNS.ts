@@ -1,5 +1,5 @@
-const wns = require('wns');
-const { WNS_METHOD } = require('./constants');
+import wns from 'wns';
+import { Data, DefaultSettings, RegIdType } from './types';
 
 const parseErrorMessage = (err) => (err instanceof Error ? err.message : err);
 const parseError = (err) => {
@@ -27,15 +27,20 @@ function processResponse(err, response, regId) {
   });
 }
 
-const sendWNS = (_regIds, _data, settings) => {
-  // sendNotifications and sendPromises are inside exports as in this way,
-  // successive calls to this module doesn't override previous ones
+const sendWNS = (_regIds: string[], _data: Data, settings: DefaultSettings) => {
   let sendPromises;
 
-  function sendNotifications(regIds, notificationMethod, data, opts, onFinish) {
+  function sendNotifications(
+    regIds: string[],
+    notificationMethod: string,
+    data: string | Data,
+    opts,
+    onFinish
+  ) {
     const regId = regIds.shift();
     if (regId) {
       try {
+        delete opts.notificationMethod;
         wns[notificationMethod](regId, data, opts, (err, response) => {
           sendPromises.push(Promise.resolve());
           processResponse(err, response, regId);
@@ -56,46 +61,48 @@ const sendWNS = (_regIds, _data, settings) => {
     }
   }
 
-  const promises = [];
+  const promises: any[] = [];
   const opts = { ...settings.wns };
-  const { notificationMethod } = opts;
+  const { notificationMethod = 'send' } = opts;
   const data =
     notificationMethod === 'sendRaw' ? JSON.stringify(_data) : { ..._data };
 
   resumed = {
-    method: WNS_METHOD,
+    method: RegIdType.wns,
     success: 0,
     failure: 0,
     message: [],
   };
-  opts.headers = data.headers || opts.headers;
-  opts.launch = data.launch || opts.launch;
-  opts.duration = data.duration || opts.duration;
+  opts.headers =
+    typeof data === 'object' && data.headers ? data.headers : opts.headers;
+  opts.launch =
+    typeof data === 'object' && data.launch ? data.launch : opts.launch;
+  opts.duration =
+    typeof data === 'object' && data.duration ? data.duration : opts.duration;
 
-  delete opts.notificationMethod;
-  delete data.headers;
-  delete data.launch;
-  delete data.duration;
+  if (typeof data === 'object') {
+    delete data.headers;
+    delete data.launch;
+    delete data.duration;
+  }
 
   if (opts.accessToken) {
     sendPromises = [];
     const regIds = [..._regIds];
-    // eslint-disable-next-line max-len
     promises.push(
       new Promise((resolve, reject) => {
         sendNotifications(regIds, notificationMethod, data, opts, (err) =>
-          err ? reject(err) : resolve()
+          err ? reject(err) : resolve(true)
         );
       })
     );
   } else {
-    // eslint-disable-next-line max-len
     _regIds.forEach((regId) =>
       promises.push(
         new Promise((resolve) => {
           wns[notificationMethod](regId, data, opts, (err, response) => {
             processResponse(err, response, regId);
-            resolve();
+            resolve(true);
           });
         })
       )
@@ -105,4 +112,4 @@ const sendWNS = (_regIds, _data, settings) => {
   return Promise.all(promises).then(() => resumed);
 };
 
-module.exports = sendWNS;
+export default sendWNS;

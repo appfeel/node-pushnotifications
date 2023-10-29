@@ -4,36 +4,36 @@ import chai from 'chai';
 import dirtyChai from 'dirty-chai';
 import sinonChai from 'sinon-chai';
 import { spy } from 'sinon';
+import { DEFAULT_SETTINGS } from '../../src/constants';
 import PN from '../../src';
 import {
-  UNKNOWN_METHOD,
-  WEB_METHOD,
-  WNS_METHOD,
-  ADM_METHOD,
-  GCM_METHOD,
-  APN_METHOD,
-} from '../../src/constants';
+  DefaultSettings,
+  RegId,
+  RegIdNodePushNotifications,
+  RegIdType,
+} from '../../src/types';
 
-const { expect } = chai;
 chai.use(dirtyChai);
 chai.use(sinonChai);
+const { expect } = chai;
 
 describe('push-notifications: instantiation and class properties', () => {
   describe('empty options', () => {
     it('should have send methods and settings options', () => {
-      const pn = new PN();
+      const pn = new PN(DEFAULT_SETTINGS);
       expect(pn).to.have.property('send');
-      expect(pn.settings).to.have.property('gcm');
-      expect(pn.settings).to.have.property('apn');
-      expect(pn.settings).to.have.property('adm');
-      expect(pn.settings).to.have.property('wns');
-      expect(pn.settings).to.have.property('web');
+      const settings = pn.getOptions();
+      expect(settings).to.have.property('gcm');
+      expect(settings).to.have.property('apn');
+      expect(settings).to.have.property('adm');
+      expect(settings).to.have.property('wns');
+      expect(settings).to.have.property('web');
     });
   });
 
   describe('override options with constructor', () => {
     let pn;
-    const settings = {
+    const settings: DefaultSettings = {
       gcm: {
         id: 'gcm id',
       },
@@ -97,7 +97,7 @@ describe('push-notifications: instantiation and class properties', () => {
     const apnShutdownSpy = spy();
 
     before(() => {
-      pn = new PN();
+      pn = new PN(DEFAULT_SETTINGS);
       pn.apn.shutdown = apnShutdownSpy;
       pn.setOptions(settings);
     });
@@ -110,7 +110,7 @@ describe('push-notifications: instantiation and class properties', () => {
     });
 
     it('should shutdown any previous APN providers', () => {
-      expect(apnShutdownSpy).to.have.been.calledOnce();
+      expect(apnShutdownSpy).to.have.been.calledOnce('');
     });
   });
 
@@ -130,22 +130,20 @@ describe('push-notifications: instantiation and class properties', () => {
       }
     };
     it('should resolve the promise with an empty result', (done) => {
-      const pn = new PN();
-      pn.send()
+      const pn = new PN(DEFAULT_SETTINGS);
+      pn.send([], {})
         .then((results) => test(null, results, done))
         .catch(done);
     });
 
     it('should fire callback with an empty result', (done) => {
-      const pn = new PN();
-      pn.send(undefined, undefined, (err, results) =>
-        test(null, results, done)
-      );
+      const pn = new PN(DEFAULT_SETTINGS);
+      pn.send([], undefined, (err, results) => test(null, results, done));
     });
   });
 
   describe('check getPushMethodByRegId returns expected push method types', () => {
-    const regIds = {
+    const regIds: { [key: string]: RegId } = {
       androidRegId:
         'APA91bFQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw',
       androidWithAdmSubstringRegId:
@@ -162,52 +160,52 @@ describe('push-notifications: instantiation and class properties', () => {
         'amzn1.adm-registration.v2.Y29tLmFtYXpvbi5EZXZpY2VNZXNzYWdpbmcuUmVnaXN0cmF0aW9uSWRFbmNyeXB0aW9uS2V5ITEhOE9rZ2h5TXlhVEFFczg2ejNWL3JMcmhTa255Uk5BclhBbE1XMFZzcnU1aFF6cTlvdU5FbVEwclZmdk5oTFBVRXVDN1luQlRSNnRVRUViREdQSlBvSzRNaXVRRUlyUy9NYWZCYS9VWTJUaGZwb3ZVTHhlRTM0MGhvampBK01hVktsMEhxakdmQStOSXRjUXBTQUhNU1NlVVVUVkFreVRhRTBCYktaQ2ZkUFdqSmIwcHgzRDhMQnllVXdxQ2EwdHNXRmFVNklYL0U4UXovcHg0K3Jjb25VbVFLRUVVOFVabnh4RDhjYmtIcHd1ZThiekorbGtzR2taMG95cC92Y3NtZytrcTRPNjhXUUpiZEk3QzFvQThBRTFWWXM2NHkyMjdYVGV5RlhhMWNHS0k9IW5GNEJMSXNleC9xbWpHSU52NnczY0E9PQ',
       webRegId: {
         endpoint: 'https://push.subscription.url',
-        keys: {
-          p256dh: 'userPublicEncryptionKey',
-          auth: 'userAuthSecret',
-        },
+        // keys: {
+        //   p256dh: 'userPublicEncryptionKey',
+        //   auth: 'userAuthSecret',
+        // },
       },
       androidObject: {
         id: 'APA91bFQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw',
-        type: 'gcm',
+        type: RegIdType.gcm,
       },
       androidObjectWhatever: {
         id: 'whatever',
-        type: 'gcm',
+        type: RegIdType.gcm,
       },
       iosObject: {
         id: '43e798c31a282d129a34d84472bbdd7632562ff0732b58a85a27c5d9fdf59b69',
-        type: 'apn',
+        type: RegIdType.apn,
       },
       iosObjectWhatever: {
         id: 'whatever',
-        type: 'apn',
+        type: RegIdType.apn,
       },
       unknownRegId: 'abcdef',
     };
 
     it('Android / GCM', () => {
-      let pn = new PN();
+      let pn = new PN(DEFAULT_SETTINGS);
       expect(pn.getPushMethodByRegId(regIds.androidRegId).regId).to.equal(
         regIds.androidRegId
       );
-      expect(pn.getPushMethodByRegId(regIds.androidRegId).pushMethod).to.equal(
-        GCM_METHOD
+      expect(pn.getPushMethodByRegId(regIds.androidRegId).type).to.equal(
+        RegIdType.gcm
       );
 
       expect(
         pn.getPushMethodByRegId(regIds.androidWithAdmSubstringRegId).regId
       ).to.equal(regIds.androidWithAdmSubstringRegId);
       expect(
-        pn.getPushMethodByRegId(regIds.androidWithAdmSubstringRegId).pushMethod
-      ).to.equal(GCM_METHOD);
+        pn.getPushMethodByRegId(regIds.androidWithAdmSubstringRegId).type
+      ).to.equal(RegIdType.gcm);
 
       expect(
         pn.getPushMethodByRegId(regIds.androidWithAmznSubscringRegId).regId
       ).to.equal(regIds.androidWithAmznSubscringRegId);
       expect(
-        pn.getPushMethodByRegId(regIds.androidWithAmznSubscringRegId).pushMethod
-      ).to.equal(GCM_METHOD);
+        pn.getPushMethodByRegId(regIds.androidWithAmznSubscringRegId).type
+      ).to.equal(RegIdType.gcm);
 
       const settings = {
         isAlwaysUseFCM: true,
@@ -216,96 +214,98 @@ describe('push-notifications: instantiation and class properties', () => {
       expect(pn.getPushMethodByRegId(regIds.unknownRegId).regId).to.equal(
         regIds.unknownRegId
       );
-      expect(pn.getPushMethodByRegId(regIds.unknownRegId).pushMethod).to.equal(
-        GCM_METHOD
+      expect(pn.getPushMethodByRegId(regIds.unknownRegId).type).to.equal(
+        RegIdType.gcm
       );
 
       expect(pn.getPushMethodByRegId(regIds.androidObject).regId).to.equal(
-        regIds.androidObject.id
+        (regIds.androidObject as RegIdNodePushNotifications).id
       );
-      expect(pn.getPushMethodByRegId(regIds.androidObject).pushMethod).to.equal(
-        GCM_METHOD
+      expect(pn.getPushMethodByRegId(regIds.androidObject).type).to.equal(
+        RegIdType.gcm
       );
 
       expect(
         pn.getPushMethodByRegId(regIds.androidObjectWhatever).regId
-      ).to.equal(regIds.androidObjectWhatever.id);
+      ).to.equal(
+        (regIds.androidObjectWhatever as RegIdNodePushNotifications).id
+      );
       expect(
-        pn.getPushMethodByRegId(regIds.androidObjectWhatever).pushMethod
-      ).to.equal(GCM_METHOD);
+        pn.getPushMethodByRegId(regIds.androidObjectWhatever).type
+      ).to.equal(RegIdType.gcm);
     });
 
     it('iOS / APN', () => {
-      const pn = new PN();
+      const pn = new PN(DEFAULT_SETTINGS);
       expect(pn.getPushMethodByRegId(regIds.iOSRegId).regId).to.equal(
         regIds.iOSRegId
       );
-      expect(pn.getPushMethodByRegId(regIds.iOSRegId).pushMethod).to.equal(
-        APN_METHOD
+      expect(pn.getPushMethodByRegId(regIds.iOSRegId).type).to.equal(
+        RegIdType.apn
       );
 
       expect(pn.getPushMethodByRegId(regIds.iosObject).regId).to.equal(
-        regIds.iosObject.id
+        (regIds.iosObject as RegIdNodePushNotifications).id
       );
-      expect(pn.getPushMethodByRegId(regIds.iosObject).pushMethod).to.equal(
-        APN_METHOD
+      expect(pn.getPushMethodByRegId(regIds.iosObject).type).to.equal(
+        RegIdType.apn
       );
 
       expect(pn.getPushMethodByRegId(regIds.iosObjectWhatever).regId).to.equal(
-        regIds.iosObjectWhatever.id
+        (regIds.iosObjectWhatever as RegIdNodePushNotifications).id
       );
-      expect(
-        pn.getPushMethodByRegId(regIds.iosObjectWhatever).pushMethod
-      ).to.equal(APN_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.iosObjectWhatever).type).to.equal(
+        RegIdType.apn
+      );
     });
 
     it('iOS / APN long', () => {
-      const pn = new PN();
+      const pn = new PN(DEFAULT_SETTINGS);
       expect(pn.getPushMethodByRegId(regIds.iOSRegIdLong).regId).to.equal(
         regIds.iOSRegIdLong
       );
-      expect(pn.getPushMethodByRegId(regIds.iOSRegIdLong).pushMethod).to.equal(
-        APN_METHOD
+      expect(pn.getPushMethodByRegId(regIds.iOSRegIdLong).type).to.equal(
+        RegIdType.apn
       );
     });
 
     it('Windows Phone / WNS', () => {
-      const pn = new PN();
+      const pn = new PN(DEFAULT_SETTINGS);
       expect(pn.getPushMethodByRegId(regIds.windowsPhoneRegId).regId).to.equal(
         regIds.windowsPhoneRegId
       );
-      expect(
-        pn.getPushMethodByRegId(regIds.windowsPhoneRegId).pushMethod
-      ).to.equal(WNS_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.windowsPhoneRegId).type).to.equal(
+        RegIdType.wns
+      );
     });
 
     it('Amazon / ADM', () => {
-      const pn = new PN();
+      const pn = new PN(DEFAULT_SETTINGS);
       expect(pn.getPushMethodByRegId(regIds.amazonRegId).regId).to.equal(
         regIds.amazonRegId
       );
-      expect(pn.getPushMethodByRegId(regIds.amazonRegId).pushMethod).to.equal(
-        ADM_METHOD
+      expect(pn.getPushMethodByRegId(regIds.amazonRegId).type).to.equal(
+        RegIdType.adm
       );
     });
 
     it('Web / WEB', () => {
-      const pn = new PN();
+      const pn = new PN(DEFAULT_SETTINGS);
       expect(pn.getPushMethodByRegId(regIds.webRegId).regId).to.equal(
         regIds.webRegId
       );
-      expect(pn.getPushMethodByRegId(regIds.webRegId).pushMethod).to.equal(
-        WEB_METHOD
+      expect(pn.getPushMethodByRegId(regIds.webRegId).type).to.equal(
+        RegIdType.web
       );
     });
 
     it('Unknown / UNKNOWN', () => {
-      const pn = new PN();
+      const pn = new PN(DEFAULT_SETTINGS);
       expect(pn.getPushMethodByRegId(regIds.unknownRegId).regId).to.equal(
         regIds.unknownRegId
       );
-      expect(pn.getPushMethodByRegId(regIds.unknownRegId).pushMethod).to.equal(
-        UNKNOWN_METHOD
+      expect(pn.getPushMethodByRegId(regIds.unknownRegId).type).to.equal(
+        RegIdType.unknown
       );
     });
   });

@@ -42,10 +42,9 @@ let sendMethod;
 
 function sendOkMethod() {
   // Don't use arrow function because we use this!!
-  return sinon.stub(
-    adm.Sender.prototype,
-    'send',
-    function sedADM(message, regId, cb) {
+  return sinon
+    .stub(adm.Sender.prototype, 'send')
+    .callsFake(function sedADM(message, regId, cb) {
       expect(this.options)
         .to.be.an('object')
         .includes.keys(['client_id', 'client_secret']);
@@ -58,26 +57,29 @@ function sendOkMethod() {
       expect(message.data.body).to.eql(data.body);
       expect(message.data.sender).to.eql(data.custom.sender);
       cb(null, {});
-    }
-  );
+    });
 }
 
 function sendFailureMethod() {
-  return sinon.stub(adm.Sender.prototype, 'send', (message, regId, cb) => {
-    cb(null, {
-      error: fErr.message,
+  return sinon
+    .stub(adm.Sender.prototype, 'send')
+    .callsFake((message, regId, cb) => {
+      cb(null, {
+        error: fErr.message,
+      });
     });
-  });
 }
 
 function sendErrorMethod() {
-  return sinon.stub(adm.Sender.prototype, 'send', (message, regId, cb) => {
-    cb(fErr);
-  });
+  return sinon
+    .stub(adm.Sender.prototype, 'send')
+    .callsFake((message, regId, cb) => {
+      cb(fErr);
+    });
 }
 
 function sendThrowExceptionMethod() {
-  return sinon.stub(adm.Sender.prototype, 'send', () => {
+  return sinon.stub(adm.Sender.prototype, 'send').callsFake(() => {
     throw fErr;
   });
 }

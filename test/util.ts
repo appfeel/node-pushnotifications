@@ -62,10 +62,9 @@ export const testPushException = (errMessage) => (err, results, done) => {
 };
 
 export const sendOkMethodGCM = (regIds, data) =>
-  sinon.stub(
-    gcm.Sender.prototype,
-    'send',
-    (message, recipients, retries, cb) => {
+  sinon
+    .stub(gcm.Sender.prototype, 'send')
+    .callsFake((message, recipients, retries, cb) => {
       expect(recipients).to.be.instanceOf(Object);
       expect(recipients).to.have.property('registrationTokens');
       const { registrationTokens } = recipients;
@@ -93,5 +92,4 @@ export const sendOkMethodGCM = (regIds, data) =>
           error: null,
         })),
       });
-    }
-  );
+    });
