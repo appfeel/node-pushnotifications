@@ -3,7 +3,7 @@ import chai from 'chai';
 import sinon from 'sinon';
 import dirtyChai from 'dirty-chai';
 import gcm from 'node-gcm';
-import PN from '../../src';
+import { PN } from '../../src';
 import {
   sendOkMethodGCM,
   testPushSuccess,
@@ -11,7 +11,7 @@ import {
   testPushException,
 } from '../util';
 
-const { DEFAULT_TTL, GCM_MAX_TTL } = require('../../src/constants');
+import { DEFAULT_TTL, GCM_MAX_TTL } from '../../src/constants';
 
 const { expect } = chai;
 chai.use(dirtyChai);

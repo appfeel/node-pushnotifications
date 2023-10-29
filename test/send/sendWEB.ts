@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import webpush from 'web-push';
-import PN from '../../src';
+import { PN } from '../../src';
 import { testPushSuccess, testPushError, testPushException } from '../util';
 
 const method = 'webPush';

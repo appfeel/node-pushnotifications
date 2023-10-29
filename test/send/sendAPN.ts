@@ -7,7 +7,7 @@ import dirtyChai from 'dirty-chai';
 import { readFileSync } from 'fs';
 
 import apn from '@parse/node-apn';
-import PN, { Data } from '../../src';
+import { Data, PN } from '../../src';
 import APN from '../../src/sendAPN';
 import {
   sendOkMethodGCM,

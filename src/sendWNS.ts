@@ -40,8 +40,9 @@ const sendWNS = (_regIds: string[], _data: Data, settings: DefaultSettings) => {
     const regId = regIds.shift();
     if (regId) {
       try {
-        delete opts.notificationMethod;
-        wns[notificationMethod](regId, data, opts, (err, response) => {
+        const wnsOpts = { ...opts };
+        delete wnsOpts.notificationMethod;
+        wns[notificationMethod](regId, data, wnsOpts, (err, response) => {
           sendPromises.push(Promise.resolve());
           processResponse(err, response, regId);
           sendNotifications(

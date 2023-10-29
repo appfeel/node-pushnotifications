@@ -2,7 +2,7 @@
 
 import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
 import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
-import PN, { RegIdType } from '../../src';
+import { PN, RegIdType } from '../../src';
 import sendGCM from '../../src/sendGCM';
 import sendADM from '../../src/sendADM';
 import sendWNS from '../../src/sendWNS';

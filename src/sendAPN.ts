@@ -59,6 +59,7 @@ const getDeviceTokenOrSelf = R.ifElse(
 
 export default class APNSender {
   private connection?: apn.Provider;
+
   private connectionError: any;
 
   constructor(settings: apn.ProviderOptions) {

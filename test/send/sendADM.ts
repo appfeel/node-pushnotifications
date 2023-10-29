@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import adm from 'node-adm';
-import PN from '../../src';
+import { PN } from '../../src';
 import {
   sendOkMethodGCM,
   testPushSuccess,

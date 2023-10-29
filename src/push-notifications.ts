@@ -11,6 +11,7 @@ import { PushMethod } from './typesInternal';
 
 export default class PN {
   private settings: DefaultSettings;
+
   private apn: APNSender;
 
   constructor(options: DefaultSettings) {
@@ -35,7 +36,7 @@ export default class PN {
     method: any,
     regIds: any[],
     data: any,
-    cb?: Function
+    cb?: (err: any, results?: any) => void
   ): Promise<any> {
     try {
       const results = await method(regIds, data, this.settings);
@@ -103,7 +104,7 @@ export default class PN {
   async send(
     _regIds: RegId | RegId[],
     data: any,
-    callback?: Function
+    callback?: (err: any, results?: any) => void
   ): Promise<any[]> {
     const promises: Promise<any>[] = [];
     const regIdsGCM: string[] = [];

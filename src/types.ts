@@ -1,4 +1,4 @@
-import apn from '@parse/node-apn';
+import * as nodeApn from '@parse/node-apn';
 import * as webPush from 'web-push';
 
 export interface GcmSettings {
@@ -6,7 +6,7 @@ export interface GcmSettings {
   phonegap?: boolean;
 }
 
-export interface ApnSettings extends apn.ProviderOptions {
+export interface ApnSettings extends nodeApn.ProviderOptions {
   // voip: boolean; // VOIP is in Notification type, not in settings
   address?: string;
   port?: number;
@@ -173,7 +173,7 @@ export interface Data {
   /** gcm, apn */
   sound?: string;
   /** apn, will take precedence over title and body. It is also accepted a text message in alert */
-  alert?: {} | string;
+  alert?: any | string;
   /** apn and gcm for ios */
   launchImage?: string;
   /** apn and gcm for ios */

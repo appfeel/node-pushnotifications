@@ -1,4 +1,4 @@
-import { ADM, APN, DefaultSettings, GCM, UNKNOWN, WEB, WNS } from './types';
+import { DefaultSettings } from './types';
 
 export const DEFAULT_TTL = 28 * 86400;
 export const GCM_MAX_TTL = 2419200; // 4 weeks in seconds (https://firebase.google.com/docs/cloud-messaging/http-server-ref#downstream-http-messages-json)

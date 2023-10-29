@@ -1,6 +1,29 @@
 {
-  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "extends": [
+    "airbnb-base",
+    "airbnb-typescript/base",
+    // "prettier",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript",
+    "plugin:prettier/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": [
+    "import",
+    "@typescript-eslint"
+    // "prettier"
+  ],
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaVersion": 6,
+    "project": "./tsconfig.json"
+  },
   "env": {
     "node": true
+  },
+  "rules": {
+    "@typescript-eslint/no-explicit-any": [0]
   }
 }

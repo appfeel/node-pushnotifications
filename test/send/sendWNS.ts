@@ -2,7 +2,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import wns from 'wns';
-import PN from '../../src';
+import { PN } from '../../src';
 import {
   sendOkMethodGCM,
   testPushSuccess,
@@ -99,7 +99,7 @@ function sendOkMethod() {
   wnsSendTileMethods.forEach((wnsMethod) => {
     sendWNS[wnsMethod] = sinon
       .stub(wns, wnsMethod)
-      .callsFake((channel, message, options, cb) => {
+      .callsFake((channel, message, _options, cb) => {
         expect(channel).to.be.a('string');
         expect(regIds).to.include(channel);
         expect(message).to.be.an('object');
@@ -116,7 +116,7 @@ function sendFailureMethod() {
   wnsSendTileMethods.forEach((wnsMethod) => {
     sendWNS[wnsMethod] = sinon
       .stub(wns, wnsMethod)
-      .callsFake((channel, message, options, cb) => {
+      .callsFake((channel, message, _options, cb) => {
         cb(null, {
           innerError: fErr.message,
         });
@@ -129,7 +129,7 @@ function sendErrorMethod() {
   wnsSendTileMethods.forEach((wnsMethod) => {
     sendWNS[wnsMethod] = sinon
       .stub(wns, wnsMethod)
-      .callsFake((channel, message, options, cb) => {
+      .callsFake((channel, message, _options, cb) => {
         cb(fErr);
       });
   });
@@ -169,7 +169,7 @@ describe('push-notifications-wns', () => {
       before(() => {
         sendWNS.sendRaw = sinon
           .stub(wns, 'sendRaw')
-          .callsFake((channel, message, options, cb) => {
+          .callsFake((channel, message, _options, cb) => {
             expect(channel).to.be.a('string');
             expect(regIds).to.include(channel);
             expect(message).to.be.a('string');

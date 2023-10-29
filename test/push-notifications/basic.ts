@@ -5,7 +5,7 @@ import dirtyChai from 'dirty-chai';
 import sinonChai from 'sinon-chai';
 import { spy } from 'sinon';
 import { DEFAULT_SETTINGS } from '../../src/constants';
-import PN from '../../src';
+import { PN } from '../../src';
 import {
   DefaultSettings,
   RegId,
