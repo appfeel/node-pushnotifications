@@ -100,7 +100,7 @@
     "ts-node": "10.9.1"
   },
   "engines": {
-    "node": ">=12.x.x"
+    "node": ">=15.x.x"
   },
   "eslintConfig": {
     "ecmaVersion": 6,
