@@ -95,6 +95,7 @@ class APN {
       mutableContent: data.mutableContent || 0,
       threadId: data.threadId,
       pushType: data.pushType,
+      interruptionLevel: data.interruptionLevel,
     });
 
     if (!this.connection) {
