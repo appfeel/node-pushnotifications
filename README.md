@@ -67,7 +67,7 @@ const settings = {
     },
     fcm: {
         appName: 'localFcmAppName',
-        serviceAccountKey: require('../firebase-project-service-account-key.json') // firebase service-account-file.json,
+        serviceAccountKey: require('../firebase-project-service-account-key.json'), // firebase service-account-file.json,
         credential: null // 'firebase-admin' Credential interface
     },
     adm: {
@@ -101,7 +101,7 @@ const push = new PushNotifications(settings);
 
 - GCM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
 - APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
-- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read #fcm section below!)
+- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read [FCM](#fcm) section below!)
 - ADM options: see [node-adm](https://github.com/umano/node-adm)
 - WNS options: see [wns](https://github.com/tjanczuk/wns)
 - Web-push options: see [web-push](https://github.com/web-push-libs/web-push)
@@ -537,7 +537,13 @@ const silentPushData = {
 The following parameters are used to create an FCM message (Android/APN):
 [node-gcm](https://github.com/ToothlessGear/node-gcm) lib for `GCM` method use old firebase api (will be [deprecated ](https://firebase.google.com/docs/cloud-messaging/migrate-v1?hl=en&authuser=0))
 
-Settings: - `settings.fcm.appName` [firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required) - `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded `service-account-file.json` (one of `serviceAccountKey` of `credential` required) - `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential) (one of `serviceAccountKey` of `credential` required)
+Settings:
+
+- `settings.fcm.appName` [firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
+
+- `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded `service-account-file.json` (one of `serviceAccountKey` of `credential` required)
+
+- `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential) (one of `serviceAccountKey` of `credential` required)
 
 ```js
 const tokens = [
