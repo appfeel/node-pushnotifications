@@ -64,6 +64,11 @@ const settings = {
         production: false // true for APN production environment, false for APN sandbox environment,
         ...
     },
+    fcm: {
+        appName: 'localFcmAppName',
+        serviceAccountKey: require('../firebase-project-service-account-key.json') // firebase service-account-file.json,
+        credential: null // 'firebase-admin' Credential interface
+    },
     adm: {
         client_id: null,
         client_secret: null,
@@ -86,13 +91,16 @@ const settings = {
         contentEncoding: 'aes128gcm',
         headers: {}
     },
-    isAlwaysUseFCM: false, // true all messages will be sent through node-gcm (which actually uses FCM)
+    isAlwaysUseFCM: false, // true all messages will be sent through node-gcm (which actually uses FCM (deprecated fcm api))
+    useFCMMethodInsteadOfGCM: false // true all message that should be sent through node-gcm, will be sent through 'firebase-admin' lib
 };
+
 const push = new PushNotifications(settings);
 ```
 
 - GCM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
 - APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
+- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read 'FCM' section below!)
 - ADM options: see [node-adm](https://github.com/umano/node-adm)
 - WNS options: see [wns](https://github.com/tjanczuk/wns)
 - Web-push options: see [web-push](https://github.com/web-push-libs/web-push)
@@ -308,57 +316,61 @@ push.send(registrationIds, data)
 The following parameters are used to create a GCM message. See https://developers.google.com/cloud-messaging/http-server-ref#table5 for more info:
 
 ```js
-    // Set default custom data from data
-    let custom;
-    if (typeof data.custom === 'string') {
-        custom = {
-            message: data.custom,
-        };
-    } else if (typeof data.custom === 'object') {
-        custom = Object.assign({}, data.custom);
-    } else {
-        custom = {
-            data: data.custom,
-        };
-    }
+// Set default custom data from data
+let custom;
+if (typeof data.custom === 'string') {
+  custom = {
+    message: data.custom,
+  };
+} else if (typeof data.custom === 'object') {
+  custom = Object.assign({}, data.custom);
+} else {
+  custom = {
+    data: data.custom,
+  };
+}
 
-    custom.title = custom.title || data.title;
-    custom.message = custom.message || data.body;
-    custom.sound = custom.sound || data.sound;
-    custom.icon = custom.icon || data.icon;
-    custom.msgcnt = custom.msgcnt || data.badge;
-    if (opts.phonegap === true && data.contentAvailable) {
-        custom['content-available'] = 1;
-    }
+custom.title = custom.title || data.title;
+custom.message = custom.message || data.body;
+custom.sound = custom.sound || data.sound;
+custom.icon = custom.icon || data.icon;
+custom.msgcnt = custom.msgcnt || data.badge;
+if (opts.phonegap === true && data.contentAvailable) {
+  custom['content-available'] = 1;
+}
 
-    const message = new gcm.Message({ // See https://developers.google.com/cloud-messaging/http-server-ref#table5
-        collapseKey: data.collapseKey,
-        priority: data.priority === 'normal' ? data.priority : 'high',
-        contentAvailable: data.contentAvailable || false,
-        delayWhileIdle: data.delayWhileIdle || false, // Deprecated from Nov 15th 2016 (will be ignored)
-        timeToLive: data.expiry - Math.floor(Date.now() / 1000) || data.timeToLive || 28 * 86400,
-        restrictedPackageName: data.restrictedPackageName,
-        dryRun: data.dryRun || false,
-        data: data.custom,
-        notification: {
-            title: data.title, // Android, iOS (Watch)
-            body: data.body, // Android, iOS
-            icon: data.icon, // Android
-            image: data.image, // Android
-            style: data.style, // Android
-            picture: data.picture, // Android
-            sound: data.sound, // Android, iOS
-            badge: data.badge, // iOS
-            tag: data.tag, // Android
-            color: data.color, // Android
-            click_action: data.clickAction || data.category, // Android, iOS
-            body_loc_key: data.locKey, // Android, iOS
-            body_loc_args: data.locArgs, // Android, iOS
-            title_loc_key: data.titleLocKey, // Android, iOS
-            title_loc_args: data.titleLocArgs, // Android, iOS
-	        android_channel_id: data.android_channel_id, // Android
-        },
-    }
+const message = new gcm.Message({
+  // See https://developers.google.com/cloud-messaging/http-server-ref#table5
+  collapseKey: data.collapseKey,
+  priority: data.priority === 'normal' ? data.priority : 'high',
+  contentAvailable: data.contentAvailable || false,
+  delayWhileIdle: data.delayWhileIdle || false, // Deprecated from Nov 15th 2016 (will be ignored)
+  timeToLive:
+    data.expiry - Math.floor(Date.now() / 1000) ||
+    data.timeToLive ||
+    28 * 86400,
+  restrictedPackageName: data.restrictedPackageName,
+  dryRun: data.dryRun || false,
+  data: data.custom,
+  notification: {
+    title: data.title, // Android, iOS (Watch)
+    body: data.body, // Android, iOS
+    icon: data.icon, // Android
+    image: data.image, // Android
+    style: data.style, // Android
+    picture: data.picture, // Android
+    sound: data.sound, // Android, iOS
+    badge: data.badge, // iOS
+    tag: data.tag, // Android
+    color: data.color, // Android
+    click_action: data.clickAction || data.category, // Android, iOS
+    body_loc_key: data.locKey, // Android, iOS
+    body_loc_args: data.locArgs, // Android, iOS
+    title_loc_key: data.titleLocKey, // Android, iOS
+    title_loc_args: data.titleLocArgs, // Android, iOS
+    android_channel_id: data.android_channel_id, // Android
+  },
+});
 ```
 
 _data is the parameter in `push.send(registrationIds, data)`_
@@ -516,6 +528,91 @@ const silentPushData = {
         yourKey: 'yourValue',
         ...
     }
+}
+```
+
+## FCM
+
+The following parameters are used to create an FCM message (Android/APN):
+[node-gcm](https://github.com/ToothlessGear/node-gcm) lib for `GCM` method use old firebase api (will be [deprecated ](https://firebase.google.com/docs/cloud-messaging/migrate-v1?hl=en&authuser=0))
+
+Settings: - `settings.fcm.appName` [firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required) - `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded `service-account-file.json` (one of `serviceAccountKey` of `credential` required) - `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential) (one of `serviceAccountKey` of `credential` required)
+
+```js
+const tokens = [
+  'e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x',
+];
+
+const notifications = {
+  collapseKey: Math.random().toString().replace('0.', ''),
+  priority: 'high',
+  sound: 'default',
+  title: 'Title 1',
+  body: 'Body 2',
+  // titleLocKey: 'GREETING',
+  // titleLocArgs: ['Smith', 'M'],
+  // fcm_notification: {
+  //   title: 'Title 1',
+  //   body: 'Body 2',
+  //   sound: 'default',
+  //   default_vibrate_timings: true,
+  // },
+  // alert: {
+  //   title: 'Title 2',
+  //   body: 'Body 2'
+  // },
+  custom: {
+    frined_id: 54657,
+    list_id: 'N7jSif1INyZkA7r910HljzGUVS',
+  },
+};
+
+pushNotifications.send(tokens, notifications, (error, result) => {
+  if (error) {
+    console.log('[error]', error);
+    throw error;
+  } else {
+    console.log('[result]', result, result.at(0));
+  }
+});
+```
+
+Fcm object that will be sent to provider ([Fcm message format](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages?authuser=0#Message)) :
+
+```json
+{
+  "data": {
+    "frined_id": "54657",
+    "list_id": "N7jSif1INyZkA7r910HljzGUVS"
+  },
+  "android": {
+    "collapse_key": "5658586678087056",
+    "priority": "high",
+    "notification": {
+      "title": "Title 1",
+      "body": "Body 2",
+      "sound": "default"
+    },
+    "ttl": 2419200000
+  },
+  "apns": {
+    "headers": {
+      "apns-expiration": "1697456586",
+      "apns-collapse-id": "5658586678087056"
+    },
+    "payload": {
+      "aps": {
+        "sound": "default",
+        "alert": {
+          "title": "Title 1",
+          "body": "Body 2"
+        }
+      }
+    }
+  },
+  "tokens": [
+    "e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x"
+  ]
 }
 ```
 
