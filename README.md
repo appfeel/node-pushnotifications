@@ -16,6 +16,7 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 - [Usage](#usage)
 - [GCM](#gcm)
 - [APN](#apn)
+- [FCM](#fcm)
 - [WNS](#wns)
 - [ADM](#adm)
 - [Web-Push](#web-push)
@@ -100,7 +101,7 @@ const push = new PushNotifications(settings);
 
 - GCM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
 - APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
-- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read 'FCM' section below!)
+- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read #fcm section below!)
 - ADM options: see [node-adm](https://github.com/umano/node-adm)
 - WNS options: see [wns](https://github.com/tjanczuk/wns)
 - Web-push options: see [web-push](https://github.com/web-push-libs/web-push)
