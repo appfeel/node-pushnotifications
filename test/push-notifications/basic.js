@@ -1,3 +1,5 @@
+/* eslint-disable global-require */
+/* eslint-disable import/no-dynamic-require */
 /* eslint-env mocha */
 import path from 'path';
 import chai from 'chai';
@@ -11,6 +13,7 @@ import {
   WNS_METHOD,
   ADM_METHOD,
   GCM_METHOD,
+  FCM_METHOD,
   APN_METHOD,
 } from '../../src/constants';
 
@@ -46,6 +49,12 @@ describe('push-notifications: instantiation and class properties', () => {
         cert: path.resolve('test/send/cert.pem'),
         key: path.resolve('test/send/key.pem'),
       },
+      fcm: {
+        name: 'testAppName',
+        serviceAccountKey: require(path.resolve(
+          'test/send/FCM-service-account-key.json'
+        )),
+      },
       wns: {
         client_id: 'client id',
         client_secret: 'client secret',
@@ -75,6 +84,7 @@ describe('push-notifications: instantiation and class properties', () => {
     it('should override the given options', () => {
       expect(pn.settings.apn).to.eql(settings.apn);
       expect(pn.settings.gcm).to.eql(settings.gcm);
+      expect(pn.settings.fcm).to.eql(settings.fcm);
       expect(pn.settings.adm).to.eql(settings.adm);
       expect(pn.settings.wns).to.eql(settings.wns);
       expect(pn.settings.web).to.eql(settings.web);
@@ -233,6 +243,36 @@ describe('push-notifications: instantiation and class properties', () => {
       expect(
         pn.getPushMethodByRegId(regIds.androidObjectWhatever).pushMethod
       ).to.equal(GCM_METHOD);
+    });
+
+    it('Android / FCM', () => {
+      const settings = {
+        fcm: {
+          name: 'testAppName',
+          serviceAccountKey: require(path.resolve(
+            'test/send/FCM-service-account-key.json'
+          )),
+        },
+        useFCMMethodInsteadOfGCM: true,
+      };
+      const pn = new PN(settings);
+
+      expect(pn.getPushMethodByRegId(regIds.androidRegId).regId).to.equal(
+        regIds.androidRegId
+      );
+      expect(pn.getPushMethodByRegId(regIds.androidRegId).pushMethod).to.equal(
+        FCM_METHOD
+      );
+
+      const updateSettings = { ...settings, isAlwaysUseFCM: true };
+      pn.setOptions(updateSettings);
+
+      expect(pn.getPushMethodByRegId(regIds.iOSRegIdLong).regId).to.equal(
+        regIds.iOSRegIdLong
+      );
+      expect(pn.getPushMethodByRegId(regIds.iOSRegIdLong).pushMethod).to.equal(
+        FCM_METHOD
+      );
     });
 
     it('iOS / APN', () => {

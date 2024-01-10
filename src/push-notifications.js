@@ -2,9 +2,11 @@
 
 import sendGCM from './sendGCM';
 import APN from './sendAPN';
+import sendFCM from './sendFCM';
 import sendADM from './sendADM';
 import sendWNS from './sendWNS';
 import sendWebPush from './sendWeb';
+
 import {
   DEFAULT_SETTINGS,
   UNKNOWN_METHOD,
@@ -13,6 +15,7 @@ import {
   ADM_METHOD,
   GCM_METHOD,
   APN_METHOD,
+  FCM_METHOD,
 } from './constants';
 
 class PN {
@@ -55,7 +58,10 @@ class PN {
     // TODO: deprecated, remove of all cases below in v3.0
     // and review test cases
     if (this.settings.isAlwaysUseFCM) {
-      return { regId, pushMethod: GCM_METHOD };
+      const pushMethod = this.settings.useFCMMethodInsteadOfGCM
+        ? FCM_METHOD
+        : GCM_METHOD;
+      return { regId, pushMethod };
     }
 
     if (regId.substring(0, 4) === 'http') {
@@ -74,7 +80,10 @@ class PN {
     }
 
     if (regId.length > 64) {
-      return { regId, pushMethod: GCM_METHOD };
+      const pushMethod = this.settings.useFCMMethodInsteadOfGCM
+        ? FCM_METHOD
+        : GCM_METHOD;
+      return { regId, pushMethod };
     }
 
     return { regId, pushMethod: UNKNOWN_METHOD };
@@ -82,7 +91,7 @@ class PN {
 
   send(_regIds, data, callback) {
     const promises = [];
-    const regIdsGCM = [];
+    const regIdsFCM = [];
     const regIdsAPN = [];
     const regIdsWNS = [];
     const regIdsADM = [];
@@ -96,8 +105,8 @@ class PN {
 
       if (pushMethod === WEB_METHOD) {
         regIdsWebPush.push(regId);
-      } else if (pushMethod === GCM_METHOD) {
-        regIdsGCM.push(regId);
+      } else if (pushMethod === GCM_METHOD || pushMethod === FCM_METHOD) {
+        regIdsFCM.push(regId);
       } else if (pushMethod === WNS_METHOD) {
         regIdsWNS.push(regId);
       } else if (pushMethod === ADM_METHOD) {
@@ -110,9 +119,12 @@ class PN {
     });
 
     try {
-      // Android GCM
-      if (regIdsGCM.length > 0) {
-        promises.push(this.sendWith(sendGCM, regIdsGCM, data));
+      // Android GCM / FCM (Android/iOS)
+      if (regIdsFCM.length > 0) {
+        const method = this.settings.useFCMMethodInsteadOfGCM
+          ? sendFCM
+          : sendGCM;
+        promises.push(this.sendWith(method, regIdsFCM, data));
       }
 
       // iOS APN
