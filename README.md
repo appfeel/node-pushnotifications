@@ -540,10 +540,10 @@ The following parameters are used to create an FCM message (Android/APN):
 Settings:
 
 - `settings.fcm.appName` [firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
+- `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded 'service-account-file.json'
+- `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential)
 
-- `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded `service-account-file.json` (one of `serviceAccountKey` of `credential` required)
-
-- `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential) (one of `serviceAccountKey` of `credential` required)
+Note: one of `serviceAccountKey`, `credential` fcm options is required
 
 ```js
 const tokens = [
