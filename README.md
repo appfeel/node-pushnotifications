@@ -394,9 +394,9 @@ _data is the parameter in `push.send(registrationIds, data)`_
         title: 'title',
         body: 'body',
         icon: undefined,
-	image: undefined,
-	style: undefined,
-	picture: undefined,
+        image: undefined,
+        style: undefined,
+        picture: undefined,
         sound: 'mySound.aiff',
         badge: undefined,
         tag: undefined,
@@ -406,7 +406,7 @@ _data is the parameter in `push.send(registrationIds, data)`_
         body_loc_args: undefined,
         title_loc_key: undefined,
         title_loc_args: undefined,
-	android_channel_id: undefined
+	      android_channel_id: undefined
     }
 ```
 
@@ -499,7 +499,8 @@ The following parameters are used to create an APN message:
     collapseId: data.collapseKey,
     mutableContent: data.mutableContent || 0,
     threadId: data.threadId,
-    pushType: data.pushType
+    pushType: data.pushType,
+    rawPayload: data.rawPayload
 }
 ```
 
@@ -509,6 +510,7 @@ _data is the parameter in `push.send(registrationIds, data)`_
 - **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic)). When using token-based authentication, specify the bundle ID of the app.
   When using certificate-based authentication, the topic is usually your app's bundle ID.
   More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
+- `rawPayload` (hidden 'node-apn' lib notification param) [source code](https://github.com/node-apn/node-apn/blob/master/lib/notification/index.js#L99) this param will replace all payload
 
 ### Silent push notifications
 
@@ -582,6 +584,12 @@ pushNotifications.send(tokens, notifications, (error, result) => {
     console.log('[result]', result, result.at(0));
   }
 });
+```
+
+`fcm_notification` - object that will be passed to
+
+```js
+  new gcm.Message({ ..., notification: data.fcm_notification })
 ```
 
 Fcm object that will be sent to provider ([Fcm message format](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages?authuser=0#Message)) :
