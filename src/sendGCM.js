@@ -4,7 +4,7 @@ const { GCM_METHOD } = require('./constants');
 const {
   containsValidRecipients,
   propValueToSingletonArray,
-  buildGsmMessage,
+  buildGcmMessage,
 } = require('./utils/tools');
 
 const getRecipientList = R.cond([
@@ -74,7 +74,7 @@ const sendGCM = (regIds, data, settings) => {
   const GCMSender = new gcm.Sender(id, opts);
   const promises = [];
 
-  const message = buildGsmMessage(data, opts);
+  const message = buildGcmMessage(data, opts);
 
   let chunk = 0;
 

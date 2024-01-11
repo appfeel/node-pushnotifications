@@ -1,4 +1,4 @@
-const { buildGsmMessage, buildApnsMessage } = require('./tools');
+const { buildGcmMessage, buildApnsMessage } = require('./tools');
 
 class FcmMessage {
   constructor(params) {
@@ -32,7 +32,7 @@ class FcmMessage {
   }
 
   static buildAndroidMessage(params) {
-    const message = buildGsmMessage(params, {});
+    const message = buildGcmMessage(params, {});
 
     const androidMessage = message.toJson();
 

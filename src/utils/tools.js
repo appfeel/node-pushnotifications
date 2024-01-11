@@ -1,6 +1,6 @@
 const R = require('ramda');
 const { Notification: ApnsMessage } = require('@parse/node-apn');
-const { Message: GsmMessage } = require('node-gcm');
+const { Message: GcmMessage } = require('node-gcm');
 
 const { DEFAULT_TTL, GCM_MAX_TTL } = require('../constants');
 
@@ -76,7 +76,7 @@ const containsValidRecipients = R.either(
 const propValueToSingletonArray = (propName) =>
   R.compose(R.of, R.prop(propName));
 
-const buildGsmNotification = (data) => {
+const buildGcmNotification = (data) => {
   const notification = data.fcm_notification || {
     title: data.title,
     body: data.body,
@@ -100,8 +100,8 @@ const buildGsmNotification = (data) => {
   return notification;
 };
 
-const buildGsmMessage = (data, options) => {
-  const notification = buildGsmNotification(data);
+const buildGcmMessage = (data, options) => {
+  const notification = buildGcmNotification(data);
 
   let custom;
   if (typeof data.custom === 'string') {
@@ -125,7 +125,7 @@ const buildGsmMessage = (data, options) => {
     custom['content-available'] = 1;
   }
 
-  const message = new GsmMessage({
+  const message = new GcmMessage({
     collapseKey: data.collapseKey,
     priority: data.priority === 'normal' ? 'normal' : 'high',
     contentAvailable: data.silent ? true : data.contentAvailable || false,
@@ -184,5 +184,5 @@ module.exports = {
   propValueToSingletonArray,
 
   buildApnsMessage,
-  buildGsmMessage,
+  buildGcmMessage,
 };
