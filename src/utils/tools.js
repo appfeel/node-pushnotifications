@@ -35,7 +35,7 @@ const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
   )(data);
 
 const toJSONorUndefined = R.when(
-  R.is.bind(null, String),
+  R.is(String),
   R.tryCatch(JSON.parse, R.always(undefined))
 );
 
