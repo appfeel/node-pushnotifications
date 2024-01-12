@@ -36,6 +36,7 @@ const gcmOpts = {
   gcm: {
     id: 'your id',
   },
+  isLegacyGCM: true,
 };
 const notificationOptions = {
   title: 'Notification Title',
@@ -914,6 +915,7 @@ describe('push-notifications-gcm', () => {
       gcm: {
         phonegap: true,
       },
+      isLegacyGCM: true,
     });
 
     before(() => {

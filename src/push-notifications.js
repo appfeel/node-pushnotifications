@@ -21,6 +21,9 @@ import {
 class PN {
   constructor(options) {
     this.setOptions(options);
+    this.useFcmOrGcmMethod = this.settings.isLegacyGCM
+      ? GCM_METHOD
+      : FCM_METHOD;
   }
 
   setOptions(opts) {
@@ -51,17 +54,16 @@ class PN {
     if (typeof regId === 'object' && regId.id && regId.type) {
       return {
         regId: regId.id,
-        pushMethod: this.settings.isAlwaysUseFCM ? GCM_METHOD : regId.type,
+        pushMethod: this.settings.isAlwaysUseFCM
+          ? this.useFcmOrGcmMethod
+          : regId.type,
       };
     }
 
     // TODO: deprecated, remove of all cases below in v3.0
     // and review test cases
     if (this.settings.isAlwaysUseFCM) {
-      const pushMethod = this.settings.useFCMMethodInsteadOfGCM
-        ? FCM_METHOD
-        : GCM_METHOD;
-      return { regId, pushMethod };
+      return { regId, pushMethod: this.useFcmOrGcmMethod };
     }
 
     if (regId.substring(0, 4) === 'http') {
@@ -80,10 +82,7 @@ class PN {
     }
 
     if (regId.length > 64) {
-      const pushMethod = this.settings.useFCMMethodInsteadOfGCM
-        ? FCM_METHOD
-        : GCM_METHOD;
-      return { regId, pushMethod };
+      return { regId, pushMethod: this.useFcmOrGcmMethod };
     }
 
     return { regId, pushMethod: UNKNOWN_METHOD };
@@ -91,6 +90,7 @@ class PN {
 
   send(_regIds, data, callback) {
     const promises = [];
+    const regIdsGCM = [];
     const regIdsFCM = [];
     const regIdsAPN = [];
     const regIdsWNS = [];
@@ -105,7 +105,9 @@ class PN {
 
       if (pushMethod === WEB_METHOD) {
         regIdsWebPush.push(regId);
-      } else if (pushMethod === GCM_METHOD || pushMethod === FCM_METHOD) {
+      } else if (pushMethod === GCM_METHOD) {
+        regIdsGCM.push(regId);
+      } else if (pushMethod === FCM_METHOD) {
         regIdsFCM.push(regId);
       } else if (pushMethod === WNS_METHOD) {
         regIdsWNS.push(regId);
@@ -119,12 +121,14 @@ class PN {
     });
 
     try {
-      // Android GCM / FCM (Android/iOS)
+      // Android GCM / FCM (Android/iOS) Legacy
+      if (regIdsGCM.length > 0) {
+        promises.push(this.sendWith(sendGCM, regIdsGCM, data));
+      }
+
+      // FCM (Android/iOS)
       if (regIdsFCM.length > 0) {
-        const method = this.settings.useFCMMethodInsteadOfGCM
-          ? sendFCM
-          : sendGCM;
-        promises.push(this.sendWith(method, regIdsFCM, data));
+        promises.push(this.sendWith(sendFCM, regIdsFCM, data));
       }
 
       // iOS APN

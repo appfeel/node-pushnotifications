@@ -35,7 +35,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
   let sendWith;
 
   before(() => {
-    pn = new PN();
+    pn = new PN({ isLegacyGCM: true });
     const sendApnFunctionName = pn.apn.sendAPN.bind(pn.apn).name;
 
     sendWith = sinon.stub(
@@ -48,6 +48,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
           failure: 0,
           message: _regIds.map((regId) => ({ regId })),
         };
+
         switch (regIds.indexOf(_regIds[0])) {
           case 0:
           case 1:

@@ -92,8 +92,8 @@ const settings = {
         contentEncoding: 'aes128gcm',
         headers: {}
     },
-    isAlwaysUseFCM: false, // true all messages will be sent through node-gcm (which actually uses FCM (deprecated fcm api))
-    useFCMMethodInsteadOfGCM: false // true all message that should be sent through node-gcm, will be sent through 'firebase-admin' lib
+    isAlwaysUseFCM: false, // true all messages will be sent through gcm/fcm api
+    isLegacyGCM: false // if true gcm messages will be sent through node-gcm (deprecated api), if false gcm messages will be sent through 'firebase-admin' lib
 };
 
 const push = new PushNotifications(settings);

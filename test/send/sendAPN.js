@@ -760,6 +760,7 @@ describe('push-notifications-apn', () => {
   describe('send push notifications successfully using FCM', () => {
     const pnGCM = new PN({
       isAlwaysUseFCM: true,
+      isLegacyGCM: true,
     });
     before(() => {
       sendMethod = sendOkMethodGCM(regIds, data);

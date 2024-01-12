@@ -27,6 +27,7 @@ describe('push-notifications: instantiation and class properties', () => {
       const pn = new PN();
       expect(pn).to.have.property('send');
       expect(pn.settings).to.have.property('gcm');
+      expect(pn.settings).to.have.property('fcm');
       expect(pn.settings).to.have.property('apn');
       expect(pn.settings).to.have.property('adm');
       expect(pn.settings).to.have.property('wns');
@@ -197,7 +198,7 @@ describe('push-notifications: instantiation and class properties', () => {
     };
 
     it('Android / GCM', () => {
-      let pn = new PN();
+      let pn = new PN({ isLegacyGCM: true });
       expect(pn.getPushMethodByRegId(regIds.androidRegId).regId).to.equal(
         regIds.androidRegId
       );
@@ -221,6 +222,7 @@ describe('push-notifications: instantiation and class properties', () => {
 
       const settings = {
         isAlwaysUseFCM: true,
+        isLegacyGCM: true,
       };
       pn = new PN(settings);
       expect(pn.getPushMethodByRegId(regIds.unknownRegId).regId).to.equal(
@@ -253,7 +255,7 @@ describe('push-notifications: instantiation and class properties', () => {
             'test/send/FCM-service-account-key.json'
           )),
         },
-        useFCMMethodInsteadOfGCM: true,
+        isLegacyGCM: false,
       };
       const pn = new PN(settings);
 
@@ -264,7 +266,10 @@ describe('push-notifications: instantiation and class properties', () => {
         FCM_METHOD
       );
 
-      const updateSettings = { ...settings, isAlwaysUseFCM: true };
+      const updateSettings = {
+        ...settings,
+        isAlwaysUseFCM: true,
+      };
       pn.setOptions(updateSettings);
 
       expect(pn.getPushMethodByRegId(regIds.iOSRegIdLong).regId).to.equal(
