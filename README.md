@@ -317,61 +317,57 @@ push.send(registrationIds, data)
 The following parameters are used to create a GCM message. See https://developers.google.com/cloud-messaging/http-server-ref#table5 for more info:
 
 ```js
-// Set default custom data from data
-let custom;
-if (typeof data.custom === 'string') {
-  custom = {
-    message: data.custom,
-  };
-} else if (typeof data.custom === 'object') {
-  custom = Object.assign({}, data.custom);
-} else {
-  custom = {
-    data: data.custom,
-  };
-}
+    // Set default custom data from data
+    let custom;
+    if (typeof data.custom === 'string') {
+        custom = {
+            message: data.custom,
+        };
+    } else if (typeof data.custom === 'object') {
+        custom = Object.assign({}, data.custom);
+    } else {
+        custom = {
+            data: data.custom,
+        };
+    }
 
-custom.title = custom.title || data.title;
-custom.message = custom.message || data.body;
-custom.sound = custom.sound || data.sound;
-custom.icon = custom.icon || data.icon;
-custom.msgcnt = custom.msgcnt || data.badge;
-if (opts.phonegap === true && data.contentAvailable) {
-  custom['content-available'] = 1;
-}
+    custom.title = custom.title || data.title;
+    custom.message = custom.message || data.body;
+    custom.sound = custom.sound || data.sound;
+    custom.icon = custom.icon || data.icon;
+    custom.msgcnt = custom.msgcnt || data.badge;
+    if (opts.phonegap === true && data.contentAvailable) {
+        custom['content-available'] = 1;
+    }
 
-const message = new gcm.Message({
-  // See https://developers.google.com/cloud-messaging/http-server-ref#table5
-  collapseKey: data.collapseKey,
-  priority: data.priority === 'normal' ? data.priority : 'high',
-  contentAvailable: data.contentAvailable || false,
-  delayWhileIdle: data.delayWhileIdle || false, // Deprecated from Nov 15th 2016 (will be ignored)
-  timeToLive:
-    data.expiry - Math.floor(Date.now() / 1000) ||
-    data.timeToLive ||
-    28 * 86400,
-  restrictedPackageName: data.restrictedPackageName,
-  dryRun: data.dryRun || false,
-  data: data.custom,
-  notification: {
-    title: data.title, // Android, iOS (Watch)
-    body: data.body, // Android, iOS
-    icon: data.icon, // Android
-    image: data.image, // Android
-    style: data.style, // Android
-    picture: data.picture, // Android
-    sound: data.sound, // Android, iOS
-    badge: data.badge, // iOS
-    tag: data.tag, // Android
-    color: data.color, // Android
-    click_action: data.clickAction || data.category, // Android, iOS
-    body_loc_key: data.locKey, // Android, iOS
-    body_loc_args: data.locArgs, // Android, iOS
-    title_loc_key: data.titleLocKey, // Android, iOS
-    title_loc_args: data.titleLocArgs, // Android, iOS
-    android_channel_id: data.android_channel_id, // Android
-  },
-});
+    const message = new gcm.Message({ // See https://developers.google.com/cloud-messaging/http-server-ref#table5
+        collapseKey: data.collapseKey,
+        priority: data.priority === 'normal' ? data.priority : 'high',
+        contentAvailable: data.contentAvailable || false,
+        delayWhileIdle: data.delayWhileIdle || false, // Deprecated from Nov 15th 2016 (will be ignored)
+        timeToLive: data.expiry - Math.floor(Date.now() / 1000) || data.timeToLive || 28 * 86400,
+        restrictedPackageName: data.restrictedPackageName,
+        dryRun: data.dryRun || false,
+        data: data.custom,
+        notification: {
+            title: data.title, // Android, iOS (Watch)
+            body: data.body, // Android, iOS
+            icon: data.icon, // Android
+            image: data.image, // Android
+            style: data.style, // Android
+            picture: data.picture, // Android
+            sound: data.sound, // Android, iOS
+            badge: data.badge, // iOS
+            tag: data.tag, // Android
+            color: data.color, // Android
+            click_action: data.clickAction || data.category, // Android, iOS
+            body_loc_key: data.locKey, // Android, iOS
+            body_loc_args: data.locArgs, // Android, iOS
+            title_loc_key: data.titleLocKey, // Android, iOS
+            title_loc_args: data.titleLocArgs, // Android, iOS
+          android_channel_id: data.android_channel_id, // Android
+        },
+    }
 ```
 
 _data is the parameter in `push.send(registrationIds, data)`_
