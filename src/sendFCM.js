@@ -78,6 +78,7 @@ const sendFCM = (regIds, data, settings) => {
       settings.fcm.credential ||
       firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
   };
+
   const firebaseApp = firebaseAdmin.initializeApp(opts, appName);
   firebaseAdmin.INTERNAL.appStore.removeApp(appName);
 
@@ -89,9 +90,9 @@ const sendFCM = (regIds, data, settings) => {
 
   if (containsValidRecipients(data)) {
     if (data.recipients.to) {
-      data.recipients.topic = data.recipients.to;
-      delete data.recipients.to;
+      Object.assign(data.recipients, { topic: data.recipients.to });
     }
+
     promises.push(sendChunk(firebaseApp, data.recipients, fcmMessage));
   } else {
     do {

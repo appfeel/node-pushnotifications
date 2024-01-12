@@ -24,8 +24,10 @@ class FcmMessage {
         return normalized;
       }
 
-      normalized[key] =
+      const stringifyValue =
         typeof value === 'string' ? value : JSON.stringify(value);
+
+      Object.assign(normalized, { [key]: stringifyValue });
 
       return normalized;
     }, {});
@@ -59,19 +61,18 @@ class FcmMessage {
   }
 
   static build(params) {
-    const providersExclude = params.providersExclude || [];
-    delete params.providersExclude;
+    const { providersExclude = [], ...fcmMessageParams } = params;
 
-    const data = this.normalizeDataParams(params.custom);
+    const data = this.normalizeDataParams(fcmMessageParams.custom);
 
     const createParams = { data };
 
     if (!providersExclude.includes('apns')) {
-      createParams.apns = this.buildApnsMessage(params);
+      createParams.apns = this.buildApnsMessage(fcmMessageParams);
     }
 
     if (!providersExclude.includes('android')) {
-      createParams.android = this.buildAndroidMessage(params);
+      createParams.android = this.buildAndroidMessage(fcmMessageParams);
     }
 
     return new this(createParams);
