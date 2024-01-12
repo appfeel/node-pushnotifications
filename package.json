@@ -15,8 +15,7 @@
     "format": "prettier --write \"**/*.{js,json,md,yml}\"",
     "ci": "npm run build && npm run test-cover && npm run lint",
     "prepublishOnly": "npm run lint && npm test && npm run build",
-    "release": "release-it",
-    "prepare": "husky install"
+    "release": "release-it"
   },
   "keywords": [
     "notifications",
@@ -54,9 +53,9 @@
   "dependencies": {
     "@parse/node-apn": "5.2.3",
     "node-adm": "0.9.1",
-    "node-gcm": "1.1.0",
+    "node-gcm": "1.1.3",
     "ramda": "0.28.0",
-    "web-push": "3.4.5",
+    "web-push": "3.6.6",
     "wns": "0.5.4"
   },
   "devDependencies": {
