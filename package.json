@@ -54,8 +54,8 @@
     "@parse/node-apn": "5.2.3",
     "node-adm": "0.9.1",
     "node-gcm": "1.1.3",
-    "ramda": "0.28.0",
-    "web-push": "3.6.6",
+    "ramda": "0.29.1",
+    "web-push": "3.6.7",
     "wns": "0.5.4"
   },
   "devDependencies": {
