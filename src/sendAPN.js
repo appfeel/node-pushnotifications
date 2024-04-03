@@ -15,7 +15,7 @@ const extractExpiry = R.cond([
 
 const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
   R.ifElse(
-    R.propEq('silent', true),
+    R.propEq(true, 'silent'),
     R.always(undefined),
     R.prop(propName)
   )(data);

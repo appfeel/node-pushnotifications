@@ -21,7 +21,7 @@ const containsValidRecipients = R.either(
 );
 
 const propValueToSingletonArray = (propName) =>
-  R.compose(R.of, R.prop(propName));
+  R.compose(R.of(Array), R.prop(propName));
 
 const getRecipientList = R.cond([
   [R.has('registrationTokens'), R.prop('registrationTokens')],
