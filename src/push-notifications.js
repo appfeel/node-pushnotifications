@@ -205,3 +205,4 @@ module.exports.WNS = WNS_METHOD;
 module.exports.ADM = ADM_METHOD;
 module.exports.GCM = GCM_METHOD;
 module.exports.APN = APN_METHOD;
+module.exports.FCM = FCM_METHOD;
