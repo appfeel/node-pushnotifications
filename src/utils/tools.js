@@ -29,7 +29,7 @@ const extractExpiry = R.cond([
 
 const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
   R.ifElse(
-    R.propEq('silent', true),
+    R.propEq(true, 'silent'),
     R.always(undefined),
     R.prop(propName)
   )(data);
@@ -74,7 +74,7 @@ const containsValidRecipients = R.either(
 );
 
 const propValueToSingletonArray = (propName) =>
-  R.compose(R.of, R.prop(propName));
+  R.compose(R.of(Array), R.prop(propName));
 
 const buildGcmNotification = (data) => {
   const notification = data.fcm_notification || {
