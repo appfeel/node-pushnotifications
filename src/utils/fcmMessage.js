@@ -38,7 +38,12 @@ class FcmMessage {
 
     const androidMessage = message.toJson();
 
-    androidMessage.ttl = androidMessage.time_to_live * 1000;
+    /**
+     * TTL in seconds:
+     *
+     * @see https://firebase.google.com/docs/cloud-messaging/concept-options#ttl
+     */
+    androidMessage.ttl = androidMessage.timeToLive;
 
     delete androidMessage.content_available;
     delete androidMessage.mutable_content;
