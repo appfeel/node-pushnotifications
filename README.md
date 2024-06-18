@@ -15,6 +15,7 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 - [Features](#features)
 - [Usage](#usage)
 - [GCM](#gcm)
+- [FCM](#fcm)
 - [APN](#apn)
 - [WNS](#wns)
 - [ADM](#adm)
@@ -55,6 +56,11 @@ const settings = {
         phonegap: false, // phonegap compatibility mode, see below (defaults to false)
         ...
     },
+    fcm: {
+        appName: 'localFcmAppName',
+        serviceAccountKey: require('../firebase-project-service-account-key.json'), // firebase service-account-file.json,
+        credential: null // 'firebase-admin' Credential interface
+    },
     apn: {
         token: {
             key: './certs/key.p8', // optionally: fs.readFileSync('./certs/key.p8')
@@ -86,12 +92,15 @@ const settings = {
         contentEncoding: 'aes128gcm',
         headers: {}
     },
-    isAlwaysUseFCM: false, // true all messages will be sent through node-gcm (which actually uses FCM)
+    isAlwaysUseFCM: false, // true all messages will be sent through gcm/fcm api
+    isLegacyGCM: false // if true gcm messages will be sent through node-gcm (deprecated api), if false gcm messages will be sent through 'firebase-admin' lib
+
 };
 const push = new PushNotifications(settings);
 ```
 
 - GCM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
+- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read [FCM](#fcm) section below!)
 - APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
 - ADM options: see [node-adm](https://github.com/umano/node-adm)
 - WNS options: see [wns](https://github.com/tjanczuk/wns)
@@ -486,7 +495,8 @@ The following parameters are used to create an APN message:
     collapseId: data.collapseKey,
     mutableContent: data.mutableContent || 0,
     threadId: data.threadId,
-    pushType: data.pushType
+    pushType: data.pushType,
+    rawPayload: data.rawPayload
 }
 ```
 
@@ -496,6 +506,7 @@ _data is the parameter in `push.send(registrationIds, data)`_
 - **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic)). When using token-based authentication, specify the bundle ID of the app.
   When using certificate-based authentication, the topic is usually your app's bundle ID.
   More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
+- `rawPayload` (hidden 'node-apn' lib notification param) [source code](https://github.com/node-apn/node-apn/blob/master/lib/notification/index.js#L99) this param will replace all payload
 
 ### Silent push notifications
 
@@ -516,6 +527,94 @@ const silentPushData = {
         yourKey: 'yourValue',
         ...
     }
+}
+```
+
+## FCM
+The following parameters are used to create an FCM message (Android/APN):
+[node-gcm](https://github.com/ToothlessGear/node-gcm) lib for `GCM` method use old firebase api (will be [deprecated ](https://firebase.google.com/docs/cloud-messaging/migrate-v1?hl=en&authuser=0))
+Settings:
+- `settings.fcm.appName` [firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
+- `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded 'service-account-file.json'
+- `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential)
+Note: one of `serviceAccountKey`, `credential` fcm options is required
+```js
+const tokens = [
+  'e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x',
+];
+
+const notifications = {
+  collapseKey: Math.random().toString().replace('0.', ''),
+  priority: 'high',
+  sound: 'default',
+  title: 'Title 1',
+  body: 'Body 2',
+  // titleLocKey: 'GREETING',
+  // titleLocArgs: ['Smith', 'M'],
+  // fcm_notification: {
+  //   title: 'Title 1',
+  //   body: 'Body 2',
+  //   sound: 'default',
+  //   default_vibrate_timings: true,
+  // },
+  // alert: {
+  //   title: 'Title 2',
+  //   body: 'Body 2'
+  // },
+  custom: {
+    frined_id: 54657,
+    list_id: 'N7jSif1INyZkA7r910HljzGUVS',
+  },
+};
+
+pushNotifications.send(tokens, notifications, (error, result) => {
+  if (error) {
+    console.log('[error]', error);
+    throw error;
+  } else {
+    console.log('[result]', result, result.at(0));
+  }
+});
+```
+`fcm_notification` - object that will be passed to
+```js
+  new gcm.Message({ ..., notification: data.fcm_notification })
+```
+Fcm object that will be sent to provider ([Fcm message format](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages?authuser=0#Message)) :
+```json
+{
+  "data": {
+    "friend_id": "54657",
+    "list_id": "N7jSif1INyZkA7r910HljzGUVS"
+  },
+  "android": {
+    "collapse_key": "5658586678087056",
+    "priority": "high",
+    "notification": {
+      "title": "Title 1",
+      "body": "Body 2",
+      "sound": "default"
+    },
+    "ttl": 2419200000
+  },
+  "apns": {
+    "headers": {
+      "apns-expiration": "1697456586",
+      "apns-collapse-id": "5658586678087056"
+    },
+    "payload": {
+      "aps": {
+        "sound": "default",
+        "alert": {
+          "title": "Title 1",
+          "body": "Body 2"
+        }
+      }
+    }
+  },
+  "tokens": [
+    "e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x"
+  ]
 }
 ```
 

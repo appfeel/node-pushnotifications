@@ -36,6 +36,13 @@ const gcmOpts = {
   gcm: {
     id: 'your id',
   },
+  isLegacyGCM: true,
+};
+const notificationOptions = {
+  title: 'Notification Title',
+  body: 'Notification Body',
+  image: 'https://s3.image.com',
+  color: '#000',
 };
 const pn = new PN(gcmOpts);
 const fErr = new Error('Forced error');
@@ -652,6 +659,48 @@ describe('push-notifications-gcm', () => {
       });
     });
 
+    describe('send push notifications with timeToLive calculated from expiry must not be negative', () => {
+      const expiredTimestampDate = Math.floor(Date.now() / 1000) - 1;
+
+      before(() => {
+        sendMethod = sinon.stub(
+          gcm.Sender.prototype,
+          'send',
+          (message, recipients, retries, cb) => {
+            expect(recipients).to.be.instanceOf(Object);
+            expect(recipients).to.have.property('registrationTokens');
+            const { registrationTokens } = recipients;
+            expect(registrationTokens).to.be.instanceOf(Array);
+            registrationTokens.forEach((regId) =>
+              expect(regIds).to.include(regId)
+            );
+            expect(message.params.timeToLive).to.equal(0);
+            cb(null, {
+              multicast_id: 'abc',
+              success: registrationTokens.length,
+              failure: 0,
+              results: registrationTokens.map((token) => ({
+                message_id: '',
+                registration_id: token,
+                error: null,
+              })),
+            });
+          }
+        );
+      });
+
+      after(() => {
+        sendMethod.restore();
+      });
+
+      it('timeToLive from expiry must not exceed max TTL', (done) => {
+        const expiryData = { ...data, expiry: expiredTimestampDate };
+        pn.send(regIds, expiryData, (err, results) =>
+          testSuccess(err, results, done)
+        );
+      });
+    });
+
     describe('send push notifications with neither expiry nor timeToLive given', () => {
       before(() => {
         sendMethod = sinon.stub(
@@ -801,11 +850,72 @@ describe('push-notifications-gcm', () => {
     });
   });
 
+  describe('include fcm_notification option', () => {
+    before(() => {
+      sendMethod = sinon.stub(
+        gcm.Sender.prototype,
+        'send',
+        (message, recipients, retries, cb) => {
+          expect(recipients).to.be.instanceOf(Object);
+          expect(recipients).to.have.property('registrationTokens');
+          const { registrationTokens } = recipients;
+          expect(registrationTokens).to.be.instanceOf(Array);
+          registrationTokens.forEach((regId) =>
+            expect(regIds).to.include(regId)
+          );
+          expect(retries).to.be.a('number');
+          expect(message).to.be.instanceOf(gcm.Message);
+          expect(message.params.notification.title).to.equal(
+            notificationOptions.title
+          );
+          expect(message.params.notification.body).to.equal(
+            notificationOptions.body
+          );
+          expect(message.params.notification.color).to.equal(
+            notificationOptions.color
+          );
+          expect(message.params.notification.image).to.equal(
+            notificationOptions.image
+          );
+
+          expect(message.params.data.user_id).to.equal(538);
+
+          cb(null, {
+            multicast_id: 'abc',
+            success: registrationTokens.length,
+            failure: 0,
+            results: registrationTokens.map((token) => ({
+              message_id: '',
+              registration_id: token,
+              error: null,
+            })),
+          });
+        }
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('all responses should be successful (callback, fcm_notification)', (done) => {
+      const androidData = {
+        ...data,
+        fcm_notification: notificationOptions,
+        custom: { user_id: 538 },
+      };
+      pn.send(regIds, androidData, (err, results) =>
+        testSuccess(err, results, done)
+      );
+    });
+  });
+
   describe('send push notifications in phonegap-push compatibility mode', () => {
     const pushPhoneGap = new PN({
       gcm: {
         phonegap: true,
       },
+      isLegacyGCM: true,
     });
 
     before(() => {

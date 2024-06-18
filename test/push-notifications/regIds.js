@@ -35,7 +35,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
   let sendWith;
 
   before(() => {
-    pn = new PN();
+    pn = new PN({ isLegacyGCM: true });
     const sendApnFunctionName = pn.apn.sendAPN.bind(pn.apn).name;
 
     sendWith = sinon.stub(
