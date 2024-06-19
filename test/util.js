@@ -11,7 +11,6 @@ export const testPushSuccess = (method, regIds) => (err, results, done) => {
       expect(result.failure).to.equal(0);
       expect(result.message.length).to.equal(regIds.length);
       result.message.forEach((message) => {
-        console.log('message', message);
         expect(message).to.have.property('regId');
         expect(regIds).to.include(message.regId);
         if (method === 'gcm') {
