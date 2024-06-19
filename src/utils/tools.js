@@ -30,7 +30,8 @@ const extractExpiry = R.cond([
 const getPropValueOrUndefinedIfIsSilent = (propName, data) => {
   if (data.silent) {
     return undefined;
-  } else return data[propName];
+  }
+  return data[propName];
 };
 
 const toJSONorUndefined = R.when(
@@ -141,7 +142,6 @@ const buildGcmMessage = (data, options) => {
 };
 
 const buildApnsMessage = (data) => {
-  console.log('data', data);
   const message = new ApnsMessage({
     retryLimit: data.retries || -1,
     expiry: extractExpiry(data),
@@ -165,7 +165,6 @@ const buildApnsMessage = (data) => {
     threadId: data.threadId,
     pushType: data.pushType,
   });
-  console.log('message', message);
 
   if (data.rawPayload) {
     message.rawPayload = data.rawPayload;
