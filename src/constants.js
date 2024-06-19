@@ -71,6 +71,6 @@ module.exports = {
       // contentEncoding: '< Encoding type, e.g.: aesgcm or aes128gcm >'
     },
     isAlwaysUseFCM: false,
-    isLegacyGCM: false
+    isLegacyGCM: false,
   },
 };

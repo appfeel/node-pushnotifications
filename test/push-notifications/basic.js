@@ -43,9 +43,9 @@ describe('push-notifications: instantiation and class properties', () => {
       },
       fcm: {
         name: 'testAppName',
-        serviceAccountKey: require(path.resolve(
-          'test/send/FCM-service-account-key.json'
-        )),
+        serviceAccountKey: require(
+          path.resolve('test/send/FCM-service-account-key.json')
+        ),
       },
       apn: {
         token: {
@@ -251,9 +251,9 @@ describe('push-notifications: instantiation and class properties', () => {
       const settings = {
         fcm: {
           name: 'testAppName',
-          serviceAccountKey: require(path.resolve(
-            'test/send/FCM-service-account-key.json'
-          )),
+          serviceAccountKey: require(
+            path.resolve('test/send/FCM-service-account-key.json')
+          ),
         },
         isLegacyGCM: false,
       };

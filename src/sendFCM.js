@@ -2,9 +2,7 @@ const firebaseAdmin = require('firebase-admin');
 
 const { FCM_METHOD } = require('./constants');
 const FcmMessage = require('./utils/fcmMessage');
-const {
-  containsValidRecipients,
-} = require('./utils/tools');
+const { containsValidRecipients } = require('./utils/tools');
 
 const getRecipientList = (obj) => {
   if (obj.tokens) {
@@ -19,7 +17,7 @@ const getRecipientList = (obj) => {
   if (obj.topic) {
     return [obj.topic];
   }
-}
+};
 
 const sendChunk = (firebaseApp, recipients, message) => {
   const firebaseMessage = message.buildWithRecipients(recipients);

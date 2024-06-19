@@ -531,13 +531,16 @@ const silentPushData = {
 ```
 
 ## FCM
+
 The following parameters are used to create an FCM message (Android/APN):
 [node-gcm](https://github.com/ToothlessGear/node-gcm) lib for `GCM` method use old firebase api (will be [deprecated ](https://firebase.google.com/docs/cloud-messaging/migrate-v1?hl=en&authuser=0))
 Settings:
+
 - `settings.fcm.appName` [firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
 - `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded 'service-account-file.json'
 - `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential)
-Note: one of `serviceAccountKey`, `credential` fcm options is required
+  Note: one of `serviceAccountKey`, `credential` fcm options is required
+
 ```js
 const tokens = [
   'e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x',
@@ -576,11 +579,15 @@ pushNotifications.send(tokens, notifications, (error, result) => {
   }
 });
 ```
+
 `fcm_notification` - object that will be passed to
+
 ```js
   new gcm.Message({ ..., notification: data.fcm_notification })
 ```
+
 Fcm object that will be sent to provider ([Fcm message format](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages?authuser=0#Message)) :
+
 ```json
 {
   "data": {

@@ -21,7 +21,9 @@ import {
 class PN {
   constructor(options) {
     this.setOptions(options);
-    this.useFcmOrGcmMethod = this.settings.isLegacyGCM ? GCM_METHOD : FCM_METHOD;
+    this.useFcmOrGcmMethod = this.settings.isLegacyGCM
+      ? GCM_METHOD
+      : FCM_METHOD;
   }
 
   setOptions(opts) {

@@ -1,9 +1,6 @@
 const gcm = require('node-gcm');
 const { GCM_METHOD } = require('./constants');
-const {
-  containsValidRecipients,
-  buildGcmMessage,
-} = require('./utils/tools');
+const { containsValidRecipients, buildGcmMessage } = require('./utils/tools');
 
 const getRecipientList = (obj) => {
   if (obj.registrationTokens) {
@@ -15,7 +12,7 @@ const getRecipientList = (obj) => {
   if (obj.condition) {
     return [obj.condition];
   }
-}
+};
 
 const sendChunk = (GCMSender, recipients, message, retries) =>
   new Promise((resolve) => {
@@ -79,7 +76,7 @@ const sendGCM = (regIds, data, settings) => {
   const promises = [];
 
   const message = buildGcmMessage(data, opts);
-  
+
   let chunk = 0;
 
   /* allow to override device tokens with custom `to` or `condition` field:
