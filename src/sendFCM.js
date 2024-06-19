@@ -17,6 +17,7 @@ const getRecipientList = (obj) => {
   if (obj.topic) {
     return [obj.topic];
   }
+  return [];
 };
 
 const sendChunk = (firebaseApp, recipients, message) => {
