@@ -21,9 +21,6 @@ import {
 class PN {
   constructor(options) {
     this.setOptions(options);
-    this.useFcmOrGcmMethod = this.settings.isLegacyGCM
-      ? GCM_METHOD
-      : FCM_METHOD;
   }
 
   setOptions(opts) {
@@ -32,6 +29,9 @@ class PN {
       this.apn.shutdown();
     }
     this.apn = new APN(this.settings.apn);
+    this.useFcmOrGcmMethod = this.settings.isLegacyGCM
+      ? GCM_METHOD
+      : FCM_METHOD;
   }
 
   sendWith(method, regIds, data, cb) {
