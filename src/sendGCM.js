@@ -12,6 +12,7 @@ const getRecipientList = (obj) => {
   if (obj.condition) {
     return [obj.condition];
   }
+  return [];
 };
 
 const sendChunk = (GCMSender, recipients, message, retries) =>
