@@ -565,7 +565,7 @@ const notifications = {
   //   body: 'Body 2'
   // },
   custom: {
-    frined_id: 54657,
+    friend_id: 54657,
     list_id: 'N7jSif1INyZkA7r910HljzGUVS',
   },
 };
