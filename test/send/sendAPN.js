@@ -34,6 +34,7 @@ const data = {
     sender: 'appfeel-test',
   },
 };
+const experienceId = '43e798c-4dff073-2b58a85a-27c5d9fdf59-b69';
 const apnOptions = {
   cert: path.resolve('./test/send/cert.pem'),
   key: path.resolve('./test/send/key.pem'),
@@ -256,6 +257,63 @@ describe('push-notifications-apn', () => {
         mutableContent: true,
       };
       pn.send(regIds, mutablePushData, (err, results) =>
+        testSuccess(err, results, done)
+      );
+    });
+  });
+
+  describe('send notifications with rawPayload', () => {
+    before(() => {
+      sendMethod = sinon.stub(
+        apn.Provider.prototype,
+        'send',
+        (message, _regIds) => {
+          expect(_regIds).to.be.instanceOf(Array);
+          _regIds.forEach((regId) => expect(regIds).to.include(regId));
+
+          const rawPayloadEq = {
+            ...data.custom,
+            experienceId,
+            apn: {
+              'mutable-content': 1,
+              sound: data.sound,
+              alert: {
+                title: data.title,
+                body: data.body,
+              },
+            },
+          };
+          expect(message).to.be.instanceOf(apn.Notification);
+          expect(message.rawPayload).to.deep.equal(rawPayloadEq);
+          return Promise.resolve({
+            sent: _regIds,
+          });
+        }
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('all responses should be successful', (done) => {
+      const rawPayloadPushData = {
+        topic: 'testTopic',
+        mutableContent: false,
+        rawPayload: {
+          experienceId,
+          ...data.custom,
+          apn: {
+            'mutable-content': 1,
+            sound: data.sound,
+            alert: {
+              title: data.title,
+              body: data.body,
+            },
+          },
+        },
+      };
+      pn.send(regIds, rawPayloadPushData, (err, results) =>
         testSuccess(err, results, done)
       );
     });
@@ -701,6 +759,7 @@ describe('push-notifications-apn', () => {
   describe('send push notifications successfully using FCM', () => {
     const pnGCM = new PN({
       isAlwaysUseFCM: true,
+      isLegacyGCM: true,
     });
     before(() => {
       sendMethod = sendOkMethodGCM(regIds, data);
