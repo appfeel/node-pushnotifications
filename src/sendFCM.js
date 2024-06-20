@@ -87,7 +87,7 @@ const sendFCM = (regIds, data, settings) => {
 
   const promises = [];
 
-  const fcmMessage = FcmMessage.build(data, regIds);
+  const fcmMessage = FcmMessage.build(data, settings.fcm);
 
   let chunk = 0;
 
