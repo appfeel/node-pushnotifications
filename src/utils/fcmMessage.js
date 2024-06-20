@@ -72,7 +72,10 @@ class FcmMessage {
     }
 
     if (!providersExclude.includes('android')) {
-      createParams.android = this.buildAndroidMessage(fcmMessageParams, options);
+      createParams.android = this.buildAndroidMessage(
+        fcmMessageParams,
+        options
+      );
     }
 
     return new this(createParams);
