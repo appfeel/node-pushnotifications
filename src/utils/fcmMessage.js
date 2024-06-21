@@ -33,19 +33,19 @@ class FcmMessage {
     }, {});
   }
 
-  static buildAndroidMessage(params) {
-    const message = buildGcmMessage(params, {});
+  static buildAndroidMessage(params, options) {
+    const message = buildGcmMessage(params, options);
 
     const androidMessage = message.toJson();
 
     androidMessage.ttl = androidMessage.time_to_live * 1000;
+    androidMessage.data = this.normalizeDataParams(androidMessage.data);
 
     delete androidMessage.content_available;
     delete androidMessage.mutable_content;
     delete androidMessage.delay_while_idle;
     delete androidMessage.time_to_live;
     delete androidMessage.dry_run;
-    delete androidMessage.data;
 
     return androidMessage;
   }
@@ -60,7 +60,7 @@ class FcmMessage {
     return { headers: this.normalizeDataParams(headers), payload };
   }
 
-  static build(params) {
+  static build(params, options) {
     const { providersExclude = [], ...fcmMessageParams } = params;
 
     const data = this.normalizeDataParams(fcmMessageParams.custom);
@@ -72,7 +72,10 @@ class FcmMessage {
     }
 
     if (!providersExclude.includes('android')) {
-      createParams.android = this.buildAndroidMessage(fcmMessageParams);
+      createParams.android = this.buildAndroidMessage(
+        fcmMessageParams,
+        options
+      );
     }
 
     return new this(createParams);
