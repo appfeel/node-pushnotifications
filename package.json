@@ -1,7 +1,7 @@
 {
   "name": "node-pushnotifications",
   "description": "A cross-platform push service for node.js",
-  "version": "3.1.0",
+  "version": "3.1.1",
   "author": {
     "name": "AppFeel",
     "email": "info@appfeel.com"
