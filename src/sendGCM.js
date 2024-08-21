@@ -1,33 +1,19 @@
 const gcm = require('node-gcm');
-const R = require('ramda');
-const { DEFAULT_TTL, GCM_METHOD, GCM_MAX_TTL } = require('./constants');
+const { GCM_METHOD } = require('./constants');
+const { containsValidRecipients, buildGcmMessage } = require('./utils/tools');
 
-const ttlFromExpiry = R.compose(
-  R.min(GCM_MAX_TTL),
-  (expiry) => expiry - Math.floor(Date.now() / 1000)
-);
-
-const extractTimeToLive = R.cond([
-  [R.propIs(Number, 'expiry'), ({ expiry }) => ttlFromExpiry(expiry)],
-  [R.propIs(Number, 'timeToLive'), R.prop('timeToLive')],
-  [R.T, R.always(DEFAULT_TTL)],
-]);
-
-const pathIsString = R.pathSatisfies(R.is(String));
-
-const containsValidRecipients = R.either(
-  pathIsString(['recipients', 'to']),
-  pathIsString(['recipients', 'condition'])
-);
-
-const propValueToSingletonArray = (propName) =>
-  R.compose(R.of, R.prop(propName));
-
-const getRecipientList = R.cond([
-  [R.has('registrationTokens'), R.prop('registrationTokens')],
-  [R.has('to'), propValueToSingletonArray('to')],
-  [R.has('condition'), propValueToSingletonArray('condition')],
-]);
+const getRecipientList = (obj) => {
+  if (obj.registrationTokens) {
+    return obj.registrationTokens;
+  }
+  if (obj.to) {
+    return [obj.to];
+  }
+  if (obj.condition) {
+    return [obj.condition];
+  }
+  return [];
+};
 
 const sendChunk = (GCMSender, recipients, message, retries) =>
   new Promise((resolve) => {
@@ -89,61 +75,9 @@ const sendGCM = (regIds, data, settings) => {
   delete opts.id;
   const GCMSender = new gcm.Sender(id, opts);
   const promises = [];
-  const notification = {
-    title: data.title, // Android, iOS (Watch)
-    body: data.body, // Android, iOS
-    icon: data.icon, // Android
-    image: data.image, // Android
-    picture: data.picture, // Android
-    style: data.style, // Android
-    sound: data.sound, // Android, iOS
-    badge: data.badge, // iOS
-    tag: data.tag, // Android
-    color: data.color, // Android
-    click_action: data.clickAction || data.category, // Android, iOS
-    body_loc_key: data.locKey, // Android, iOS
-    body_loc_args: data.locArgs, // Android, iOS
-    title_loc_key: data.titleLocKey, // Android, iOS
-    title_loc_args: data.titleLocArgs, // Android, iOS
-    android_channel_id: data.android_channel_id, // Android
-    notification_count: data.notificationCount || data.badge, // Android
-  };
 
-  let custom;
-  if (typeof data.custom === 'string') {
-    custom = {
-      message: data.custom,
-    };
-  } else if (typeof data.custom === 'object') {
-    custom = { ...data.custom };
-  } else {
-    custom = {
-      data: data.custom,
-    };
-  }
+  const message = buildGcmMessage(data, opts);
 
-  custom.title = custom.title || data.title;
-  custom.message = custom.message || data.body;
-  custom.sound = custom.sound || data.sound;
-  custom.icon = custom.icon || data.icon;
-  custom.msgcnt = custom.msgcnt || data.badge;
-  if (opts.phonegap === true && data.contentAvailable) {
-    custom['content-available'] = 1;
-  }
-
-  const message = new gcm.Message({
-    // See https://developers.google.com/cloud-messaging/http-server-ref#table5
-    collapseKey: data.collapseKey,
-    priority: data.priority === 'normal' ? 'normal' : 'high',
-    contentAvailable: data.silent ? true : data.contentAvailable || false,
-    delayWhileIdle: data.delayWhileIdle || false,
-    timeToLive: extractTimeToLive(data),
-    restrictedPackageName: data.restrictedPackageName,
-    dryRun: data.dryRun || false,
-    data: opts.phonegap === true ? Object.assign(custom, notification) : custom, // See https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour
-    notification:
-      opts.phonegap === true || data.silent === true ? undefined : notification,
-  });
   let chunk = 0;
 
   /* allow to override device tokens with custom `to` or `condition` field:

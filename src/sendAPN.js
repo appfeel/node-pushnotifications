@@ -1,54 +1,7 @@
 const apn = require('@parse/node-apn');
 const R = require('ramda');
-const { DEFAULT_TTL, APN_METHOD } = require('./constants');
-
-const expiryFromTtl = (ttl) => ttl + Math.floor(Date.now() / 1000);
-
-const extractExpiry = R.cond([
-  [R.propIs(Number, 'expiry'), R.prop('expiry')],
-  [
-    R.propIs(Number, 'timeToLive'),
-    ({ timeToLive }) => expiryFromTtl(timeToLive),
-  ],
-  [R.T, () => expiryFromTtl(DEFAULT_TTL)],
-]);
-
-const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
-  R.ifElse(
-    R.propEq('silent', true),
-    R.always(undefined),
-    R.prop(propName)
-  )(data);
-
-const toJSONorUndefined = R.tryCatch(JSON.parse, R.always(undefined));
-
-const alertLocArgsToJSON = R.evolve({
-  alert: {
-    'title-loc-args': toJSONorUndefined,
-    'loc-args': toJSONorUndefined,
-  },
-});
-
-const getDefaultAlert = (data) => ({
-  title: data.title,
-  body: data.body,
-  'title-loc-key': data.titleLocKey,
-  'title-loc-args': data.titleLocArgs,
-  'loc-key': data.locKey,
-  // bodyLocArgs is kept for backward compatibility
-  'loc-args': data.locArgs || data.bodyLocArgs,
-  'launch-image': data.launchImage,
-  action: data.action,
-});
-
-const alertOrDefault = (data) =>
-  R.when(
-    R.propSatisfies(R.isNil, 'alert'),
-    R.assoc('alert', getDefaultAlert(data))
-  );
-
-const getParsedAlertOrDefault = (data) =>
-  R.pipe(alertOrDefault(data), alertLocArgsToJSON)(data);
+const { APN_METHOD } = require('./constants');
+const { buildApnsMessage } = require('./utils/tools');
 
 const getDeviceTokenOrSelf = R.ifElse(
   R.has('device'),
@@ -73,30 +26,7 @@ class APN {
   }
 
   sendAPN(regIds, data) {
-    const message = new apn.Notification({
-      retryLimit: data.retries || -1,
-      expiry: extractExpiry(data),
-      priority: data.priority === 'normal' || data.silent === true ? 5 : 10,
-      encoding: data.encoding,
-      payload: data.custom || {},
-      badge: getPropValueOrUndefinedIfIsSilent('badge', data),
-      sound: getPropValueOrUndefinedIfIsSilent('sound', data),
-      alert: getPropValueOrUndefinedIfIsSilent(
-        'alert',
-        getParsedAlertOrDefault(data)
-      ),
-      topic: data.topic,
-      category: data.category || data.clickAction,
-      contentAvailable: data.contentAvailable,
-      mdm: data.mdm,
-      urlArgs: data.urlArgs,
-      truncateAtWordEnd: data.truncateAtWordEnd,
-      collapseId: data.collapseKey,
-      mutableContent: data.mutableContent || 0,
-      threadId: data.threadId,
-      pushType: data.pushType,
-      interruptionLevel: data.interruptionLevel,
-    });
+    const message = buildApnsMessage(data);
 
     if (!this.connection) {
       return Promise.reject(

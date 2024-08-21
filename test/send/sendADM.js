@@ -168,6 +168,7 @@ describe('push-notifications-adm', () => {
   describe('send push notifications using FCM', () => {
     const pnGCM = new PN({
       isAlwaysUseFCM: true,
+      isLegacyGCM: true,
     });
     before(() => {
       sendMethod = sendOkMethodGCM(regIds, data);
