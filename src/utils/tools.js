@@ -3,6 +3,7 @@ const { Notification: ApnsMessage } = require('@parse/node-apn');
 const { Message: GcmMessage } = require('node-gcm');
 
 const { DEFAULT_TTL, GCM_MAX_TTL } = require('../constants');
+const { interruptionLevel } = require('@parse/node-apn/lib/notification/apsProperties');
 
 const ttlFromExpiry = R.compose(
   R.min(GCM_MAX_TTL),
@@ -164,6 +165,7 @@ const buildApnsMessage = (data) => {
     mutableContent: data.mutableContent || 0,
     threadId: data.threadId,
     pushType: data.pushType,
+    interruptionLevel: data.interruptionLevel,
   });
 
   if (data.rawPayload) {
