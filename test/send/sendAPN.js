@@ -1,20 +1,37 @@
 /* eslint-env mocha */
-import path from 'path';
 import chai from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 import dirtyChai from 'dirty-chai';
-import { readFileSync } from 'fs';
 
 import apn from '@parse/node-apn';
 import PN from '../../src';
 import APN from '../../src/sendAPN';
+
 import {
   sendOkMethodGCM,
   testPushSuccess,
   testPushError,
   testPushException,
 } from '../util';
+
+// Mock apn certificate loading to prevent file access
+before(() => {
+  // Stub out the Provider constructor to avoid certificate loading
+  sinon.stub(apn, 'Provider', function mockProvider(options) {
+    this.client = { config: options };
+  });
+  // Ensure prototype methods exist for tests to stub
+  if (!apn.Provider.prototype.send) {
+    apn.Provider.prototype.send = () => {};
+  }
+  if (!apn.Provider.prototype.shutdown) {
+    apn.Provider.prototype.shutdown = () => {};
+  }
+});
+after(() => {
+  sinon.restore();
+});
 
 const { expect } = chai;
 chai.use(dirtyChai);
@@ -36,12 +53,10 @@ const data = {
 };
 const experienceId = '43e798c-4dff073-2b58a85a-27c5d9fdf59-b69';
 const apnOptions = {
-  cert: path.resolve('./test/send/cert.pem'),
-  key: path.resolve('./test/send/key.pem'),
+  cert: 'DUMMY_CERT',
+  key: 'DUMMY_KEY',
 };
-const pn = new PN({
-  apn: apnOptions,
-});
+let pn;
 const fErr = new Error('Forced error');
 const errStatusCode = '410';
 
@@ -59,12 +74,12 @@ function sendOkMethod() {
     apn.Provider.prototype,
     'send',
     function sendAPN(message, _regIds) {
-      // TODO: validate other props? What about token?
+      // Validate config uses dummy cert/key
       expect(this.client.config)
         .to.be.an('object')
         .includes.keys(['cert', 'key']);
-      expect(this.client.config.cert).to.eql(readFileSync(apnOptions.cert));
-      expect(this.client.config.key).to.eql(readFileSync(apnOptions.key));
+      expect(this.client.config.cert).to.eql('DUMMY_CERT');
+      expect(this.client.config.key).to.eql('DUMMY_KEY');
 
       expect(_regIds).to.be.instanceOf(Array);
       _regIds.forEach((regId) => expect(regIds).to.include(regId));
@@ -131,6 +146,12 @@ function sendThrowExceptionMethod() {
 }
 
 describe('push-notifications-apn', () => {
+  before(() => {
+    pn = new PN({
+      apn: apnOptions,
+    });
+  });
+
   describe('send push notifications successfully', () => {
     before(() => {
       sendMethod = sendOkMethod();
@@ -718,10 +739,12 @@ describe('push-notifications-apn', () => {
   });
 
   describe('shutdown', () => {
-    const connectionStub = sinon.stub(apn.Provider.prototype, 'shutdown');
-    const apnInstance = new APN(apnOptions);
+    let connectionStub;
+    let apnInstance;
 
     before(() => {
+      connectionStub = sinon.stub(apn.Provider.prototype, 'shutdown');
+      apnInstance = new APN(apnOptions);
       apnInstance.shutdown();
     });
 

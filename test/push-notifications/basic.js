@@ -53,8 +53,8 @@ describe('push-notifications: instantiation and class properties', () => {
           keyId: 'testKeyId',
           teamId: 'testTeamId',
         },
-        cert: path.resolve('test/send/cert.pem'),
-        key: path.resolve('test/send/key.pem'),
+        cert: 'some-file-path',
+        key: 'some-file-path',
       },
       wns: {
         client_id: 'client id',
