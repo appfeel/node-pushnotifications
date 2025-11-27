@@ -1,13 +1,11 @@
 const apn = require('@parse/node-apn');
-const R = require('ramda');
 const { APN_METHOD } = require('./constants');
 const { buildApnsMessage } = require('./utils/tools');
 
-const getDeviceTokenOrSelf = R.ifElse(
-  R.has('device'),
-  R.prop('device'),
-  R.identity
-);
+const getDeviceTokenOrSelf = (token) =>
+  token && typeof token === 'object' && 'device' in token
+    ? token.device
+    : token;
 
 class APN {
   constructor(settings) {
