@@ -37,12 +37,15 @@ const sendChunk = (firebaseApp, recipients, message) => {
           message: response.responses.map((value) => {
             const regToken = recipientList[regIndex];
             regIndex += 1;
+            const errorMsg = value.error
+              ? value.error.message || value.error
+              : null;
             return {
               messageId: value.message_id,
               originalRegId: regToken,
               regId: value.registration_id || regToken,
               error: value.error ? new Error(value.error) : null,
-              errorMsg: value.error ? value.error.message || value.error : null,
+              errorMsg,
             };
           }),
         };
