@@ -27,7 +27,9 @@ class FcmMessage {
   }
 
   static buildAndroidMessage(params, options) {
-    const message = buildGcmMessage(params, options);
+    // Mark as FCM so buildGcmMessage doesn't pollute custom data
+    const fcmOptions = { ...options, fcm: true };
+    const message = buildGcmMessage(params, fcmOptions);
 
     const androidMessage = message.toJson();
 

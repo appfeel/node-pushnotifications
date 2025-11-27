@@ -75,4 +75,68 @@ describe("push-notifications-fcm", () => {
         .catch(done);
     });
   });
+
+  describe('send push notifications with custom data', () => {
+    const customDataMessage = {
+      title: 'Notification Title',
+      body: 'Notification Body',
+      custom: {
+        userId: '12345',
+        actionId: 'action-001',
+        deepLink: 'app://section/item',
+      },
+    };
+
+    let customDataSendMethod;
+
+    function sendCustomDataMethod() {
+      return sinon.stub(
+        fbMessaging.prototype,
+        'sendEachForMulticast',
+        function sendFCMWithCustomData(firebaseMessage) {
+          const { custom } = customDataMessage;
+
+          // Verify custom data is preserved in top-level data field
+          expect(firebaseMessage.data).to.deep.equal(custom);
+
+          // Verify custom data does NOT pollute the notification
+          // Note: normalizeDataParams converts all values to strings (FCM requirement)
+          expect(firebaseMessage.android.data).to.deep.equal(custom);
+          expect(firebaseMessage.android.data).to.not.have.property('title');
+          expect(firebaseMessage.android.data).to.not.have.property('body');
+
+          // Verify notification has proper fields (separate from data)
+          expect(firebaseMessage.android.notification).to.include({
+            title: customDataMessage.title,
+            body: customDataMessage.body,
+          });
+
+          return Promise.resolve({
+            successCount: 1,
+            failureCount: 0,
+            responses: [{ error: null }],
+          });
+        }
+      );
+    }
+
+    before(() => {
+      customDataSendMethod = sendCustomDataMethod();
+    });
+
+    after(() => {
+      customDataSendMethod.restore();
+    });
+
+    it('custom data should be preserved and not mixed with notification fields', (done) => {
+      pn.send(regIds, customDataMessage)
+        .then((results) => {
+          expect(results).to.be.an('array');
+          expect(results[0].method).to.equal('fcm');
+          expect(results[0].success).to.equal(1);
+          done();
+        })
+        .catch(done);
+    });
+  });
 });

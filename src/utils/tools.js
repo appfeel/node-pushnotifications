@@ -124,11 +124,15 @@ const buildGcmMessage = (data, options) => {
     };
   }
 
-  custom.title = custom.title || data.title;
-  custom.message = custom.message || data.body;
-  custom.sound = custom.sound || data.sound;
-  custom.icon = custom.icon || data.icon;
-  custom.msgcnt = custom.msgcnt || data.badge;
+  // Only add notification fields to custom data for GCM (not FCM)
+  // FCM uses separate notification and data fields
+  if (!options.fcm) {
+    custom.title = custom.title || data.title;
+    custom.message = custom.message || data.body;
+    custom.sound = custom.sound || data.sound;
+    custom.icon = custom.icon || data.icon;
+    custom.msgcnt = custom.msgcnt || data.badge;
+  }
   if (options.phonegap === true && data.contentAvailable) {
     custom["content-available"] = 1;
   }
