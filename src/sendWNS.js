@@ -3,12 +3,8 @@ const { WNS_METHOD } = require('./constants');
 
 const parseErrorMessage = (err) => (err instanceof Error ? err.message : err);
 const parseError = (err) => {
-  if (err instanceof Error) {
-    return err;
-  }
-  if (err) {
-    return new Error(err);
-  }
+  if (err instanceof Error) return err;
+  if (err) return new Error(err);
   return null;
 };
 

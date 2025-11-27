@@ -20,16 +20,10 @@ class FcmMessage {
   static normalizeDataParams(data) {
     if (!data) return {};
     return Object.entries(data).reduce((normalized, [key, value]) => {
-      if (value === undefined || value === null) {
-        return normalized;
-      }
-
+      if (value == null) return normalized;
       const stringifyValue =
         typeof value === 'string' ? value : JSON.stringify(value);
-
-      Object.assign(normalized, { [key]: stringifyValue });
-
-      return normalized;
+      return { ...normalized, [key]: stringifyValue };
     }, {});
   }
 

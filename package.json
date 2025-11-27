@@ -55,7 +55,6 @@
     "firebase-admin": "12.1.1",
     "node-adm": "0.9.1",
     "node-gcm": "1.1.4",
-    "ramda": "0.32.0",
     "web-push": "3.6.7",
     "wns": "0.5.4"
   },

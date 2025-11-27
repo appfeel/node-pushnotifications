@@ -4,21 +4,8 @@ const { FCM_METHOD } = require('./constants');
 const FcmMessage = require('./utils/fcmMessage');
 const { containsValidRecipients } = require('./utils/tools');
 
-const getRecipientList = (obj) => {
-  if (obj.tokens) {
-    return obj.tokens;
-  }
-  if (obj.token) {
-    return [obj.token];
-  }
-  if (obj.condition) {
-    return [obj.condition];
-  }
-  if (obj.topic) {
-    return [obj.topic];
-  }
-  return [];
-};
+const getRecipientList = (obj) =>
+  obj.tokens ?? [obj.token, obj.condition, obj.topic].filter(Boolean);
 
 const sendChunk = (firebaseApp, recipients, message) => {
   const firebaseMessage = message.buildWithRecipients(recipients);
@@ -50,12 +37,15 @@ const sendChunk = (firebaseApp, recipients, message) => {
           message: response.responses.map((value) => {
             const regToken = recipientList[regIndex];
             regIndex += 1;
+            const errorMsg = value.error
+              ? value.error.message || value.error
+              : null;
             return {
               messageId: value.message_id,
               originalRegId: regToken,
               regId: value.registration_id || regToken,
               error: value.error ? new Error(value.error) : null,
-              errorMsg: value.error ? value.error.message || value.error : null,
+              errorMsg,
             };
           }),
         };

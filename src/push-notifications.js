@@ -37,11 +37,11 @@ class PN {
   sendWith(method, regIds, data, cb) {
     return method(regIds, data, this.settings)
       .then((results) => {
-        (cb || ((noop) => noop))(null, results);
+        cb?.(null, results);
         return results;
       })
       .catch((error) => {
-        (cb || ((noop) => noop))(error);
+        cb?.(error);
         return Promise.reject(error);
       });
   }
