@@ -2,18 +2,8 @@ const gcm = require('node-gcm');
 const { GCM_METHOD } = require('./constants');
 const { containsValidRecipients, buildGcmMessage } = require('./utils/tools');
 
-const getRecipientList = (obj) => {
-  if (obj.registrationTokens) {
-    return obj.registrationTokens;
-  }
-  if (obj.to) {
-    return [obj.to];
-  }
-  if (obj.condition) {
-    return [obj.condition];
-  }
-  return [];
-};
+const getRecipientList = (obj) =>
+  obj.registrationTokens ?? [obj.to, obj.condition].filter(Boolean);
 
 const sendChunk = (GCMSender, recipients, message, retries) =>
   new Promise((resolve) => {

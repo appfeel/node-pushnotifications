@@ -2,15 +2,8 @@ const wns = require('wns');
 const { WNS_METHOD } = require('./constants');
 
 const parseErrorMessage = (err) => (err instanceof Error ? err.message : err);
-const parseError = (err) => {
-  if (err instanceof Error) {
-    return err;
-  }
-  if (err) {
-    return new Error(err);
-  }
-  return null;
-};
+const parseError = (err) =>
+  err instanceof Error ? err : err ? new Error(err) : null;
 
 let resumed;
 

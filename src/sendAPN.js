@@ -2,10 +2,7 @@ const apn = require('@parse/node-apn');
 const { APN_METHOD } = require('./constants');
 const { buildApnsMessage } = require('./utils/tools');
 
-const getDeviceTokenOrSelf = (token) =>
-  token && typeof token === 'object' && 'device' in token
-    ? token.device
-    : token;
+const getDeviceTokenOrSelf = (token) => token?.device ?? token;
 
 class APN {
   constructor(settings) {

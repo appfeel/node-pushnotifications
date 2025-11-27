@@ -9,33 +9,22 @@ const ttlFromExpiry = (expiry) => {
 };
 
 const extractTimeToLive = (data) => {
-  if (typeof data.expiry === 'number') {
-    return ttlFromExpiry(data.expiry);
-  }
-  if (typeof data.timeToLive === 'number') {
-    return data.timeToLive;
-  }
+  if (typeof data?.expiry === 'number') return ttlFromExpiry(data.expiry);
+  if (typeof data?.timeToLive === 'number') return data.timeToLive;
   return DEFAULT_TTL;
 };
 
 const expiryFromTtl = (ttl) => ttl + Math.floor(Date.now() / 1000);
 
 const extractExpiry = (data) => {
-  if (typeof data.expiry === 'number') {
-    return data.expiry;
-  }
-  if (typeof data.timeToLive === 'number') {
+  if (typeof data?.expiry === 'number') return data.expiry;
+  if (typeof data?.timeToLive === 'number')
     return expiryFromTtl(data.timeToLive);
-  }
   return expiryFromTtl(DEFAULT_TTL);
 };
 
-const getPropValueOrUndefinedIfIsSilent = (propName, data) => {
-  if (data.silent) {
-    return undefined;
-  }
-  return data[propName];
-};
+const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
+  data.silent ? undefined : data[propName];
 
 const toJSONorUndefined = (value) => {
   if (typeof value !== 'string') {
@@ -49,7 +38,7 @@ const toJSONorUndefined = (value) => {
 };
 
 const alertLocArgsToJSON = (data) => {
-  const alert = data.alert || {};
+  const alert = data.alert ?? {};
   return {
     ...data,
     alert: {
@@ -71,12 +60,10 @@ const getDefaultAlert = (data) => ({
   action: data.action,
 });
 
-const alertOrDefault = (data) => {
-  if (data.alert !== null && data.alert !== undefined) {
-    return data;
-  }
-  return { ...data, alert: getDefaultAlert(data) };
-};
+const alertOrDefault = (data) => ({
+  ...data,
+  alert: data.alert ?? getDefaultAlert(data),
+});
 
 const getParsedAlertOrDefault = (data) => {
   const withAlert = alertOrDefault(data);

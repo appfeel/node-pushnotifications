@@ -10,13 +10,7 @@ const sendADM = (regIds, _data, settings) => {
   };
   const promises = [];
   const admSender = new adm.Sender(settings.adm);
-  const data = { ..._data };
-  const { consolidationKey, expiry, timeToLive, custom } = data;
-
-  delete data.consolidationKey;
-  delete data.expiry;
-  delete data.timeToLive;
-  delete data.custom;
+  const { consolidationKey, expiry, timeToLive, custom, ...data } = _data;
 
   const message = {
     expiresAfter:
