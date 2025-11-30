@@ -1,5 +1,5 @@
 /* eslint-disable import/no-import-module-exports */
-
+/* eslint-disable-next-line no-global-assign */
 import sendGCM from './sendGCM';
 import sendFCM from './sendFCM';
 import APN from './sendAPN';

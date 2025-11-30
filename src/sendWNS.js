@@ -76,7 +76,6 @@ const sendWNS = (_regIds, _data, settings) => {
   if (opts.accessToken) {
     sendPromises = [];
     const regIds = [..._regIds];
-    // eslint-disable-next-line max-len
     promises.push(
       new Promise((resolve, reject) => {
         sendNotifications(regIds, notificationMethod, data, opts, (err) =>
@@ -85,7 +84,6 @@ const sendWNS = (_regIds, _data, settings) => {
       })
     );
   } else {
-    // eslint-disable-next-line max-len
     _regIds.forEach((regId) =>
       promises.push(
         new Promise((resolve) => {
