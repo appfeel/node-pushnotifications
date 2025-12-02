@@ -910,6 +910,53 @@ describe('push-notifications-gcm', () => {
     });
   });
 
+  describe('fcm_notification partial override (merge)', () => {
+    before(() => {
+      sendMethod = sinon.stub(
+        gcm.Sender.prototype,
+        'send',
+        (message, recipients, retries, cb) => {
+          expect(recipients).to.be.instanceOf(Object);
+          expect(message).to.be.instanceOf(gcm.Message);
+          // Verify that title and body from main data are preserved
+          expect(message.params.notification.title).to.equal(data.title);
+          expect(message.params.notification.body).to.equal(data.body);
+          // Verify that fcm_notification overrides are applied
+          expect(message.params.notification.color).to.equal('#FF0000');
+          // Verify custom data is present
+          expect(message.params.data.sender).to.equal(data.custom.sender);
+
+          cb(null, {
+            multicast_id: 'abc',
+            success: recipients.registrationTokens.length,
+            failure: 0,
+            results: recipients.registrationTokens.map((token) => ({
+              message_id: '',
+              registration_id: token,
+              error: null,
+            })),
+          });
+        }
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('should merge fcm_notification overrides with base notification', (done) => {
+      const androidData = {
+        ...data,
+        fcm_notification: {
+          color: '#FF0000', // Override only the color
+        },
+      };
+      pn.send(regIds, androidData, (err, results) =>
+        testSuccess(err, results, done)
+      );
+    });
+  });
+
   describe('send push notifications in phonegap-push compatibility mode', () => {
     const pushPhoneGap = new PN({
       gcm: {
