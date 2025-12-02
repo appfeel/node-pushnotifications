@@ -580,13 +580,27 @@ pushNotifications.send(tokens, notifications, (error, result) => {
 });
 ```
 
-`fcm_notification` - object that will be passed to
+`fcm_notification` - object that will be **merged** with the notification fields. This allows you to override specific notification properties (like `channelId`, `ttl`, etc.) without duplicating standard fields like `title` and `body`.
 
+For example, to set a channel ID for Android:
 ```js
-  new gcm.Message({ ..., notification: data.fcm_notification })
+const data = {
+  title: 'My Title',
+  body: 'My Message',
+  fcm_notification: {
+    channelId: 'my-channel-id'
+  },
+  custom: { id: 123 }
+};
 ```
 
-Fcm object that will be sent to provider ([Fcm message format](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages?authuser=0#Message)) :
+The `fcm_notification` object will be passed to
+
+```js
+  new gcm.Message({ ..., notification: { ...builtNotification, ...data.fcm_notification } })
+```
+
+FCM object that will be sent to provider ([FCM message format](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages?authuser=0#Message)) :
 
 ```json
 {
