@@ -85,7 +85,7 @@ const containsValidRecipients = (obj) => {
 };
 
 const buildGcmNotification = (data) => {
-  const notification = data.fcm_notification || {
+  const notification = {
     title: data.title,
     body: data.body,
     icon: data.icon,
@@ -104,6 +104,11 @@ const buildGcmNotification = (data) => {
     android_channel_id: data.android_channel_id,
     notification_count: data.notificationCount || data.badge,
   };
+
+  // Merge with fcm_notification overrides if provided
+  if (data.fcm_notification) {
+    return { ...notification, ...data.fcm_notification };
+  }
 
   return notification;
 };
