@@ -1,4 +1,3 @@
-/* eslint-disable-next-line import/no-unresolved */
 import js from '@eslint/js';
 import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-plugin-prettier/recommended';
@@ -62,5 +61,3 @@ export default [
   },
   prettier,
 ];
-
-
