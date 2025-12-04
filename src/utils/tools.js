@@ -32,7 +32,7 @@ const toJSONorUndefined = (value) => {
   }
   try {
     return JSON.parse(value);
-  } catch (e) {
+  } catch {
     return undefined;
   }
 };

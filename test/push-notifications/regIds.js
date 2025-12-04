@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
-import { expect } from 'chai'; // eslint-disable-line import/no-extraneous-dependencies
-import sinon from 'sinon'; // eslint-disable-line import/no-extraneous-dependencies
+import { expect } from 'chai';
+import sinon from 'sinon';
 import PN from '../../src';
 import sendGCM from '../../src/sendGCM';
 import sendADM from '../../src/sendADM';

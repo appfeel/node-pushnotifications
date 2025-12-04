@@ -1,5 +1,3 @@
-/* eslint-disable global-require */
-/* eslint-disable import/no-dynamic-require */
 /* eslint-env mocha */
 import path from 'path';
 import chai from 'chai';
@@ -43,6 +41,7 @@ describe('push-notifications: instantiation and class properties', () => {
       },
       fcm: {
         name: 'testAppName',
+        // eslint-disable-next-line no-undef
         serviceAccountKey: require(
           path.resolve('test/send/FCM-service-account-key.json')
         ),
@@ -251,6 +250,7 @@ describe('push-notifications: instantiation and class properties', () => {
       const settings = {
         fcm: {
           name: 'testAppName',
+          // eslint-disable-next-line no-undef
           serviceAccountKey: require(
             path.resolve('test/send/FCM-service-account-key.json')
           ),

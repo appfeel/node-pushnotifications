@@ -4,14 +4,13 @@ import sinon from 'sinon';
 import dirtyChai from 'dirty-chai';
 import gcm from 'node-gcm';
 import PN from '../../src';
+import { DEFAULT_TTL, GCM_MAX_TTL } from '../../src/constants';
 import {
   sendOkMethodGCM,
   testPushSuccess,
   testPushError,
   testPushException,
 } from '../util';
-
-const { DEFAULT_TTL, GCM_MAX_TTL } = require('../../src/constants');
 
 const { expect } = chai;
 chai.use(dirtyChai);
