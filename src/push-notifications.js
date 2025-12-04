@@ -1,13 +1,11 @@
-/* eslint-disable import/no-import-module-exports */
-/* eslint-disable-next-line no-global-assign */
-import sendGCM from './sendGCM';
-import sendFCM from './sendFCM';
-import APN from './sendAPN';
-import sendADM from './sendADM';
-import sendWNS from './sendWNS';
-import sendWebPush from './sendWeb';
+const sendGCM = require('./sendGCM');
+const sendFCM = require('./sendFCM');
+const APN = require('./sendAPN');
+const sendADM = require('./sendADM');
+const sendWNS = require('./sendWNS');
+const sendWebPush = require('./sendWeb');
 
-import {
+const {
   DEFAULT_SETTINGS,
   UNKNOWN_METHOD,
   WEB_METHOD,
@@ -16,7 +14,7 @@ import {
   GCM_METHOD,
   FCM_METHOD,
   APN_METHOD,
-} from './constants';
+} = require('./constants');
 
 class PN {
   constructor(options) {
