@@ -1,25 +1,25 @@
 /* eslint-env mocha */
-import { expect } from 'chai';
-import sinon from 'sinon';
-import { Messaging as fbMessaging } from 'firebase-admin/messaging';
-import PN from '../../src';
-import { testPushSuccess } from '../util';
+import { expect } from "chai";
+import sinon from "sinon";
+import { Messaging as fbMessaging } from "firebase-admin/messaging";
+import PN from "../../src";
+import { testPushSuccess } from "../util";
 
-const method = 'fcm';
+const method = "fcm";
 const regIds = [
-  'APA91bFQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw',
+  "APA91bFQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw",
 ];
 const message = {
-  title: 'title',
-  body: 'body',
-  sound: 'mySound.aiff',
+  title: "title",
+  body: "body",
+  sound: "mySound.aiff",
   custom: {
-    sender: 'banshi-test',
+    sender: "banshi-test",
   },
 };
 const fcmOpts = {
   fcm: {
-    name: 'testAppName',
+    name: "testAppName",
     credential: { getAccessToken: () => Promise.resolve({}) },
   },
   isLegacyGCM: false,
@@ -33,18 +33,16 @@ let sendMethod;
 function sendOkMethod() {
   return sinon.stub(
     fbMessaging.prototype,
-    'sendEachForMulticast',
+    "sendEachForMulticast",
     function sendFCM(firebaseMessage) {
       const { custom, ...messageData } = message;
 
       expect(firebaseMessage.tokens).to.deep.equal(regIds);
 
-      expect(firebaseMessage.android.priority).to.equal('high');
+      expect(firebaseMessage.android.priority).to.equal("high");
       expect(firebaseMessage.android.notification).to.deep.include(messageData);
 
-      expect(firebaseMessage.apns.payload.aps.sound).to.equal(
-        messageData.sound
-      );
+      expect(firebaseMessage.apns.payload.aps.sound).to.equal(messageData.sound);
 
       expect(firebaseMessage.apns.payload.aps.alert).to.deep.include({
         title: messageData.title,
@@ -62,8 +60,8 @@ function sendOkMethod() {
   );
 }
 
-describe('push-notifications-fcm', () => {
-  describe('send push notifications successfully', () => {
+describe("push-notifications-fcm", () => {
+  describe("send push notifications successfully", () => {
     before(() => {
       sendMethod = sendOkMethod();
     });
@@ -72,7 +70,7 @@ describe('push-notifications-fcm', () => {
       sendMethod.restore();
     });
 
-    it('all responses should be successful', (done) => {
+    it("all responses should be successful", (done) => {
       pn.send(regIds, message)
         .then((results) => testSuccess(null, results, done))
         .catch(done);

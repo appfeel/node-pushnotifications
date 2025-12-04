@@ -1,5 +1,5 @@
-const wns = require('wns');
-const { WNS_METHOD } = require('./constants');
+const wns = require("wns");
+const { WNS_METHOD } = require("./constants");
 
 const parseErrorMessage = (err) => (err instanceof Error ? err.message : err);
 const parseError = (err) => {
@@ -12,8 +12,7 @@ let resumed;
 
 function processResponse(err, response, regId) {
   const error = parseError(err) || parseError(response.innerError);
-  const errorMsg =
-    parseErrorMessage(err) || parseErrorMessage(response.innerError);
+  const errorMsg = parseErrorMessage(err) || parseErrorMessage(response.innerError);
   resumed.success += error ? 0 : 1;
   resumed.failure += error ? 1 : 0;
   resumed.message.push({
@@ -55,8 +54,7 @@ const sendWNS = (_regIds, _data, settings) => {
   const promises = [];
   const opts = { ...settings.wns };
   const { notificationMethod } = opts;
-  const data =
-    notificationMethod === 'sendRaw' ? JSON.stringify(_data) : { ..._data };
+  const data = notificationMethod === "sendRaw" ? JSON.stringify(_data) : { ..._data };
 
   resumed = {
     method: WNS_METHOD,
