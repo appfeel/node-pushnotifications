@@ -76,14 +76,14 @@ describe("push-notifications-fcm", () => {
     });
   });
 
-  describe('send push notifications with custom data', () => {
+  describe("send push notifications with custom data", () => {
     const customDataMessage = {
-      title: 'Notification Title',
-      body: 'Notification Body',
+      title: "Notification Title",
+      body: "Notification Body",
       custom: {
-        userId: '12345',
-        actionId: 'action-001',
-        deepLink: 'app://section/item',
+        userId: "12345",
+        actionId: "action-001",
+        deepLink: "app://section/item",
       },
     };
 
@@ -92,7 +92,7 @@ describe("push-notifications-fcm", () => {
     function sendCustomDataMethod() {
       return sinon.stub(
         fbMessaging.prototype,
-        'sendEachForMulticast',
+        "sendEachForMulticast",
         function sendFCMWithCustomData(firebaseMessage) {
           const { custom } = customDataMessage;
 
@@ -102,8 +102,8 @@ describe("push-notifications-fcm", () => {
           // Verify custom data does NOT pollute the notification
           // Note: normalizeDataParams converts all values to strings (FCM requirement)
           expect(firebaseMessage.android.data).to.deep.equal(custom);
-          expect(firebaseMessage.android.data).to.not.have.property('title');
-          expect(firebaseMessage.android.data).to.not.have.property('body');
+          expect(firebaseMessage.android.data).to.not.have.property("title");
+          expect(firebaseMessage.android.data).to.not.have.property("body");
 
           // Verify notification has proper fields (separate from data)
           expect(firebaseMessage.android.notification).to.include({
@@ -128,11 +128,11 @@ describe("push-notifications-fcm", () => {
       customDataSendMethod.restore();
     });
 
-    it('custom data should be preserved and not mixed with notification fields', (done) => {
+    it("custom data should be preserved and not mixed with notification fields", (done) => {
       pn.send(regIds, customDataMessage)
         .then((results) => {
-          expect(results).to.be.an('array');
-          expect(results[0].method).to.equal('fcm');
+          expect(results).to.be.an("array");
+          expect(results[0].method).to.equal("fcm");
           expect(results[0].success).to.equal(1);
           done();
         })

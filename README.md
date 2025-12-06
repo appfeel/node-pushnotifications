@@ -421,14 +421,15 @@ pushNotifications.send(tokens, notifications, (error, result) => {
 `fcm_notification` - object that will be **merged** with the notification fields. This allows you to override specific notification properties (like `channelId`, `ttl`, etc.) without duplicating standard fields like `title` and `body`.
 
 For example, to set a channel ID for Android:
+
 ```js
 const data = {
-  title: 'My Title',
-  body: 'My Message',
+  title: "My Title",
+  body: "My Message",
   fcm_notification: {
-    channelId: 'my-channel-id'
+    channelId: "my-channel-id",
   },
-  custom: { id: 123 }
+  custom: { id: 123 },
 };
 ```
 
