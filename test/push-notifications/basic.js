@@ -1,9 +1,10 @@
+/* eslint-env mocha */
 import path from 'path';
 import chai from 'chai';
 import dirtyChai from 'dirty-chai';
 import sinonChai from 'sinon-chai';
 import { spy } from 'sinon';
-import PN from '../../src';
+import PN from '../../src/index.js';
 import {
   UNKNOWN_METHOD,
   WEB_METHOD,

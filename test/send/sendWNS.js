@@ -2,8 +2,8 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import wns from 'wns';
-import PN from '../../src';
-import { testPushSuccess, testPushError, testPushException } from '../util';
+import PN from '../../src/index.js';
+import { testPushSuccess, testPushError, testPushException } from '../util.js';
 
 const method = 'wns';
 const regIds = [

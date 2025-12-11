@@ -8,11 +8,11 @@ import sendWeb from '../../src/sendWeb';
 
 import { expect } from 'chai';
 import sinon from 'sinon';
-import PN from '../../src';
-import sendFCM from '../../src/sendFCM';
-import sendADM from '../../src/sendADM';
-import sendWNS from '../../src/sendWNS';
-import sendWeb from '../../src/sendWeb';
+import PN from '../../src/index.js';
+import sendFCM from '../../src/sendFCM.js';
+import sendADM from '../../src/sendADM.js';
+import sendWNS from '../../src/sendWNS.js';
+import sendWeb from '../../src/sendWeb.js';
 
 const regIds = [
   'APA91bFQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw', // android

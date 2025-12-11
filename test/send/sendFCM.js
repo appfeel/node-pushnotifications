@@ -1,8 +1,9 @@
+/* eslint-env mocha */
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { Messaging as fbMessaging } from 'firebase-admin/messaging';
-import PN from '../../src';
-import { testPushSuccess } from '../util';
+import PN from '../../src/index.js';
+import { testPushSuccess } from '../util.js';
 
 const method = 'fcm';
 const regIds = [
