@@ -689,6 +689,7 @@ A working server example implementation can be found at [https://github.com/alex
 
 To use the module with a proxy:
 
+```
 import { HttpsProxyAgent } from 'https-proxy-agent';
 ...
 const settings = {
@@ -704,7 +705,7 @@ const settings = {
 		}
     }
 };
-
+```
 
 ## Resources
 
