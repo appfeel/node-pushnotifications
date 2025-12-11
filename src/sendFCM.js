@@ -67,6 +67,7 @@ const sendFCM = (regIds, data, settings) => {
   const opts = {
     credential:
       settings.fcm.credential || firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
+    httpAgent: settings.fcm.httpAgent || undefined
   };
 
   const firebaseApp = firebaseAdmin.initializeApp(opts, appName);

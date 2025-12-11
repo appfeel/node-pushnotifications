@@ -21,6 +21,7 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 - [ADM](#adm)
 - [Web-Push](#web-push)
 - [Resources](#resources)
+- [Proxy](#proxy)
 - [LICENSE](#license)
 
 ## Installation
@@ -683,6 +684,28 @@ webPush.sendNotification(regId, payload, settings.web);
 ```
 
 A working server example implementation can be found at [https://github.com/alex-friedl/webpush-example/blob/master/server/index.js](https://github.com/alex-friedl/webpush-example/blob/master/server/index.js)
+
+## Proxy
+
+To use the module with a proxy:
+
+```
+import { HttpsProxyAgent } from 'https-proxy-agent';
+...
+const settings = {
+    fcm: {
+		...,
+		httpAgent = new HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`);
+    },
+    apn: {
+        ...
+		proxy: {
+			host: <proxy_address>,
+			port: <proxy_port>
+		}
+    }
+};
+```
 
 ## Resources
 
