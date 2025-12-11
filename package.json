@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@parse/node-apn": "7.0.1",
-    "firebase-admin": "12.1.1",
+    "firebase-admin": "13.6.0",
     "node-adm": "0.9.1",
     "web-push": "3.6.7",
     "wns": "0.5.4"
