@@ -16,7 +16,7 @@ This repository implements a Node.js module for sending push notifications acros
 
 ## Developer Workflows
 
-- **Install:** `npm install`
+- **Install:** `npm install` (requires Node.js 18+)
 - **Test:** Run all tests with `npm test`. Tests are in `test/` and cover basic flows and platform-specific cases.
 - **Debug:** Use the callback or Promise error/result from `push.send`. Each result object includes method, success/failure counts, and error details per device.
 - **Build:** No build step required for basic usage. ES6 is used, but compatible with ES5 via Babel if needed.

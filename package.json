@@ -78,7 +78,7 @@
     "sinon-chai": "3.5.0"
   },
   "engines": {
-    "node": ">=14.x.x"
+    "node": ">=18.x.x"
   },
   "eslintConfig": {
     "ecmaVersion": 6,
