@@ -3,7 +3,7 @@ import { expect } from "chai";
 import sinon from "sinon";
 import wns from "wns";
 import PN from "../../src";
-import { sendOkMethodGCM, testPushSuccess, testPushError, testPushException } from "../util";
+import { testPushSuccess, testPushError, testPushException } from "../util";
 
 const method = "wns";
 const regIds = [
@@ -87,7 +87,6 @@ const sendWNS = {
 };
 
 const testSuccess = testPushSuccess(method, regIds);
-const testSuccessGCM = testPushSuccess("gcm", regIds);
 const testError = testPushError(method, regIds, fErr.message);
 const testException = testPushException(fErr.message);
 
@@ -204,31 +203,6 @@ describe("push-notifications-wns-access-token", () => {
       pn.send(regIds, data)
         .then((results) => testException(null, results, done))
         .catch((err) => testException(err, undefined, done));
-    });
-  });
-
-  describe("send push notifications successfully using FCM", () => {
-    const pnGCM = new PN({
-      isAlwaysUseFCM: true,
-      isLegacyGCM: true,
-    });
-    before(() => {
-      sendMethod = sendOkMethodGCM(regIds, data);
-    });
-
-    after(() => {
-      sendMethod.restore();
-    });
-
-    it("all responses should be successful (callback)", (done) => {
-      pnGCM.send(regIds, data, (err, results) => testSuccessGCM(err, results, done));
-    });
-
-    it("all responses should be successful (promise)", (done) => {
-      pnGCM
-        .send(regIds, data)
-        .then((results) => testSuccessGCM(null, results, done))
-        .catch(done);
     });
   });
 });

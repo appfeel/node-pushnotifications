@@ -54,7 +54,6 @@
     "@parse/node-apn": "7.0.1",
     "firebase-admin": "12.1.1",
     "node-adm": "0.9.1",
-    "node-gcm": "1.1.4",
     "web-push": "3.6.7",
     "wns": "0.5.4"
   },

@@ -22,7 +22,6 @@ const fcmOpts = {
     name: "testAppName",
     credential: { getAccessToken: () => Promise.resolve({}) },
   },
-  isLegacyGCM: false,
 };
 const pn = new PN(fcmOpts);
 
