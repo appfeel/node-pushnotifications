@@ -5,10 +5,10 @@ import sinonChai from "sinon-chai";
 import dirtyChai from "dirty-chai";
 
 import apn from "@parse/node-apn";
-import PN from "../../src";
-import APN from "../../src/sendAPN";
+import PN from "../../src/index.js";
+import APN from "../../src/sendAPN.js";
 
-import { testPushSuccess, testPushError, testPushException } from "../util";
+import { testPushSuccess, testPushError, testPushException } from "../util.js";
 
 // Mock apn certificate loading to prevent file access
 before(() => {
