@@ -2,7 +2,9 @@
 
 ## Project Overview
 
-This repository implements a Node.js module for sending push notifications across multiple platforms: Apple (APN), Google (GCM/FCM), Windows (WNS), Amazon (ADM), and Web-Push. The core logic is in `lib/` and `src/`, with each platform handled by a dedicated file (e.g., `sendAPN.js`, `sendFCM.js`).
+This repository implements a Node.js module for sending push notifications across multiple platforms: Apple (APN), Google (FCM), Windows (WNS), Amazon (ADM), and Web-Push. The core logic is in `lib/` and `src/`, with each platform handled by a dedicated file (e.g., `sendAPN.js`, `sendFCM.js`).
+
+**Note:** Legacy GCM (Google Cloud Messaging) support has been removed. All Android push notifications now route exclusively through Firebase Cloud Messaging (FCM).
 
 ## Architecture & Data Flow
 
@@ -21,29 +23,31 @@ This repository implements a Node.js module for sending push notifications acros
 
 ## Conventions & Patterns
 
-- **Platform-specific files:** Each push service has its own file for isolation and clarity.
+- **Platform-specific files:** Each push service has its own file for isolation and clarity. Legacy GCM is no longer supported.
 - **Unified Data Model:** The `data` object for notifications is normalized across platforms. See `README.md` for all supported fields.
 - **Error Handling:** Errors are unified and returned in the result array from `push.send`.
 - **RegId Format:** Prefer object format for registration IDs (`{id, type}`), but string format is supported for legacy reasons.
-- **Chunking:** Android tokens are chunked in batches of 1,000 automatically.
-- **Constants:** Use constants from `constants.js` for platform types.
+- **Android Routing:** All Android push notifications (both long regIds and ADM/AMZN tokens without explicit type) route through FCM.
+- **Chunking:** Android tokens are chunked in batches of 1,000 automatically by FCM.
+- **Constants:** Use constants from `constants.js` for platform types. Available constants: `FCM_METHOD`, `APN_METHOD`, `WNS_METHOD`, `ADM_METHOD`, `WEB_METHOD`, `UNKNOWN_METHOD`.
 
 ## Integration Points
 
 - **External Libraries:**
-  - APN: `node-apn`
-  - FCM: `firebase-admin`
-  - GCM: `node-gcm`
+  - APN: `@parse/node-apn`
+  - FCM: `firebase-admin` (all Android push notifications)
   - ADM: `node-adm`
   - WNS: `wns`
   - Web-Push: `web-push`
+  - Note: Legacy `node-gcm` library has been removed
 - **Credentials:** Place service account keys and certificates in appropriate locations (see `README.md` for examples).
 
 ## Key Files & Directories
 
-- `lib/` and `src/`: Main implementation (mirrored structure)
-- `test/`: Test cases and sample credentials
+- `lib/` and `src/`: Main implementation (mirrored structure, both CommonJS)
+- `test/`: Test cases (78 tests, all passing) and sample credentials
 - `README.md`: Usage, configuration, and data model reference
+- `.github/copilot-instructions.md`: This file - AI agent guidance
 
 ## Example Usage
 

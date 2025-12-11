@@ -1,5 +1,4 @@
 const { Notification: ApnsMessage } = require('@parse/node-apn');
-const { Message: GcmMessage } = require('node-gcm');
 
 const { DEFAULT_TTL, GCM_MAX_TTL } = require('../constants');
 
@@ -134,19 +133,23 @@ const buildGcmMessage = (data, options) => {
     custom['content-available'] = 1;
   }
 
-  const message = new GcmMessage({
-    collapseKey: data.collapseKey,
+  const messageData = {
+    collapse_key: data.collapseKey,
     priority: data.priority === 'normal' ? 'normal' : 'high',
-    contentAvailable: data.silent ? true : data.contentAvailable || false,
-    delayWhileIdle: data.delayWhileIdle || false,
-    timeToLive: extractTimeToLive(data),
-    restrictedPackageName: data.restrictedPackageName,
-    dryRun: data.dryRun || false,
+    content_available: data.silent ? true : data.contentAvailable || false,
+    delay_while_idle: data.delayWhileIdle || false,
+    time_to_live: extractTimeToLive(data),
+    restricted_package_name: data.restrictedPackageName,
+    dry_run: data.dryRun || false,
     data: options.phonegap === true ? Object.assign(custom, notification) : custom,
     notification: options.phonegap === true || data.silent === true ? undefined : notification,
-  });
+  };
 
-  return message;
+  // Return a wrapper object that mimics GcmMessage.toJson()
+  return {
+    toJson: () => messageData,
+    params: messageData,
+  };
 };
 
 const buildApnsMessage = (data) => {
