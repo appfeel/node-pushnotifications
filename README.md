@@ -303,8 +303,6 @@ push.send(registrationIds, data)
 ]
 ```
 
-
-
 ## APN
 
 The following parameters are used to create an APN message:
