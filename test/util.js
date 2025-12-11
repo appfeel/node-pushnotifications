@@ -1,4 +1,3 @@
-import sinon from 'sinon';
 import { expect } from 'chai';
 
 export const testPushSuccess = (method, regIds) => (err, results, done) => {
