@@ -1,5 +1,4 @@
 const { Notification: ApnsMessage } = require("@parse/node-apn");
-const { Message: GcmMessage } = require("node-gcm");
 
 const { DEFAULT_TTL, GCM_MAX_TTL } = require("../constants");
 
@@ -86,7 +85,7 @@ const containsValidRecipients = (obj) => {
 };
 
 const buildGcmNotification = (data) => {
-  const notification = data.fcm_notification || {
+  const notification = {
     title: data.title,
     body: data.body,
     icon: data.icon,
@@ -105,6 +104,11 @@ const buildGcmNotification = (data) => {
     android_channel_id: data.android_channel_id,
     notification_count: data.notificationCount || data.badge,
   };
+
+  // Merge with fcm_notification overrides if provided
+  if (data.fcm_notification) {
+    return { ...notification, ...data.fcm_notification };
+  }
 
   return notification;
 };
@@ -125,28 +129,36 @@ const buildGcmMessage = (data, options) => {
     };
   }
 
-  custom.title = custom.title || data.title;
-  custom.message = custom.message || data.body;
-  custom.sound = custom.sound || data.sound;
-  custom.icon = custom.icon || data.icon;
-  custom.msgcnt = custom.msgcnt || data.badge;
+  // Only add notification fields to custom data for GCM (not FCM)
+  // FCM uses separate notification and data fields
+  if (!options.fcm) {
+    custom.title = custom.title || data.title;
+    custom.message = custom.message || data.body;
+    custom.sound = custom.sound || data.sound;
+    custom.icon = custom.icon || data.icon;
+    custom.msgcnt = custom.msgcnt || data.badge;
+  }
   if (options.phonegap === true && data.contentAvailable) {
     custom["content-available"] = 1;
   }
 
-  const message = new GcmMessage({
-    collapseKey: data.collapseKey,
+  const messageData = {
+    collapse_key: data.collapseKey,
     priority: data.priority === "normal" ? "normal" : "high",
-    contentAvailable: data.silent ? true : data.contentAvailable || false,
-    delayWhileIdle: data.delayWhileIdle || false,
-    timeToLive: extractTimeToLive(data),
-    restrictedPackageName: data.restrictedPackageName,
-    dryRun: data.dryRun || false,
+    content_available: data.silent ? true : data.contentAvailable || false,
+    delay_while_idle: data.delayWhileIdle || false,
+    time_to_live: extractTimeToLive(data),
+    restricted_package_name: data.restrictedPackageName,
+    dry_run: data.dryRun || false,
     data: options.phonegap === true ? Object.assign(custom, notification) : custom,
     notification: options.phonegap === true || data.silent === true ? undefined : notification,
-  });
+  };
 
-  return message;
+  // Return a wrapper object that mimics GcmMessage.toJson()
+  return {
+    toJson: () => messageData,
+    params: messageData,
+  };
 };
 
 const buildApnsMessage = (data) => {

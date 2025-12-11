@@ -2,7 +2,6 @@ module.exports = {
   DEFAULT_TTL: 28 * 86400,
   GCM_MAX_TTL: 2419200, // 4 weeks in seconds (https://firebase.google.com/docs/cloud-messaging/http-server-ref#downstream-http-messages-json)
   APN_METHOD: "apn",
-  GCM_METHOD: "gcm",
   FCM_METHOD: "fcm",
   ADM_METHOD: "adm",
   WNS_METHOD: "wns",
@@ -71,6 +70,5 @@ module.exports = {
       // contentEncoding: '< Encoding type, e.g.: aesgcm or aes128gcm >'
     },
     isAlwaysUseFCM: false,
-    isLegacyGCM: false,
   },
 };
