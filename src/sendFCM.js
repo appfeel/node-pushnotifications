@@ -87,10 +87,10 @@ const sendFCM = (regIds, data, settings) => {
     promises.push(sendChunk(firebaseApp, data.recipients, fcmMessage));
   } else {
     do {
-      const registrationTokens = regIds.slice(chunk * 1000, (chunk + 1) * 1000);
+      const registrationTokens = regIds.slice(chunk * 500, (chunk + 1) * 500);
       promises.push(sendChunk(firebaseApp, { tokens: registrationTokens }, fcmMessage));
       chunk += 1;
-    } while (1000 * chunk < regIds.length);
+    } while (500 * chunk < regIds.length);
   }
 
   return Promise.all(promises).then((results) => {
