@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@parse/node-apn": "7.0.1",
-    "firebase-admin": "12.1.1",
+    "firebase-admin": "12.7.0",
     "node-adm": "0.9.1",
     "node-gcm": "1.1.4",
     "web-push": "3.6.7",
@@ -66,7 +66,7 @@
     "chai": "4.5.0",
     "coveralls": "3.1.1",
     "dirty-chai": "2.0.1",
-    "eslint": "9.39.1",
+    "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-prettier": "5.5.4",
