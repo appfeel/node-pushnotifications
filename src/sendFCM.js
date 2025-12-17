@@ -4,6 +4,9 @@ const { FCM_METHOD } = require("./constants");
 const FcmMessage = require("./utils/fcmMessage");
 const { containsValidRecipients } = require("./utils/tools");
 
+// https://firebase.google.com/docs/cloud-messaging/send/admin-sdk?hl=en#send-a-batch-of-messages
+const FCM_BATCH_SIZE = 500;
+
 const getRecipientList = (obj) =>
   obj.tokens ?? [obj.token, obj.condition, obj.topic].filter(Boolean);
 
@@ -87,10 +90,10 @@ const sendFCM = (regIds, data, settings) => {
     promises.push(sendChunk(firebaseApp, data.recipients, fcmMessage));
   } else {
     do {
-      const registrationTokens = regIds.slice(chunk * 500, (chunk + 1) * 500);
+      const registrationTokens = regIds.slice(chunk * FCM_BATCH_SIZE, (chunk + 1) * FCM_BATCH_SIZE);
       promises.push(sendChunk(firebaseApp, { tokens: registrationTokens }, fcmMessage));
       chunk += 1;
-    } while (500 * chunk < regIds.length);
+    } while (FCM_BATCH_SIZE * chunk < regIds.length);
   }
 
   return Promise.all(promises).then((results) => {
