@@ -1,6 +1,6 @@
-const apn = require("@parse/node-apn");
-const { APN_METHOD } = require("./constants");
-const { buildApnsMessage } = require("./utils/tools");
+const apn = require('@parse/node-apn');
+const { APN_METHOD } = require('./constants');
+const { buildApnsMessage } = require('./utils/tools');
 
 const getDeviceTokenOrSelf = (token) => token?.device ?? token;
 
@@ -25,7 +25,7 @@ class APN {
 
     if (!this.connection) {
       return Promise.reject(
-        this.connectionError || new Error("Unknown error: APN connection not configured properly")
+        this.connectionError || new Error('Unknown error: APN connection not configured properly')
       );
     }
 

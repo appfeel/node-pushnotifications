@@ -1,13 +1,13 @@
 module.exports = {
   DEFAULT_TTL: 28 * 86400,
   GCM_MAX_TTL: 2419200, // 4 weeks in seconds (https://firebase.google.com/docs/cloud-messaging/http-server-ref#downstream-http-messages-json)
-  APN_METHOD: "apn",
-  GCM_METHOD: "gcm",
-  FCM_METHOD: "fcm",
-  ADM_METHOD: "adm",
-  WNS_METHOD: "wns",
-  WEB_METHOD: "webPush",
-  UNKNOWN_METHOD: "unknown",
+  APN_METHOD: 'apn',
+  GCM_METHOD: 'gcm',
+  FCM_METHOD: 'fcm',
+  ADM_METHOD: 'adm',
+  WNS_METHOD: 'wns',
+  WEB_METHOD: 'webPush',
+  UNKNOWN_METHOD: 'unknown',
   DEFAULT_SETTINGS: {
     gcm: {
       id: null, // PUT YOUR GCM SERVER API KEY,
@@ -25,12 +25,12 @@ module.exports = {
       //     keyId: '',
       //     teamId: '',
       // },
-      cert: "cert.pem",
-      key: "key.pem",
+      cert: 'cert.pem',
+      key: 'key.pem',
       ca: null,
       pfx: null,
       passphrase: null,
-      production: process.env.NODE_ENV === "production",
+      production: process.env.NODE_ENV === 'production',
       voip: false,
       address: null,
       port: 443,
@@ -57,13 +57,13 @@ module.exports = {
       client_secret: null, // PUT YOUR WNS CLIENT SECRET,
       accessToken: null,
       headers: null,
-      notificationMethod: "sendTileSquareBlock",
+      notificationMethod: 'sendTileSquareBlock',
     },
     web: {
       vapidDetails: {
         subject: "< 'mailto' Address or URL >",
-        publicKey: "< URL Safe Base64 Encoded Public Key >",
-        privateKey: "< URL Safe Base64 Encoded Private Key >",
+        publicKey: '< URL Safe Base64 Encoded Public Key >',
+        privateKey: '< URL Safe Base64 Encoded Private Key >',
       },
       // gcmAPIKey: '< GCM API Key >',
       // TTL: 2419200

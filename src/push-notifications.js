@@ -1,9 +1,9 @@
-const sendGCM = require("./sendGCM");
-const sendFCM = require("./sendFCM");
-const APN = require("./sendAPN");
-const sendADM = require("./sendADM");
-const sendWNS = require("./sendWNS");
-const sendWebPush = require("./sendWeb");
+const sendGCM = require('./sendGCM');
+const sendFCM = require('./sendFCM');
+const APN = require('./sendAPN');
+const sendADM = require('./sendADM');
+const sendWNS = require('./sendWNS');
+const sendWebPush = require('./sendWeb');
 
 const {
   DEFAULT_SETTINGS,
@@ -14,7 +14,7 @@ const {
   GCM_METHOD,
   FCM_METHOD,
   APN_METHOD,
-} = require("./constants");
+} = require('./constants');
 
 class PN {
   constructor(options) {
@@ -43,11 +43,11 @@ class PN {
   }
 
   getPushMethodByRegId(regId) {
-    if (typeof regId === "object" && (!regId.type || !regId.id)) {
+    if (typeof regId === 'object' && (!regId.type || !regId.id)) {
       return { regId, pushMethod: WEB_METHOD };
     }
 
-    if (typeof regId === "object" && regId.id && regId.type) {
+    if (typeof regId === 'object' && regId.id && regId.type) {
       return {
         regId: regId.id,
         pushMethod: this.settings.isAlwaysUseFCM ? this.useFcmOrGcmMethod : regId.type,
@@ -60,7 +60,7 @@ class PN {
       return { regId, pushMethod: this.useFcmOrGcmMethod };
     }
 
-    if (regId.substring(0, 4) === "http") {
+    if (regId.substring(0, 4) === 'http') {
       return { regId, pushMethod: WNS_METHOD };
     }
 
@@ -148,7 +148,7 @@ class PN {
     // Unknown
     if (regIdsUnk.length > 0) {
       const results = {
-        method: "unknown",
+        method: 'unknown',
         success: 0,
         failure: regIdsUnk.length,
         message: [],
@@ -156,7 +156,7 @@ class PN {
       regIdsUnk.forEach((regId) => {
         results.message.push({
           regId,
-          error: new Error("Unknown registration id"),
+          error: new Error('Unknown registration id'),
         });
       });
       promises.push(Promise.resolve(results));
@@ -166,7 +166,7 @@ class PN {
     if (promises.length === 0) {
       promises.push(
         Promise.resolve({
-          method: "none",
+          method: 'none',
           success: 0,
           failure: 0,
           message: [],

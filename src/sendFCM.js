@@ -1,8 +1,8 @@
-const firebaseAdmin = require("firebase-admin");
+const firebaseAdmin = require('firebase-admin');
 
-const { FCM_METHOD } = require("./constants");
-const FcmMessage = require("./utils/fcmMessage");
-const { containsValidRecipients } = require("./utils/tools");
+const { FCM_METHOD } = require('./constants');
+const FcmMessage = require('./utils/fcmMessage');
+const { containsValidRecipients } = require('./utils/tools');
 
 // https://firebase.google.com/docs/cloud-messaging/send/admin-sdk?hl=en#send-a-batch-of-messages
 const FCM_BATCH_SIZE = 500;
@@ -58,8 +58,8 @@ const sendChunk = (firebaseApp, recipients, message) => {
         message: recipientList.map((value) => ({
           originalRegId: value,
           regId: value,
-          error: new Error("unknown"),
-          errorMsg: "unknown",
+          error: new Error('unknown'),
+          errorMsg: 'unknown',
         })),
       };
     });
