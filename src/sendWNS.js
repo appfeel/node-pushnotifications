@@ -1,14 +1,10 @@
-const wns = require('wns');
-const { WNS_METHOD } = require('./constants');
+const wns = require("wns");
+const { WNS_METHOD } = require("./constants");
 
 const parseErrorMessage = (err) => (err instanceof Error ? err.message : err);
 const parseError = (err) => {
-  if (err instanceof Error) {
-    return err;
-  }
-  if (err) {
-    return new Error(err);
-  }
+  if (err instanceof Error) return err;
+  if (err) return new Error(err);
   return null;
 };
 
@@ -16,8 +12,7 @@ let resumed;
 
 function processResponse(err, response, regId) {
   const error = parseError(err) || parseError(response.innerError);
-  const errorMsg =
-    parseErrorMessage(err) || parseErrorMessage(response.innerError);
+  const errorMsg = parseErrorMessage(err) || parseErrorMessage(response.innerError);
   resumed.success += error ? 0 : 1;
   resumed.failure += error ? 1 : 0;
   resumed.message.push({
@@ -59,8 +54,7 @@ const sendWNS = (_regIds, _data, settings) => {
   const promises = [];
   const opts = { ...settings.wns };
   const { notificationMethod } = opts;
-  const data =
-    notificationMethod === 'sendRaw' ? JSON.stringify(_data) : { ..._data };
+  const data = notificationMethod === "sendRaw" ? JSON.stringify(_data) : { ..._data };
 
   resumed = {
     method: WNS_METHOD,
@@ -80,7 +74,6 @@ const sendWNS = (_regIds, _data, settings) => {
   if (opts.accessToken) {
     sendPromises = [];
     const regIds = [..._regIds];
-    // eslint-disable-next-line max-len
     promises.push(
       new Promise((resolve, reject) => {
         sendNotifications(regIds, notificationMethod, data, opts, (err) =>
@@ -89,7 +82,6 @@ const sendWNS = (_regIds, _data, settings) => {
       })
     );
   } else {
-    // eslint-disable-next-line max-len
     _regIds.forEach((regId) =>
       promises.push(
         new Promise((resolve) => {

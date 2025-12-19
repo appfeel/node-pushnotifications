@@ -1,24 +1,14 @@
-const firebaseAdmin = require('firebase-admin');
+const firebaseAdmin = require("firebase-admin");
 
-const { FCM_METHOD } = require('./constants');
-const FcmMessage = require('./utils/fcmMessage');
-const { containsValidRecipients } = require('./utils/tools');
+const { FCM_METHOD } = require("./constants");
+const FcmMessage = require("./utils/fcmMessage");
+const { containsValidRecipients } = require("./utils/tools");
 
-const getRecipientList = (obj) => {
-  if (obj.tokens) {
-    return obj.tokens;
-  }
-  if (obj.token) {
-    return [obj.token];
-  }
-  if (obj.condition) {
-    return [obj.condition];
-  }
-  if (obj.topic) {
-    return [obj.topic];
-  }
-  return [];
-};
+// https://firebase.google.com/docs/cloud-messaging/send/admin-sdk?hl=en#send-a-batch-of-messages
+const FCM_BATCH_SIZE = 500;
+
+const getRecipientList = (obj) =>
+  obj.tokens ?? [obj.token, obj.condition, obj.topic].filter(Boolean);
 
 const sendChunk = (firebaseApp, recipients, message) => {
   const firebaseMessage = message.buildWithRecipients(recipients);
@@ -50,12 +40,13 @@ const sendChunk = (firebaseApp, recipients, message) => {
           message: response.responses.map((value) => {
             const regToken = recipientList[regIndex];
             regIndex += 1;
+            const errorMsg = value.error ? value.error.message || value.error : null;
             return {
               messageId: value.message_id,
               originalRegId: regToken,
               regId: value.registration_id || regToken,
               error: value.error ? new Error(value.error) : null,
-              errorMsg: value.error ? value.error.message || value.error : null,
+              errorMsg,
             };
           }),
         };
@@ -67,8 +58,8 @@ const sendChunk = (firebaseApp, recipients, message) => {
         message: recipientList.map((value) => ({
           originalRegId: value,
           regId: value,
-          error: new Error('unknown'),
-          errorMsg: 'unknown',
+          error: new Error("unknown"),
+          errorMsg: "unknown",
         })),
       };
     });
@@ -78,8 +69,8 @@ const sendFCM = (regIds, data, settings) => {
   const appName = `${settings.fcm.appName}`;
   const opts = {
     credential:
-      settings.fcm.credential ||
-      firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
+      settings.fcm.credential || firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
+    httpAgent: settings.fcm.httpAgent || undefined,
   };
 
   const firebaseApp = firebaseAdmin.initializeApp(opts, appName);
@@ -99,12 +90,10 @@ const sendFCM = (regIds, data, settings) => {
     promises.push(sendChunk(firebaseApp, data.recipients, fcmMessage));
   } else {
     do {
-      const registrationTokens = regIds.slice(chunk * 1000, (chunk + 1) * 1000);
-      promises.push(
-        sendChunk(firebaseApp, { tokens: registrationTokens }, fcmMessage)
-      );
+      const registrationTokens = regIds.slice(chunk * FCM_BATCH_SIZE, (chunk + 1) * FCM_BATCH_SIZE);
+      promises.push(sendChunk(firebaseApp, { tokens: registrationTokens }, fcmMessage));
       chunk += 1;
-    } while (1000 * chunk < regIds.length);
+    } while (FCM_BATCH_SIZE * chunk < regIds.length);
   }
 
   return Promise.all(promises).then((results) => {

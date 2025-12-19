@@ -1,4 +1,4 @@
-const { buildGcmMessage, buildApnsMessage } = require('./tools');
+const { buildGcmMessage, buildApnsMessage } = require("./tools");
 
 class FcmMessage {
   constructor(params) {
@@ -20,16 +20,9 @@ class FcmMessage {
   static normalizeDataParams(data) {
     if (!data) return {};
     return Object.entries(data).reduce((normalized, [key, value]) => {
-      if (value === undefined || value === null) {
-        return normalized;
-      }
-
-      const stringifyValue =
-        typeof value === 'string' ? value : JSON.stringify(value);
-
-      Object.assign(normalized, { [key]: stringifyValue });
-
-      return normalized;
+      if (value == null) return normalized;
+      const stringifyValue = typeof value === "string" ? value : JSON.stringify(value);
+      return { ...normalized, [key]: stringifyValue };
     }, {});
   }
 
@@ -67,15 +60,12 @@ class FcmMessage {
 
     const createParams = { data };
 
-    if (!providersExclude.includes('apns')) {
+    if (!providersExclude.includes("apns")) {
       createParams.apns = this.buildApnsMessage(fcmMessageParams);
     }
 
-    if (!providersExclude.includes('android')) {
-      createParams.android = this.buildAndroidMessage(
-        fcmMessageParams,
-        options
-      );
+    if (!providersExclude.includes("android")) {
+      createParams.android = this.buildAndroidMessage(fcmMessageParams, options);
     }
 
     return new this(createParams);

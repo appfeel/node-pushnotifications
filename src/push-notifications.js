@@ -1,13 +1,11 @@
-/* eslint-disable import/no-import-module-exports */
+const sendGCM = require("./sendGCM");
+const sendFCM = require("./sendFCM");
+const APN = require("./sendAPN");
+const sendADM = require("./sendADM");
+const sendWNS = require("./sendWNS");
+const sendWebPush = require("./sendWeb");
 
-import sendGCM from './sendGCM';
-import sendFCM from './sendFCM';
-import APN from './sendAPN';
-import sendADM from './sendADM';
-import sendWNS from './sendWNS';
-import sendWebPush from './sendWeb';
-
-import {
+const {
   DEFAULT_SETTINGS,
   UNKNOWN_METHOD,
   WEB_METHOD,
@@ -16,7 +14,7 @@ import {
   GCM_METHOD,
   FCM_METHOD,
   APN_METHOD,
-} from './constants';
+} = require("./constants");
 
 class PN {
   constructor(options) {
@@ -29,34 +27,30 @@ class PN {
       this.apn.shutdown();
     }
     this.apn = new APN(this.settings.apn);
-    this.useFcmOrGcmMethod = this.settings.isLegacyGCM
-      ? GCM_METHOD
-      : FCM_METHOD;
+    this.useFcmOrGcmMethod = this.settings.isLegacyGCM ? GCM_METHOD : FCM_METHOD;
   }
 
   sendWith(method, regIds, data, cb) {
     return method(regIds, data, this.settings)
       .then((results) => {
-        (cb || ((noop) => noop))(null, results);
+        cb?.(null, results);
         return results;
       })
       .catch((error) => {
-        (cb || ((noop) => noop))(error);
+        cb?.(error);
         return Promise.reject(error);
       });
   }
 
   getPushMethodByRegId(regId) {
-    if (typeof regId === 'object' && (!regId.type || !regId.id)) {
+    if (typeof regId === "object" && (!regId.type || !regId.id)) {
       return { regId, pushMethod: WEB_METHOD };
     }
 
-    if (typeof regId === 'object' && regId.id && regId.type) {
+    if (typeof regId === "object" && regId.id && regId.type) {
       return {
         regId: regId.id,
-        pushMethod: this.settings.isAlwaysUseFCM
-          ? this.useFcmOrGcmMethod
-          : regId.type,
+        pushMethod: this.settings.isAlwaysUseFCM ? this.useFcmOrGcmMethod : regId.type,
       };
     }
 
@@ -66,7 +60,7 @@ class PN {
       return { regId, pushMethod: this.useFcmOrGcmMethod };
     }
 
-    if (regId.substring(0, 4) === 'http') {
+    if (regId.substring(0, 4) === "http") {
       return { regId, pushMethod: WNS_METHOD };
     }
 
@@ -74,10 +68,7 @@ class PN {
       return { regId, pushMethod: ADM_METHOD };
     }
 
-    if (
-      (regId.length === 64 || regId.length === 160) &&
-      /^[a-fA-F0-9]+$/.test(regId)
-    ) {
+    if ((regId.length === 64 || regId.length === 160) && /^[a-fA-F0-9]+$/.test(regId)) {
       return { regId, pushMethod: APN_METHOD };
     }
 
@@ -133,9 +124,7 @@ class PN {
 
       // iOS APN
       if (regIdsAPN.length > 0) {
-        promises.push(
-          this.sendWith(this.apn.sendAPN.bind(this.apn), regIdsAPN, data)
-        );
+        promises.push(this.sendWith(this.apn.sendAPN.bind(this.apn), regIdsAPN, data));
       }
 
       // Microsoft WNS
@@ -159,7 +148,7 @@ class PN {
     // Unknown
     if (regIdsUnk.length > 0) {
       const results = {
-        method: 'unknown',
+        method: "unknown",
         success: 0,
         failure: regIdsUnk.length,
         message: [],
@@ -167,7 +156,7 @@ class PN {
       regIdsUnk.forEach((regId) => {
         results.message.push({
           regId,
-          error: new Error('Unknown registration id'),
+          error: new Error("Unknown registration id"),
         });
       });
       promises.push(Promise.resolve(results));
@@ -177,7 +166,7 @@ class PN {
     if (promises.length === 0) {
       promises.push(
         Promise.resolve({
-          method: 'none',
+          method: "none",
           success: 0,
           failure: 0,
           message: [],

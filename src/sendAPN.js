@@ -1,13 +1,8 @@
-const apn = require('@parse/node-apn');
-const R = require('ramda');
-const { APN_METHOD } = require('./constants');
-const { buildApnsMessage } = require('./utils/tools');
+const apn = require("@parse/node-apn");
+const { APN_METHOD } = require("./constants");
+const { buildApnsMessage } = require("./utils/tools");
 
-const getDeviceTokenOrSelf = R.ifElse(
-  R.has('device'),
-  R.prop('device'),
-  R.identity
-);
+const getDeviceTokenOrSelf = (token) => token?.device ?? token;
 
 class APN {
   constructor(settings) {
@@ -30,8 +25,7 @@ class APN {
 
     if (!this.connection) {
       return Promise.reject(
-        this.connectionError ||
-          new Error('Unknown error: APN connection not configured properly')
+        this.connectionError || new Error("Unknown error: APN connection not configured properly")
       );
     }
 

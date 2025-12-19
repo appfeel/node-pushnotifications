@@ -1,19 +1,8 @@
-const gcm = require('node-gcm');
-const { GCM_METHOD } = require('./constants');
-const { containsValidRecipients, buildGcmMessage } = require('./utils/tools');
+const gcm = require("node-gcm");
+const { GCM_METHOD } = require("./constants");
+const { containsValidRecipients, buildGcmMessage } = require("./utils/tools");
 
-const getRecipientList = (obj) => {
-  if (obj.registrationTokens) {
-    return obj.registrationTokens;
-  }
-  if (obj.to) {
-    return [obj.to];
-  }
-  if (obj.condition) {
-    return [obj.condition];
-  }
-  return [];
-};
+const getRecipientList = (obj) => obj.registrationTokens ?? [obj.to, obj.condition].filter(Boolean);
 
 const sendChunk = (GCMSender, recipients, message, retries) =>
   new Promise((resolve) => {
@@ -43,12 +32,13 @@ const sendChunk = (GCMSender, recipients, message, retries) =>
           message: response.results.map((value) => {
             const regToken = recipientList[regIndex];
             regIndex += 1;
+            const errorMsg = value.error ? value.error.message || value.error : null;
             return {
               messageId: value.message_id,
               originalRegId: regToken,
               regId: value.registration_id || regToken,
               error: value.error ? new Error(value.error) : null,
-              errorMsg: value.error ? value.error.message || value.error : null,
+              errorMsg,
             };
           }),
         });
@@ -61,8 +51,8 @@ const sendChunk = (GCMSender, recipients, message, retries) =>
           message: recipientList.map((value) => ({
             originalRegId: value,
             regId: value,
-            error: new Error('unknown'),
-            errorMsg: 'unknown',
+            error: new Error("unknown"),
+            errorMsg: "unknown",
           })),
         });
       }
@@ -83,16 +73,12 @@ const sendGCM = (regIds, data, settings) => {
   /* allow to override device tokens with custom `to` or `condition` field:
    * https://github.com/ToothlessGear/node-gcm#recipients */
   if (containsValidRecipients(data)) {
-    promises.push(
-      sendChunk(GCMSender, data.recipients, message, data.retries || 0)
-    );
+    promises.push(sendChunk(GCMSender, data.recipients, message, data.retries || 0));
   } else {
     // Split tokens in 1.000 chunks, see https://developers.google.com/cloud-messaging/http-server-ref#table1
     do {
       const registrationTokens = regIds.slice(chunk * 1000, (chunk + 1) * 1000);
-      promises.push(
-        sendChunk(GCMSender, { registrationTokens }, message, data.retries || 0)
-      );
+      promises.push(sendChunk(GCMSender, { registrationTokens }, message, data.retries || 0));
       chunk += 1;
     } while (1000 * chunk < regIds.length);
   }
