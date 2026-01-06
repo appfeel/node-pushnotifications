@@ -497,7 +497,8 @@ The following parameters are used to create an APN message:
     mutableContent: data.mutableContent || 0,
     threadId: data.threadId,
     pushType: data.pushType,
-    rawPayload: data.rawPayload
+    rawPayload: data.rawPayload,
+    interruptionLevel: data.interruptionLevel
 }
 ```
 

@@ -2,7 +2,6 @@ const { Notification: ApnsMessage } = require("@parse/node-apn");
 const { Message: GcmMessage } = require("node-gcm");
 
 const { DEFAULT_TTL, GCM_MAX_TTL } = require('../constants');
-const { interruptionLevel } = require('@parse/node-apn/lib/notification/apsProperties');
 
 
 const ttlFromExpiry = (expiry) => {
