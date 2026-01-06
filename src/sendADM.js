@@ -1,5 +1,5 @@
-const adm = require("node-adm");
-const { ADM_METHOD } = require("./constants");
+const adm = require('node-adm');
+const { ADM_METHOD } = require('./constants');
 
 const sendADM = (regIds, _data, settings) => {
   const resumed = {

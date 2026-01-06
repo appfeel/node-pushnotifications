@@ -1,7 +1,7 @@
-const webPush = require("web-push");
-const { WEB_METHOD } = require("./constants");
+const webPush = require('web-push');
+const { WEB_METHOD } = require('./constants');
 
-const stringify = (data) => (typeof data === "string" ? data : JSON.stringify(data));
+const stringify = (data) => (typeof data === 'string' ? data : JSON.stringify(data));
 
 const sendWebPush = async (regIds, data, settings) => {
   const payload = stringify(data);

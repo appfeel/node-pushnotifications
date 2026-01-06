@@ -1,8 +1,7 @@
-const { Notification: ApnsMessage } = require("@parse/node-apn");
-const { Message: GcmMessage } = require("node-gcm");
+const { Notification: ApnsMessage } = require('@parse/node-apn');
+const { Message: GcmMessage } = require('node-gcm');
 
 const { DEFAULT_TTL, GCM_MAX_TTL } = require('../constants');
-
 
 const ttlFromExpiry = (expiry) => {
   const ttl = expiry - Math.floor(Date.now() / 1000);
@@ -10,16 +9,16 @@ const ttlFromExpiry = (expiry) => {
 };
 
 const extractTimeToLive = (data) => {
-  if (typeof data?.expiry === "number") return ttlFromExpiry(data.expiry);
-  if (typeof data?.timeToLive === "number") return data.timeToLive;
+  if (typeof data?.expiry === 'number') return ttlFromExpiry(data.expiry);
+  if (typeof data?.timeToLive === 'number') return data.timeToLive;
   return DEFAULT_TTL;
 };
 
 const expiryFromTtl = (ttl) => ttl + Math.floor(Date.now() / 1000);
 
 const extractExpiry = (data) => {
-  if (typeof data?.expiry === "number") return data.expiry;
-  if (typeof data?.timeToLive === "number") return expiryFromTtl(data.timeToLive);
+  if (typeof data?.expiry === 'number') return data.expiry;
+  if (typeof data?.timeToLive === 'number') return expiryFromTtl(data.timeToLive);
   return expiryFromTtl(DEFAULT_TTL);
 };
 
@@ -27,7 +26,7 @@ const getPropValueOrUndefinedIfIsSilent = (propName, data) =>
   data.silent ? undefined : data[propName];
 
 const toJSONorUndefined = (value) => {
-  if (typeof value !== "string") {
+  if (typeof value !== 'string') {
     return value;
   }
   try {
@@ -43,8 +42,8 @@ const alertLocArgsToJSON = (data) => {
     ...data,
     alert: {
       ...alert,
-      "title-loc-args": toJSONorUndefined(alert["title-loc-args"]),
-      "loc-args": toJSONorUndefined(alert["loc-args"]),
+      'title-loc-args': toJSONorUndefined(alert['title-loc-args']),
+      'loc-args': toJSONorUndefined(alert['loc-args']),
     },
   };
 };
@@ -52,11 +51,11 @@ const alertLocArgsToJSON = (data) => {
 const getDefaultAlert = (data) => ({
   title: data.title,
   body: data.body,
-  "title-loc-key": data.titleLocKey,
-  "title-loc-args": data.titleLocArgs,
-  "loc-key": data.locKey,
-  "loc-args": data.locArgs || data.bodyLocArgs,
-  "launch-image": data.launchImage,
+  'title-loc-key': data.titleLocKey,
+  'title-loc-args': data.titleLocArgs,
+  'loc-key': data.locKey,
+  'loc-args': data.locArgs || data.bodyLocArgs,
+  'launch-image': data.launchImage,
   action: data.action,
 });
 
@@ -72,17 +71,17 @@ const getParsedAlertOrDefault = (data) => {
 
 const pathIsString = (path) => (val) => {
   const current = path.reduce((acc, key) => {
-    if (acc && typeof acc === "object") {
+    if (acc && typeof acc === 'object') {
       return acc[key];
     }
     return null;
   }, val);
-  return typeof current === "string";
+  return typeof current === 'string';
 };
 
 const containsValidRecipients = (obj) => {
-  const checkTo = pathIsString(["recipients", "to"])(obj);
-  const checkCondition = pathIsString(["recipients", "condition"])(obj);
+  const checkTo = pathIsString(['recipients', 'to'])(obj);
+  const checkCondition = pathIsString(['recipients', 'condition'])(obj);
   return checkTo || checkCondition;
 };
 
@@ -114,11 +113,11 @@ const buildGcmMessage = (data, options) => {
   const notification = buildGcmNotification(data);
 
   let custom;
-  if (typeof data.custom === "string") {
+  if (typeof data.custom === 'string') {
     custom = {
       message: data.custom,
     };
-  } else if (typeof data.custom === "object") {
+  } else if (typeof data.custom === 'object') {
     custom = { ...data.custom };
   } else {
     custom = {
@@ -132,12 +131,12 @@ const buildGcmMessage = (data, options) => {
   custom.icon = custom.icon || data.icon;
   custom.msgcnt = custom.msgcnt || data.badge;
   if (options.phonegap === true && data.contentAvailable) {
-    custom["content-available"] = 1;
+    custom['content-available'] = 1;
   }
 
   const message = new GcmMessage({
     collapseKey: data.collapseKey,
-    priority: data.priority === "normal" ? "normal" : "high",
+    priority: data.priority === 'normal' ? 'normal' : 'high',
     contentAvailable: data.silent ? true : data.contentAvailable || false,
     delayWhileIdle: data.delayWhileIdle || false,
     timeToLive: extractTimeToLive(data),
@@ -154,12 +153,12 @@ const buildApnsMessage = (data) => {
   const message = new ApnsMessage({
     retryLimit: data.retries || -1,
     expiry: extractExpiry(data),
-    priority: data.priority === "normal" || data.silent === true ? 5 : 10,
+    priority: data.priority === 'normal' || data.silent === true ? 5 : 10,
     encoding: data.encoding,
     payload: data.custom || {},
-    badge: getPropValueOrUndefinedIfIsSilent("badge", data),
-    sound: getPropValueOrUndefinedIfIsSilent("sound", data),
-    alert: getPropValueOrUndefinedIfIsSilent("alert", getParsedAlertOrDefault(data)),
+    badge: getPropValueOrUndefinedIfIsSilent('badge', data),
+    sound: getPropValueOrUndefinedIfIsSilent('sound', data),
+    alert: getPropValueOrUndefinedIfIsSilent('alert', getParsedAlertOrDefault(data)),
     topic: data.topic,
     category: data.category || data.clickAction,
     contentAvailable: data.contentAvailable,

@@ -1,6 +1,6 @@
-const gcm = require("node-gcm");
-const { GCM_METHOD } = require("./constants");
-const { containsValidRecipients, buildGcmMessage } = require("./utils/tools");
+const gcm = require('node-gcm');
+const { GCM_METHOD } = require('./constants');
+const { containsValidRecipients, buildGcmMessage } = require('./utils/tools');
 
 const getRecipientList = (obj) => obj.registrationTokens ?? [obj.to, obj.condition].filter(Boolean);
 
@@ -51,8 +51,8 @@ const sendChunk = (GCMSender, recipients, message, retries) =>
           message: recipientList.map((value) => ({
             originalRegId: value,
             regId: value,
-            error: new Error("unknown"),
-            errorMsg: "unknown",
+            error: new Error('unknown'),
+            errorMsg: 'unknown',
           })),
         });
       }

@@ -1,1 +1,1 @@
-module.exports = require("./push-notifications");
+module.exports = require('./push-notifications');

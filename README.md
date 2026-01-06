@@ -119,12 +119,12 @@ You can send to multiple devices, independently of platform, creating an array w
 
 ```js
 // Single destination
-const registrationIds = "INSERT_YOUR_DEVICE_ID";
+const registrationIds = 'INSERT_YOUR_DEVICE_ID';
 
 // Multiple destinations
 const registrationIds = [];
-registrationIds.push("INSERT_YOUR_DEVICE_ID");
-registrationIds.push("INSERT_OTHER_DEVICE_ID");
+registrationIds.push('INSERT_YOUR_DEVICE_ID');
+registrationIds.push('INSERT_OTHER_DEVICE_ID');
 ```
 
 The `PN.send()` method later detects device type and therefore used push method, based on the id stucture. Check out the method `PN.getPushMethodByRegId` how this detection works.
@@ -147,10 +147,10 @@ It can be of 2 types:
 Where type can be one of: 'apn', 'gcm', 'adm', 'wns', 'webPush'. The types are available as constants:
 
 ```js
-import { WEB, WNS, ADM, GCM, APN } from "node-pushnotifications";
+import { WEB, WNS, ADM, GCM, APN } from 'node-pushnotifications';
 
 const regId = {
-  id: "INSERT_YOUR_DEVICE_ID",
+  id: 'INSERT_YOUR_DEVICE_ID',
   type: APN,
 };
 ```
@@ -458,7 +458,7 @@ you can use the `phonegap` setting in order to adapt to the recommended behaviou
 ```js
 const settings = {
   gcm: {
-    id: "<yourId>",
+    id: '<yourId>',
     phonegap: true,
   },
 };
@@ -544,14 +544,14 @@ Settings:
   Note: one of `serviceAccountKey`, `credential` fcm options is required
 
 ```js
-const tokens = ["e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x"];
+const tokens = ['e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x'];
 
 const notifications = {
-  collapseKey: Math.random().toString().replace("0.", ""),
-  priority: "high",
-  sound: "default",
-  title: "Title 1",
-  body: "Body 2",
+  collapseKey: Math.random().toString().replace('0.', ''),
+  priority: 'high',
+  sound: 'default',
+  title: 'Title 1',
+  body: 'Body 2',
   // titleLocKey: 'GREETING',
   // titleLocArgs: ['Smith', 'M'],
   // fcm_notification: {
@@ -566,16 +566,16 @@ const notifications = {
   // },
   custom: {
     friend_id: 54657,
-    list_id: "N7jSif1INyZkA7r910HljzGUVS",
+    list_id: 'N7jSif1INyZkA7r910HljzGUVS',
   },
 };
 
 pushNotifications.send(tokens, notifications, (error, result) => {
   if (error) {
-    console.log("[error]", error);
+    console.log('[error]', error);
     throw error;
   } else {
-    console.log("[result]", result, result.at(0));
+    console.log('[result]', result, result.at(0));
   }
 });
 ```
@@ -680,7 +680,7 @@ Data can be passed as a simple string payload. If you do not pass a string, the 
 Settings are directly forwarded to `webPush.sendNotification`.
 
 ```js
-const payload = typeof data === "string" ? data : JSON.stringify(data);
+const payload = typeof data === 'string' ? data : JSON.stringify(data);
 webPush.sendNotification(regId, payload, settings.web);
 ```
 

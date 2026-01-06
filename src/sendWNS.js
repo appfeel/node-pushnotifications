@@ -1,5 +1,5 @@
-const wns = require("wns");
-const { WNS_METHOD } = require("./constants");
+const wns = require('wns');
+const { WNS_METHOD } = require('./constants');
 
 const parseErrorMessage = (err) => (err instanceof Error ? err.message : err);
 const parseError = (err) => {
@@ -54,7 +54,7 @@ const sendWNS = (_regIds, _data, settings) => {
   const promises = [];
   const opts = { ...settings.wns };
   const { notificationMethod } = opts;
-  const data = notificationMethod === "sendRaw" ? JSON.stringify(_data) : { ..._data };
+  const data = notificationMethod === 'sendRaw' ? JSON.stringify(_data) : { ..._data };
 
   resumed = {
     method: WNS_METHOD,
