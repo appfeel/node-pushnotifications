@@ -618,24 +618,58 @@ A working server example implementation can be found at [https://github.com/alex
 
 ## Proxy
 
-To use the module with a proxy:
+The module supports proxy configuration at two different levels:
 
-```
+### Network Proxy (SDK-level)
+
+To route Firebase Admin SDK network requests through a corporate proxy, configure HTTP/HTTPS agents:
+
+```javascript
+import { HttpProxyAgent } from 'http-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-...
+
 const settings = {
-    fcm: {
-		...,
-		httpAgent: new HttpProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
-		httpsAgent: new HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
-    },
-    apn: {
-        ...
-		proxy: {
-			host: <proxy_address>,
-			port: <proxy_port>
-		}
+  fcm: {
+    appName: 'myApp',
+    credential: { ... },
+    // Route all Firebase Admin SDK network traffic through proxy
+    httpAgent: new HttpProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
+    httpsAgent: new HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
+  },
+};
+```
+
+This affects how the SDK communicates with Google's servers and applies to all Firebase services.
+
+### Notification Proxy Behavior (Android-level)
+
+To control how Android devices handle notifications in proxy scenarios, use the `proxy` property in the notification data:
+
+```javascript
+const data = {
+  title: 'Notification',
+  body: 'Test',
+  proxy: 'allow', // Can be 'allow', 'deny', or 'if_priority_lowered'
+};
+
+push.send(registrationIds, data);
+```
+
+This is a notification-level setting that tells the Android system whether to deliver the notification when the device is on a proxy network.
+
+### Platform-Specific Proxy
+
+For APN (Apple Push Notification), configure the proxy at the app settings level:
+
+```javascript
+const settings = {
+  apn: {
+    token: { ... },
+    proxy: {
+      host: <proxy_address>,
+      port: <proxy_port>
     }
+  }
 };
 ```
 
