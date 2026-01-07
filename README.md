@@ -53,7 +53,14 @@ const settings = {
     fcm: {
         appName: 'localFcmAppName',
         serviceAccountKey: require('../firebase-project-service-account-key.json'), // firebase service-account-file.json,
-        credential: null // 'firebase-admin' Credential interface
+        credential: null, // 'firebase-admin' Credential interface
+        // Optional Firebase Admin SDK AppOptions
+        projectId: 'your-project-id', // Explicitly set the Google Cloud project ID
+        databaseURL: 'https://your-database.firebaseio.com', // Realtime Database URL (optional)
+        storageBucket: 'your-bucket.appspot.com', // Cloud Storage bucket (optional)
+        serviceAccountId: 'your-email@your-project.iam.gserviceaccount.com', // Service account email (optional)
+        httpAgent: undefined, // HTTP Agent for proxy support (optional)
+        httpsAgent: undefined, // HTTPS Agent for proxy support (optional)
     },
     apn: {
         token: {
@@ -453,14 +460,22 @@ const silentPushData = {
 
 ## FCM
 
-The following parameters are used to create an FCM message for Android and iOS:
+All Android push notifications are sent through Firebase Cloud Messaging (FCM) using the [firebase-admin](https://github.com/firebase/firebase-admin-node) library.
 
-Settings:
+**Firebase Admin SDK App Options:**
 
-- `settings.fcm.appName` [firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
-- `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded 'service-account-file.json'
-- `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential)
-  Note: one of `serviceAccountKey`, `credential` fcm options is required
+The following Firebase Admin SDK `AppOptions` are supported and can be passed in `settings.fcm`:
+
+- `appName` - [Firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
+- `serviceAccountKey` - [Firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded 'service-account-file.json'
+- `credential` - [Firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential) (one of `serviceAccountKey` or `credential` is required)
+- `projectId` - Explicitly set the Google Cloud project ID (optional)
+- `databaseURL` - Realtime Database URL (optional)
+- `storageBucket` - Cloud Storage bucket name (optional)
+- `serviceAccountId` - Service account email (optional)
+- `databaseAuthVariableOverride` - Auth variable override for Realtime Database (optional)
+- `httpAgent` - HTTP Agent for proxy support (optional, see [Proxy](#proxy) section)
+- `httpsAgent` - HTTPS Agent for proxy support (optional, see [Proxy](#proxy) section)
 
 ```js
 const tokens = ['e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x'];

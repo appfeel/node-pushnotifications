@@ -234,4 +234,239 @@ describe('push-notifications-fcm', () => {
         });
     });
   });
+
+  describe('Firebase Admin SDK AppOptions support', () => {
+    it('should accept projectId in settings', (done) => {
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const fcmOptsWithProjectId = {
+        fcm: {
+          name: 'testAppNameProjectId',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          projectId: 'my-firebase-project',
+        },
+      };
+
+      const pnWithProjectId = new PN(fcmOptsWithProjectId);
+
+      pnWithProjectId
+        .send(regIds, message)
+        .then(() => {
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.projectId).to.equal('my-firebase-project');
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
+    });
+
+    it('should accept databaseURL in settings', (done) => {
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const fcmOptsWithDatabaseURL = {
+        fcm: {
+          name: 'testAppNameDatabaseURL',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          databaseURL: 'https://my-database.firebaseio.com',
+        },
+      };
+
+      const pnWithDatabaseURL = new PN(fcmOptsWithDatabaseURL);
+
+      pnWithDatabaseURL
+        .send(regIds, message)
+        .then(() => {
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.databaseURL).to.equal('https://my-database.firebaseio.com');
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
+    });
+
+    it('should accept storageBucket in settings', (done) => {
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const fcmOptsWithStorageBucket = {
+        fcm: {
+          name: 'testAppNameStorageBucket',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          storageBucket: 'my-bucket.appspot.com',
+        },
+      };
+
+      const pnWithStorageBucket = new PN(fcmOptsWithStorageBucket);
+
+      pnWithStorageBucket
+        .send(regIds, message)
+        .then(() => {
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.storageBucket).to.equal('my-bucket.appspot.com');
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
+    });
+
+    it('should accept serviceAccountId in settings', (done) => {
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const fcmOptsWithServiceAccountId = {
+        fcm: {
+          name: 'testAppNameServiceAccountId',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          serviceAccountId: 'my-service@my-project.iam.gserviceaccount.com',
+        },
+      };
+
+      const pnWithServiceAccountId = new PN(fcmOptsWithServiceAccountId);
+
+      pnWithServiceAccountId
+        .send(regIds, message)
+        .then(() => {
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.serviceAccountId).to.equal(
+            'my-service@my-project.iam.gserviceaccount.com'
+          );
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
+    });
+
+    it('should accept databaseAuthVariableOverride in settings', (done) => {
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const authOverride = { uid: 'test-user-123' };
+      const fcmOptsWithAuthOverride = {
+        fcm: {
+          name: 'testAppNameAuthOverride',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          databaseAuthVariableOverride: authOverride,
+        },
+      };
+
+      const pnWithAuthOverride = new PN(fcmOptsWithAuthOverride);
+
+      pnWithAuthOverride
+        .send(regIds, message)
+        .then(() => {
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.databaseAuthVariableOverride).to.deep.equal(authOverride);
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
+    });
+
+    it('should accept multiple Firebase AppOptions together', (done) => {
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const mockHttpAgent = {};
+      const authOverride = { uid: 'test-user-456' };
+      const fcmOptsWithMultiple = {
+        fcm: {
+          name: 'testAppNameMultiple',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          projectId: 'my-firebase-project',
+          databaseURL: 'https://my-database.firebaseio.com',
+          storageBucket: 'my-bucket.appspot.com',
+          serviceAccountId: 'my-service@my-project.iam.gserviceaccount.com',
+          databaseAuthVariableOverride: authOverride,
+          httpAgent: mockHttpAgent,
+        },
+      };
+
+      const pnWithMultiple = new PN(fcmOptsWithMultiple);
+
+      pnWithMultiple
+        .send(regIds, message)
+        .then(() => {
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.projectId).to.equal('my-firebase-project');
+          expect(callArgs.databaseURL).to.equal('https://my-database.firebaseio.com');
+          expect(callArgs.storageBucket).to.equal('my-bucket.appspot.com');
+          expect(callArgs.serviceAccountId).to.equal(
+            'my-service@my-project.iam.gserviceaccount.com'
+          );
+          expect(callArgs.databaseAuthVariableOverride).to.deep.equal(authOverride);
+          expect(callArgs.httpAgent).to.equal(mockHttpAgent);
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
+    });
+  });
 });
