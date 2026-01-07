@@ -84,44 +84,53 @@ const containsValidRecipients = (obj) => {
   return checkTo || checkCondition;
 };
 
-const buildGcmNotification = (data) => {
+const buildAndroidNotification = (data) => {
   const notification = data.fcm_notification || {
     title: data.title,
     body: data.body,
     icon: data.icon,
-    image: data.image,
-    picture: data.picture,
-    style: data.style,
+    imageUrl: data.image || data.picture,
     sound: data.sound,
-    badge: data.badge,
-    tag: data.tag,
     color: data.color,
-    click_action: data.clickAction || data.category,
-    body_loc_key: data.locKey,
-    body_loc_args: toJSONorUndefined(data.locArgs),
-    title_loc_key: data.titleLocKey,
-    title_loc_args: toJSONorUndefined(data.titleLocArgs),
-    android_channel_id: data.android_channel_id,
-    notification_count: data.notificationCount || data.badge,
+    tag: data.tag,
+    clickAction: data.clickAction || data.category,
+    bodyLocKey: data.locKey,
+    bodyLocArgs: toJSONorUndefined(data.locArgs),
+    titleLocKey: data.titleLocKey,
+    titleLocArgs: toJSONorUndefined(data.titleLocArgs),
+    channelId: data.android_channel_id,
+    notificationCount: data.notificationCount || data.badge,
+    // Additional Firebase Admin SDK properties
+    ticker: data.ticker,
+    sticky: data.sticky,
+    visibility: data.visibility,
+    priority: data.notificationPriority,
+    vibrateTimingsMillis: data.vibrateTimingsMillis,
+    defaultVibrateTimings: data.defaultVibrateTimings,
+    defaultSound: data.defaultSound,
+    lightSettings: data.lightSettings,
+    defaultLightSettings: data.defaultLightSettings,
+    eventTimestamp: data.eventTimestamp,
+    localOnly: data.localOnly,
+    proxy: data.proxy,
   };
 
-  return notification;
+  // Remove undefined values
+  return Object.fromEntries(
+    Object.entries(notification).filter(([, value]) => value !== undefined)
+  );
 };
 
-const buildGcmMessage = (data, options) => {
-  const notification = buildGcmNotification(data);
+const buildAndroidMessage = (data, options) => {
+  const notification = buildAndroidNotification(data);
 
   let custom;
   if (typeof data.custom === 'string') {
-    custom = {
-      message: data.custom,
-    };
+    custom = { message: data.custom };
   } else if (typeof data.custom === 'object') {
     custom = { ...data.custom };
   } else {
-    custom = {
-      data: data.custom,
-    };
+    custom = { data: data.custom };
   }
 
   custom.title = custom.title || data.title;
@@ -133,23 +142,31 @@ const buildGcmMessage = (data, options) => {
     custom['content-available'] = 1;
   }
 
-  const messageData = {
-    collapse_key: data.collapseKey,
+  const fcmAndroidMessage = {
+    collapseKey: data.collapseKey,
     priority: data.priority === 'normal' ? 'normal' : 'high',
-    content_available: data.silent ? true : data.contentAvailable || false,
-    delay_while_idle: data.delayWhileIdle || false,
-    time_to_live: extractTimeToLive(data),
-    restricted_package_name: data.restrictedPackageName,
-    dry_run: data.dryRun || false,
-    data: options.phonegap === true ? Object.assign(custom, notification) : custom,
-    notification: options.phonegap === true || data.silent === true ? undefined : notification,
+    ttl: extractTimeToLive(data) * 1000, // Convert seconds to milliseconds for FCM
+    restrictedPackageName: data.restrictedPackageName,
+    directBootOk: data.directBootOk,
+    data: custom,
   };
 
-  // Return a wrapper object that mimics GcmMessage.toJson()
-  return {
-    toJson: () => messageData,
-    params: messageData,
-  };
+  // Only add notification if not silent mode
+  if (data.silent !== true && options.phonegap !== true) {
+    fcmAndroidMessage.notification = notification;
+  }
+
+  // Add FCM options if provided
+  if (data.fcmOptions || data.analyticsLabel) {
+    fcmAndroidMessage.fcmOptions = {
+      analyticsLabel: data.fcmOptions?.analyticsLabel || data.analyticsLabel,
+    };
+  }
+
+  // Remove undefined values
+  return Object.fromEntries(
+    Object.entries(fcmAndroidMessage).filter(([, value]) => value !== undefined)
+  );
 };
 
 const buildApnsMessage = (data) => {
@@ -189,5 +206,5 @@ module.exports = {
   containsValidRecipients,
 
   buildApnsMessage,
-  buildGcmMessage,
+  buildAndroidMessage,
 };

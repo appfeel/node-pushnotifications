@@ -1,4 +1,4 @@
-const { buildGcmMessage, buildApnsMessage } = require('./tools');
+const { buildAndroidMessage, buildApnsMessage } = require('./tools');
 
 class FcmMessage {
   constructor(params) {
@@ -27,19 +27,8 @@ class FcmMessage {
   }
 
   static buildAndroidMessage(params, options) {
-    const message = buildGcmMessage(params, options);
-
-    const androidMessage = message.toJson();
-
-    androidMessage.ttl = androidMessage.time_to_live * 1000;
+    const androidMessage = buildAndroidMessage(params, options);
     androidMessage.data = this.normalizeDataParams(androidMessage.data);
-
-    delete androidMessage.content_available;
-    delete androidMessage.mutable_content;
-    delete androidMessage.delay_while_idle;
-    delete androidMessage.time_to_live;
-    delete androidMessage.dry_run;
-
     return androidMessage;
   }
 

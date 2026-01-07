@@ -13,6 +13,22 @@ const message = {
   title: 'title',
   body: 'body',
   sound: 'mySound.aiff',
+  icon: 'testIcon',
+  color: '#FF0000',
+  clickAction: 'OPEN_ACTIVITY_1',
+  android_channel_id: 'test_channel',
+  tag: 'test-tag',
+  badge: 5,
+  ticker: 'test-ticker',
+  sticky: true,
+  visibility: 'public',
+  localOnly: false,
+  eventTimestamp: new Date('2026-01-07T12:00:00Z'),
+  notificationPriority: 'high',
+  vibrateTimingsMillis: [100, 200, 100],
+  defaultVibrateTimings: false,
+  defaultSound: true,
+  analyticsLabel: 'test_analytics',
   custom: {
     sender: 'banshi-test',
   },
@@ -34,18 +50,41 @@ function sendOkMethod() {
     fbMessaging.prototype,
     'sendEachForMulticast',
     function sendFCM(firebaseMessage) {
-      const { custom, ...messageData } = message;
+      const { custom, analyticsLabel, android_channel_id, ...notificationData } = message;
 
       expect(firebaseMessage.tokens).to.deep.equal(regIds);
 
       expect(firebaseMessage.android.priority).to.equal('high');
-      expect(firebaseMessage.android.notification).to.deep.include(messageData);
+      expect(firebaseMessage.android.notification).to.deep.include({
+        title: notificationData.title,
+        body: notificationData.body,
+        sound: notificationData.sound,
+        icon: notificationData.icon,
+        color: notificationData.color,
+        clickAction: notificationData.clickAction,
+        channelId: android_channel_id,
+        tag: notificationData.tag,
+        notificationCount: notificationData.badge,
+        ticker: notificationData.ticker,
+        sticky: notificationData.sticky,
+        visibility: notificationData.visibility,
+        localOnly: notificationData.localOnly,
+        eventTimestamp: notificationData.eventTimestamp,
+        priority: notificationData.notificationPriority,
+        vibrateTimingsMillis: notificationData.vibrateTimingsMillis,
+        defaultVibrateTimings: notificationData.defaultVibrateTimings,
+        defaultSound: notificationData.defaultSound,
+      });
 
-      expect(firebaseMessage.apns.payload.aps.sound).to.equal(messageData.sound);
+      expect(firebaseMessage.android.fcmOptions).to.deep.equal({
+        analyticsLabel: analyticsLabel,
+      });
+
+      expect(firebaseMessage.apns.payload.aps.sound).to.equal(notificationData.sound);
 
       expect(firebaseMessage.apns.payload.aps.alert).to.deep.include({
-        title: messageData.title,
-        body: messageData.body,
+        title: notificationData.title,
+        body: notificationData.body,
       });
 
       expect(firebaseMessage.data).to.deep.equal(custom);

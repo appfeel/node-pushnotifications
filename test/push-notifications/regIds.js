@@ -1,13 +1,5 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import PN from '../../src';
-import sendGCM from '../../src/sendGCM';
-import sendADM from '../../src/sendADM';
-import sendWNS from '../../src/sendWNS';
-import sendWeb from '../../src/sendWeb';
-
-import { expect } from 'chai';
-import sinon from 'sinon';
 import PN from '../../src/index.js';
 import sendFCM from '../../src/sendFCM.js';
 import sendADM from '../../src/sendADM.js';

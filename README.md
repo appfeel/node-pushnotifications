@@ -203,6 +203,7 @@ const data = {
     delayWhileIdle: true, // fcm for android
     restrictedPackageName: '', // fcm for android
     dryRun: false, // fcm for android
+    directBootOk: false, // fcm for android. Allows direct boot mode
     icon: '', // fcm for android
     image: '', // fcm for android
     style: '', // fcm for android
@@ -220,6 +221,18 @@ const data = {
     sound: 'ping.aiff', // fcm, apn
     android_channel_id: '', // fcm - Android Channel ID
     notificationCount: 0, // fcm for android. badge can be used for both fcm and apn
+    ticker: '', // fcm for android. Ticker text for accessibility
+    sticky: false, // fcm for android. Notification persists when clicked
+    visibility: 'public', // fcm for android. Can be 'public', 'private', or 'secret'
+    localOnly: false, // fcm for android. Local-only notification (Wear OS)
+    eventTimestamp: undefined, // fcm for android. Date object for event time
+    notificationPriority: 'default', // fcm for android. Can be 'min', 'low', 'default', 'high', 'max'
+    vibrateTimingsMillis: undefined, // fcm for android. Array of vibration durations in milliseconds
+    defaultVibrateTimings: false, // fcm for android. Use system default vibration
+    defaultSound: false, // fcm for android. Use system default sound
+    lightSettings: undefined, // fcm for android. LED light settings object
+    defaultLightSettings: false, // fcm for android. Use system default LED settings
+    analyticsLabel: '', // fcm for android. Analytics label for FCM
     alert: { // apn, will take precedence over title and body
         title: 'title',
         body: 'body'
@@ -300,6 +313,74 @@ push.send(registrationIds, data)
         ... // Same structure here, except for message.orignalRegId
     },
 ]
+```
+
+## FCM
+
+All Android push notifications are sent through Firebase Cloud Messaging (FCM) using the [firebase-admin](https://github.com/firebase/firebase-admin-node) library.
+
+The following parameters are used to create an FCM Android message (following the [Firebase Admin SDK AndroidConfig interface](https://firebase.google.com/docs/reference/admin/node/admin.messaging.AndroidConfig)):
+
+**AndroidConfig properties:**
+
+- `collapseKey` - Collapse key for message grouping
+- `priority` - Message priority: 'high' (default) or 'normal'
+- `ttl` - Time to live in milliseconds (converted from seconds)
+- `restrictedPackageName` - Package name restriction
+- `directBootOk` - Allow delivery in direct boot mode
+- `data` - Custom data fields (key-value pairs)
+- `notification` - Android notification properties (see below)
+- `fcmOptions` - FCM options including `analyticsLabel`
+
+**AndroidNotification properties:**
+
+- `title` - Notification title
+- `body` - Notification body
+- `icon` - Notification icon resource
+- `color` - Notification color (#rrggbb format)
+- `sound` - Notification sound file
+- `tag` - Notification tag for replacing existing notifications
+- `imageUrl` - Image URL to display in notification
+- `clickAction` - Action to launch when notification is clicked
+- `bodyLocKey` / `bodyLocArgs` - Localized body text
+- `titleLocKey` / `titleLocArgs` - Localized title text
+- `channelId` - Android notification channel ID
+- `notificationCount` - Number of unread notifications
+- `ticker` - Ticker text for accessibility
+- `sticky` - Notification persists when clicked
+- `visibility` - Visibility level: 'public', 'private', or 'secret'
+- `priority` - Notification priority: 'min', 'low', 'default', 'high', or 'max'
+- `eventTimestamp` - Date object for event time
+- `localOnly` - Local-only notification (for Wear OS)
+- `vibrateTimingsMillis` - Vibration pattern (array of milliseconds)
+- `defaultVibrateTimings` - Use system default vibration
+- `defaultSound` - Use system default sound
+- `lightSettings` - LED light configuration object
+- `defaultLightSettings` - Use system default LED settings
+- `proxy` - Proxy setting: 'allow', 'deny', or 'if_priority_lowered'
+
+Example usage:
+
+```js
+const data = {
+  title: 'Title',
+  body: 'Body text',
+  icon: 'ic_notification',
+  color: '#FF0000',
+  sound: 'notification_sound',
+  clickAction: 'OPEN_ACTIVITY',
+  android_channel_id: 'default_channel',
+  tag: 'my_notification',
+  badge: 1,
+  notificationPriority: 'high',
+  ticker: 'New notification',
+  sticky: false,
+  visibility: 'public',
+  analyticsLabel: 'my_analytics_label',
+  custom: {
+    key: 'value',
+  },
+};
 ```
 
 ## APN
