@@ -70,8 +70,15 @@ const sendFCM = (regIds, data, settings) => {
   const opts = {
     credential:
       settings.fcm.credential || firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
-    httpAgent: settings.fcm.httpAgent || undefined,
   };
+
+  // Add proxy agents if provided
+  if (settings.fcm.httpAgent) {
+    opts.httpAgent = settings.fcm.httpAgent;
+  }
+  if (settings.fcm.httpsAgent) {
+    opts.httpsAgent = settings.fcm.httpsAgent;
+  }
 
   const firebaseApp = firebaseAdmin.initializeApp(opts, appName);
   firebaseAdmin.INTERNAL.appStore.removeApp(appName);

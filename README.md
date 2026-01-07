@@ -611,7 +611,8 @@ import { HttpsProxyAgent } from 'https-proxy-agent';
 const settings = {
     fcm: {
 		...,
-		httpAgent = new HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`);
+		httpAgent: new HttpProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
+		httpsAgent: new HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
     },
     apn: {
         ...

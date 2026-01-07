@@ -2,6 +2,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { Messaging as fbMessaging } from 'firebase-admin/messaging';
+import * as firebaseAdmin from 'firebase-admin';
 import PN from '../../src/index.js';
 import { testPushSuccess } from '../util.js';
 
@@ -112,6 +113,125 @@ describe('push-notifications-fcm', () => {
       pn.send(regIds, message)
         .then((results) => testSuccess(null, results, done))
         .catch(done);
+    });
+  });
+
+  describe('proxy support', () => {
+    it('should accept httpAgent in settings', (done) => {
+      const mockHttpAgent = {};
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const fcmOptsWithProxy = {
+        fcm: {
+          name: 'testAppNameProxy',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          httpAgent: mockHttpAgent,
+        },
+      };
+
+      const pnWithProxy = new PN(fcmOptsWithProxy);
+
+      pnWithProxy
+        .send(regIds, message)
+        .then(() => {
+          // Verify that initializeApp was called with httpAgent
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.httpAgent).to.equal(mockHttpAgent);
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
+    });
+
+    it('should accept httpsAgent in settings', (done) => {
+      const mockHttpsAgent = {};
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const fcmOptsWithProxy = {
+        fcm: {
+          name: 'testAppNameProxyHttps',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          httpsAgent: mockHttpsAgent,
+        },
+      };
+
+      const pnWithProxy = new PN(fcmOptsWithProxy);
+
+      pnWithProxy
+        .send(regIds, message)
+        .then(() => {
+          // Verify that initializeApp was called with httpsAgent
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.httpsAgent).to.equal(mockHttpsAgent);
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
+    });
+
+    it('should accept both httpAgent and httpsAgent in settings', (done) => {
+      const mockHttpAgent = {};
+      const mockHttpsAgent = {};
+      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
+        messaging: () => ({
+          sendEachForMulticast: () =>
+            Promise.resolve({
+              successCount: 1,
+              failureCount: 0,
+              responses: [{ error: null }],
+            }),
+        }),
+      });
+
+      const fcmOptsWithProxy = {
+        fcm: {
+          name: 'testAppNameProxyBoth',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          httpAgent: mockHttpAgent,
+          httpsAgent: mockHttpsAgent,
+        },
+      };
+
+      const pnWithProxy = new PN(fcmOptsWithProxy);
+
+      pnWithProxy
+        .send(regIds, message)
+        .then(() => {
+          // Verify that initializeApp was called with both agents
+          const callArgs = mockInitializeApp.getCall(0).args[0];
+          expect(callArgs.httpAgent).to.equal(mockHttpAgent);
+          expect(callArgs.httpsAgent).to.equal(mockHttpsAgent);
+          mockInitializeApp.restore();
+          done();
+        })
+        .catch((err) => {
+          mockInitializeApp.restore();
+          done(err);
+        });
     });
   });
 });
