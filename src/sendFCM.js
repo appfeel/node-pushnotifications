@@ -72,8 +72,12 @@ const sendFCM = (regIds, data, settings) => {
       settings.fcm.credential || firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
     httpAgent: settings.fcm.httpAgent || undefined,
   };
-
+  
+  opts.credential.httpAgent = settings.fcm.httpAgent || undefined;
   const firebaseApp = firebaseAdmin.initializeApp(opts, appName);
+  if (settings.fcm.httpAgent) {
+    firebaseAdmin.messaging(firebaseApp).enableLegacyHttpTransport();
+  }
   firebaseAdmin.INTERNAL.appStore.removeApp(appName);
 
   const promises = [];
