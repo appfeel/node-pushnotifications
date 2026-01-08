@@ -70,8 +70,23 @@ const sendFCM = (regIds, data, settings) => {
   const opts = {
     credential:
       settings.fcm.credential || firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
-    httpAgent: settings.fcm.httpAgent || undefined,
   };
+
+  // Add optional Firebase AppOptions properties if provided
+  const optionalProps = [
+    'httpAgent',
+    'httpsAgent',
+    'projectId',
+    'databaseURL',
+    'storageBucket',
+    'serviceAccountId',
+    'databaseAuthVariableOverride',
+  ];
+  optionalProps.forEach((prop) => {
+    if (settings.fcm[prop] !== undefined) {
+      opts[prop] = settings.fcm[prop];
+    }
+  });
 
   const firebaseApp = firebaseAdmin.initializeApp(opts, appName);
   firebaseAdmin.INTERNAL.appStore.removeApp(appName);

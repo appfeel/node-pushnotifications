@@ -1,15 +1,15 @@
+/* eslint-env mocha */
 import path from 'path';
 import chai from 'chai';
 import dirtyChai from 'dirty-chai';
 import sinonChai from 'sinon-chai';
 import { spy } from 'sinon';
-import PN from '../../src';
+import PN from '../../src/index.js';
 import {
   UNKNOWN_METHOD,
   WEB_METHOD,
   WNS_METHOD,
   ADM_METHOD,
-  GCM_METHOD,
   FCM_METHOD,
   APN_METHOD,
 } from '../../src/constants';
@@ -35,9 +35,6 @@ describe('push-notifications: instantiation and class properties', () => {
   describe('override options with constructor', () => {
     let pn;
     const settings = {
-      gcm: {
-        id: 'gcm id',
-      },
       fcm: {
         name: 'testAppName',
         // eslint-disable-next-line no-undef
@@ -80,7 +77,6 @@ describe('push-notifications: instantiation and class properties', () => {
 
     it('should override the given options', () => {
       expect(pn.settings.apn).to.eql(settings.apn);
-      expect(pn.settings.gcm).to.eql(settings.gcm);
       expect(pn.settings.fcm).to.eql(settings.fcm);
       expect(pn.settings.adm).to.eql(settings.adm);
       expect(pn.settings.wns).to.eql(settings.wns);
@@ -190,40 +186,39 @@ describe('push-notifications: instantiation and class properties', () => {
       unknownRegId: 'abcdef',
     };
 
-    it('Android / GCM', () => {
-      let pn = new PN({ isLegacyGCM: true });
+    it('Android / FCM', () => {
+      let pn = new PN({});
       expect(pn.getPushMethodByRegId(regIds.androidRegId).regId).to.equal(regIds.androidRegId);
-      expect(pn.getPushMethodByRegId(regIds.androidRegId).pushMethod).to.equal(GCM_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.androidRegId).pushMethod).to.equal(FCM_METHOD);
 
       expect(pn.getPushMethodByRegId(regIds.androidWithAdmSubstringRegId).regId).to.equal(
         regIds.androidWithAdmSubstringRegId
       );
       expect(pn.getPushMethodByRegId(regIds.androidWithAdmSubstringRegId).pushMethod).to.equal(
-        GCM_METHOD
+        FCM_METHOD
       );
 
       expect(pn.getPushMethodByRegId(regIds.androidWithAmznSubscringRegId).regId).to.equal(
         regIds.androidWithAmznSubscringRegId
       );
       expect(pn.getPushMethodByRegId(regIds.androidWithAmznSubscringRegId).pushMethod).to.equal(
-        GCM_METHOD
+        FCM_METHOD
       );
 
       const settings = {
         isAlwaysUseFCM: true,
-        isLegacyGCM: true,
       };
       pn = new PN(settings);
       expect(pn.getPushMethodByRegId(regIds.unknownRegId).regId).to.equal(regIds.unknownRegId);
-      expect(pn.getPushMethodByRegId(regIds.unknownRegId).pushMethod).to.equal(GCM_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.unknownRegId).pushMethod).to.equal(FCM_METHOD);
 
       expect(pn.getPushMethodByRegId(regIds.androidObject).regId).to.equal(regIds.androidObject.id);
-      expect(pn.getPushMethodByRegId(regIds.androidObject).pushMethod).to.equal(GCM_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.androidObject).pushMethod).to.equal(FCM_METHOD);
 
       expect(pn.getPushMethodByRegId(regIds.androidObjectWhatever).regId).to.equal(
         regIds.androidObjectWhatever.id
       );
-      expect(pn.getPushMethodByRegId(regIds.androidObjectWhatever).pushMethod).to.equal(GCM_METHOD);
+      expect(pn.getPushMethodByRegId(regIds.androidObjectWhatever).pushMethod).to.equal(FCM_METHOD);
     });
 
     it('Android / FCM', () => {
@@ -233,7 +228,6 @@ describe('push-notifications: instantiation and class properties', () => {
           // eslint-disable-next-line no-undef
           serviceAccountKey: require(path.resolve('test/send/FCM-service-account-key.json')),
         },
-        isLegacyGCM: false,
       };
       const pn = new PN(settings);
 

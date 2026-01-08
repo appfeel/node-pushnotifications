@@ -52,9 +52,8 @@
   },
   "dependencies": {
     "@parse/node-apn": "7.0.1",
-    "firebase-admin": "12.7.0",
+    "firebase-admin": "13.6.0",
     "node-adm": "0.9.1",
-    "node-gcm": "1.1.4",
     "web-push": "3.6.7",
     "wns": "0.5.4"
   },
@@ -79,7 +78,7 @@
     "sinon-chai": "3.5.0"
   },
   "engines": {
-    "node": ">=14.x.x"
+    "node": ">=18.x.x"
   },
   "eslintConfig": {
     "ecmaVersion": 6,

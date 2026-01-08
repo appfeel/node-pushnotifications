@@ -13,7 +13,6 @@ A node.js module for interfacing with Apple Push Notification, Google Cloud Mess
 - [Requirements](#requirements)
 - [Features](#features)
 - [Usage](#usage)
-- [GCM](#gcm)
 - [FCM](#fcm)
 - [APN](#apn)
 - [WNS](#wns)
@@ -45,21 +44,23 @@ Node version >= 14.x.x
 
 ### 1. Import and setup push module
 
-Include the settings for each device type. You should only include the settings for the devices that you expect to have. I.e. if your app is only available for android or for ios, you should only include `gcm` or `apn` respectively.
+Include the settings for each device type. You should only include the settings for the devices that you expect to have. I.e. if your app is only available for Android or for iOS, you should only include `fcm` or `apn` respectively.
 
 ```js
 import PushNotifications from 'node-pushnotifications';
 
 const settings = {
-    gcm: {
-        id: 'your-GCM-id',
-        phonegap: false, // phonegap compatibility mode, see below (defaults to false)
-        ...
-    },
     fcm: {
         appName: 'localFcmAppName',
         serviceAccountKey: require('../firebase-project-service-account-key.json'), // firebase service-account-file.json,
-        credential: null // 'firebase-admin' Credential interface
+        credential: null, // 'firebase-admin' Credential interface
+        // Optional Firebase Admin SDK AppOptions
+        projectId: 'your-project-id', // Explicitly set the Google Cloud project ID
+        databaseURL: 'https://your-database.firebaseio.com', // Realtime Database URL (optional)
+        storageBucket: 'your-bucket.appspot.com', // Cloud Storage bucket (optional)
+        serviceAccountId: 'your-email@your-project.iam.gserviceaccount.com', // Service account email (optional)
+        httpAgent: undefined, // HTTP Agent for proxy support (optional)
+        httpsAgent: undefined, // HTTPS Agent for proxy support (optional)
     },
     apn: {
         token: {
@@ -87,26 +88,23 @@ const settings = {
             publicKey: '< URL Safe Base64 Encoded Public Key >',
             privateKey: '< URL Safe Base64 Encoded Private Key >',
         },
-        gcmAPIKey: 'gcmkey',
         TTL: 2419200,
         contentEncoding: 'aes128gcm',
         headers: {}
     },
-    isAlwaysUseFCM: false, // true all messages will be sent through gcm/fcm api
-    isLegacyGCM: false // if true gcm messages will be sent through node-gcm (deprecated api), if false gcm messages will be sent through 'firebase-admin' lib
+    isAlwaysUseFCM: false, // true all messages will be sent through FCM API
 
 };
 const push = new PushNotifications(settings);
 ```
 
-- GCM options: see [node-gcm](https://github.com/ToothlessGear/node-gcm#custom-gcm-request-options)
-- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read [FCM](#fcm) section below!)
+- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read [FCM](#fcm) section below!) - used for Android and fallback for other platforms
 - APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
 - ADM options: see [node-adm](https://github.com/umano/node-adm)
 - WNS options: see [wns](https://github.com/tjanczuk/wns)
 - Web-push options: see [web-push](https://github.com/web-push-libs/web-push)
 
-* `isAlwaysUseFCM`: use node-gcm to send notifications to GCM (by default), iOS, ADM and WNS.
+* `isAlwaysUseFCM`: when set to `true`, will send all notifications through FCM instead of platform-specific services
 
 _iOS:_ It is recommended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an _Apple Push Notification Authentication Key (Sandbox & Production)_ or _Apple Push Notification service SSL (Sandbox & Production)_. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem.
 
@@ -143,10 +141,10 @@ It can be of 2 types:
 }
 ```
 
-Where type can be one of: 'apn', 'gcm', 'adm', 'wns', 'webPush'. The types are available as constants:
+Where type can be one of: 'apn', 'fcm', 'adm', 'wns', 'webPush'. The types are available as constants:
 
 ```js
-import { WEB, WNS, ADM, GCM, APN } from 'node-pushnotifications';
+import { WEB, WNS, ADM, FCM, APN } from 'node-pushnotifications';
 
 const regId = {
   id: 'INSERT_YOUR_DEVICE_ID',
@@ -170,18 +168,19 @@ In case of webPush, `id` needs to be as defined below for `Web subscription`.
 
 #### String regId (not recommended)
 
-It is not recommended, as Apple stays that the [reg id is of variable length](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622958-application), which makes difficult to identify if it is a APN regId or GCM regId.
+It is not recommended, as the [reg id is of variable length](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622958-application), which makes it difficult to identify if it is an APN regId or FCM regId.
 
 - `regId.substring(0, 4) === 'http'`: 'wns'
 - `/^(amzn[0-9]*.adm)/i.test(regId)`: 'adm'
 - `(regId.length === 64 || regId.length === 160) && /^[a-fA-F0-9]+$/.test(regId)`: 'apn'
-- `regId.length > 64`: 'gcm'
+- `regId.length > 64`: 'fcm'
 - otherwise: 'unknown' (the notification will not be sent)
 
 **Android:**
 
-- If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
-- You are able to send to device groups or other custom recipients instead of using a list of device tokens (see [node-gcm docs](https://github.com/ToothlessGear/node-gcm#recipients)). Documentation can be found in the GCM section..
+- All Android notifications are sent through Firebase Cloud Messaging (FCM)
+- If you provide more than 1.000 registration tokens, they will automatically be split into 1.000 chunks
+- You are able to send to custom topics or conditions through FCM (see [firebase-admin docs](https://firebase.google.com/docs/cloud-messaging))
 
 Example:
 
@@ -196,7 +195,7 @@ Create a JSON object with a title and message and send the notification.
 ```js
 const data = {
     title: 'New push notification', // REQUIRED for Android
-    topic: 'topic', // REQUIRED for iOS (apn and gcm)
+    topic: 'topic', // REQUIRED for iOS (apn and fcm)
     /* The topic of the notification. When using token-based authentication, specify the bundle ID of the app.
      * When using certificate-based authentication, the topic is usually your app's bundle ID.
      * More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
@@ -205,48 +204,61 @@ const data = {
     custom: {
         sender: 'AppFeel',
     },
-    priority: 'high', // gcm, apn. Supported values are 'high' or 'normal' (gcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
-    collapseKey: '', // gcm for android, used as collapseId in apn
-    contentAvailable: true, // gcm, apn. node-apn will translate true to 1 as required by apn.
-    delayWhileIdle: true, // gcm for android
-    restrictedPackageName: '', // gcm for android
-    dryRun: false, // gcm for android
-    icon: '', // gcm for android
-    image: '', // gcm for android
-    style: '', // gcm for android
-    picture: '', // gcm for android
-    tag: '', // gcm for android
-    color: '', // gcm for android
-    clickAction: '', // gcm for android. In ios, category will be used if not supplied
-    locKey: '', // gcm, apn
-    titleLocKey: '', // gcm, apn
-    locArgs: undefined, // gcm, apn. Expected format: Stringified Array
-    titleLocArgs: undefined, // gcm, apn. Expected format: Stringified Array
-    retries: 1, // gcm, apn
+    priority: 'high', // fcm, apn. Supported values are 'high' or 'normal' (fcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
+    collapseKey: '', // fcm for android, used as collapseId in apn
+    contentAvailable: true, // fcm, apn. node-apn will translate true to 1 as required by apn.
+    delayWhileIdle: true, // fcm for android
+    restrictedPackageName: '', // fcm for android
+    dryRun: false, // fcm for android
+    directBootOk: false, // fcm for android. Allows direct boot mode
+    icon: '', // fcm for android
+    image: '', // fcm for android
+    style: '', // fcm for android
+    picture: '', // fcm for android
+    tag: '', // fcm for android
+    color: '', // fcm for android
+    clickAction: '', // fcm for android. In ios, category will be used if not supplied
+    locKey: '', // fcm, apn
+    titleLocKey: '', // fcm, apn
+    locArgs: undefined, // fcm, apn. Expected format: Stringified Array
+    titleLocArgs: undefined, // fcm, apn. Expected format: Stringified Array
+    retries: 1, // fcm, apn
     encoding: '', // apn
-    badge: 2, // gcm for ios, apn
-    sound: 'ping.aiff', // gcm, apn
-    android_channel_id: '', // gcm - Android Channel ID
+    badge: 2, // fcm for ios, apn
+    sound: 'ping.aiff', // fcm, apn
+    android_channel_id: '', // fcm - Android Channel ID
     notificationCount: 0, // fcm for android. badge can be used for both fcm and apn
+    ticker: '', // fcm for android. Ticker text for accessibility
+    sticky: false, // fcm for android. Notification persists when clicked
+    visibility: 'public', // fcm for android. Can be 'public', 'private', or 'secret'
+    localOnly: false, // fcm for android. Local-only notification (Wear OS)
+    eventTimestamp: undefined, // fcm for android. Date object for event time
+    notificationPriority: 'default', // fcm for android. Can be 'min', 'low', 'default', 'high', 'max'
+    vibrateTimingsMillis: undefined, // fcm for android. Array of vibration durations in milliseconds
+    defaultVibrateTimings: false, // fcm for android. Use system default vibration
+    defaultSound: false, // fcm for android. Use system default sound
+    lightSettings: undefined, // fcm for android. LED light settings object
+    defaultLightSettings: false, // fcm for android. Use system default LED settings
+    analyticsLabel: '', // fcm for android. Analytics label for FCM
     alert: { // apn, will take precedence over title and body
         title: 'title',
         body: 'body'
         // details: https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#convenience-setters
     },
-    silent: false, // gcm, apn, will override badge, sound, alert and priority if set to true on iOS, will omit `notification` property and send as data-only on Android/GCM
+    silent: false, // fcm, apn, will override badge, sound, alert and priority if set to true on iOS, will omit `notification` property and send as data-only on Android/FCM
     /*
      * A string is also accepted as a payload for alert
      * Your notification won't appear on ios if alert is empty object
      * If alert is an empty string the regular 'title' and 'body' will show in Notification
      */
     // alert: '',
-    launchImage: '', // apn and gcm for ios
-    action: '', // apn and gcm for ios
-    category: '', // apn and gcm for ios
-    // mdm: '', // apn and gcm for ios. Use this to send Mobile Device Management commands.
+    launchImage: '', // apn and fcm for ios
+    action: '', // apn and fcm for ios
+    category: '', // apn and fcm for ios
+    // mdm: '', // apn and fcm for ios. Use this to send Mobile Device Management commands.
     // https://developer.apple.com/library/content/documentation/Miscellaneous/Reference/MobileDeviceManagementProtocolRef/3-MDM_Protocol/MDM_Protocol.html
-    urlArgs: '', // apn and gcm for ios
-    truncateAtWordEnd: true, // apn and gcm for ios
+    urlArgs: '', // apn and fcm for ios
+    truncateAtWordEnd: true, // apn and fcm for ios
     mutableContent: 0, // apn
     threadId: '', // apn
     pushType: undefined, // apn. valid values are 'alert' and 'background' (https://github.com/parse-community/node-apn/blob/master/doc/notification.markdown#notificationpushtype)
@@ -279,7 +291,7 @@ push.send(registrationIds, data)
 ```js
 [
     {
-        method: 'gcm', // The method used send notifications and which this info is related to
+        method: 'fcm', // The method used send notifications and which this info is related to
         multicastId: [], // (only Android) Array with unique ID (number) identifying the multicast message, one identifier for each chunk of 1.000 notifications)
         success: 0, // Number of notifications that have been successfully sent. It does not mean that the notification has been deliveried.
         failure: 0, // Number of notifications that have been failed to be send.
@@ -287,7 +299,7 @@ push.send(registrationIds, data)
             messageId: '', // (only for android) String specifying a unique ID for each successfully processed message or undefined if error
             regId: value, // The current registrationId (device token id). Beware: For Android this may change if Google invalidates the previous device token. Use "originalRegId" if you are interested in when this changed occurs.
             originalRegId: value, // (only for android) The registrationId that was sent to the push.send() method. Compare this with field "regId" in order to know when the original registrationId (device token id) gets changed.
-            error: new Error('unknown'), // If any, there will be an Error object here for depuration purposes (when possible it will come form source libraries aka apn, node-gcm)
+            error: new Error('unknown'), // If any, there will be an Error object here for debugging purposes
             errorMsg: 'some error', // If any, will include the error message from the respective provider module
         }],
     },
@@ -310,155 +322,70 @@ push.send(registrationIds, data)
 ]
 ```
 
-## GCM
+## FCM
 
-**NOTE:** If you provide more than 1.000 registration tokens, they will automatically be splitted in 1.000 chunks (see [this issue in gcm repo](https://github.com/ToothlessGear/node-gcm/issues/42))
+All Android push notifications are sent through Firebase Cloud Messaging (FCM) using the [firebase-admin](https://github.com/firebase/firebase-admin-node) library.
 
-The following parameters are used to create a GCM message. See https://developers.google.com/cloud-messaging/http-server-ref#table5 for more info:
+The following parameters are used to create an FCM Android message (following the [Firebase Admin SDK AndroidConfig interface](https://firebase.google.com/docs/reference/admin/node/admin.messaging.AndroidConfig)):
 
-```js
-    // Set default custom data from data
-    let custom;
-    if (typeof data.custom === 'string') {
-        custom = {
-            message: data.custom,
-        };
-    } else if (typeof data.custom === 'object') {
-        custom = Object.assign({}, data.custom);
-    } else {
-        custom = {
-            data: data.custom,
-        };
-    }
+**AndroidConfig properties:**
 
-    custom.title = custom.title || data.title;
-    custom.message = custom.message || data.body;
-    custom.sound = custom.sound || data.sound;
-    custom.icon = custom.icon || data.icon;
-    custom.msgcnt = custom.msgcnt || data.badge;
-    if (opts.phonegap === true && data.contentAvailable) {
-        custom['content-available'] = 1;
-    }
+- `collapseKey` - Collapse key for message grouping
+- `priority` - Message priority: 'high' (default) or 'normal'
+- `ttl` - Time to live in milliseconds (converted from seconds)
+- `restrictedPackageName` - Package name restriction
+- `directBootOk` - Allow delivery in direct boot mode
+- `data` - Custom data fields (key-value pairs)
+- `notification` - Android notification properties (see below)
+- `fcmOptions` - FCM options including `analyticsLabel`
 
-    const message = new gcm.Message({ // See https://developers.google.com/cloud-messaging/http-server-ref#table5
-        collapseKey: data.collapseKey,
-        priority: data.priority === 'normal' ? data.priority : 'high',
-        contentAvailable: data.contentAvailable || false,
-        delayWhileIdle: data.delayWhileIdle || false, // Deprecated from Nov 15th 2016 (will be ignored)
-        timeToLive: data.expiry - Math.floor(Date.now() / 1000) || data.timeToLive || 28 * 86400,
-        restrictedPackageName: data.restrictedPackageName,
-        dryRun: data.dryRun || false,
-        data: data.custom,
-        notification: {
-            title: data.title, // Android, iOS (Watch)
-            body: data.body, // Android, iOS
-            icon: data.icon, // Android
-            image: data.image, // Android
-            style: data.style, // Android
-            picture: data.picture, // Android
-            sound: data.sound, // Android, iOS
-            badge: data.badge, // iOS
-            tag: data.tag, // Android
-            color: data.color, // Android
-            click_action: data.clickAction || data.category, // Android, iOS
-            body_loc_key: data.locKey, // Android, iOS
-            body_loc_args: data.locArgs, // Android, iOS
-            title_loc_key: data.titleLocKey, // Android, iOS
-            title_loc_args: data.titleLocArgs, // Android, iOS
-	        android_channel_id: data.android_channel_id, // Android
-        },
-    }
-```
+**AndroidNotification properties:**
 
-_data is the parameter in `push.send(registrationIds, data)`_
+- `title` - Notification title
+- `body` - Notification body
+- `icon` - Notification icon resource
+- `color` - Notification color (#rrggbb format)
+- `sound` - Notification sound file
+- `tag` - Notification tag for replacing existing notifications
+- `imageUrl` - Image URL to display in notification
+- `clickAction` - Action to launch when notification is clicked
+- `bodyLocKey` / `bodyLocArgs` - Localized body text
+- `titleLocKey` / `titleLocArgs` - Localized title text
+- `channelId` - Android notification channel ID
+- `notificationCount` - Number of unread notifications
+- `ticker` - Ticker text for accessibility
+- `sticky` - Notification persists when clicked
+- `visibility` - Visibility level: 'public', 'private', or 'secret'
+- `priority` - Notification priority: 'min', 'low', 'default', 'high', or 'max'
+- `eventTimestamp` - Date object for event time
+- `localOnly` - Local-only notification (for Wear OS)
+- `vibrateTimingsMillis` - Vibration pattern (array of milliseconds)
+- `defaultVibrateTimings` - Use system default vibration
+- `defaultSound` - Use system default sound
+- `lightSettings` - LED light configuration object
+- `defaultLightSettings` - Use system default LED settings
+- `proxy` - Proxy setting: 'allow', 'deny', or 'if_priority_lowered'
 
-- [See node-gcm fields](https://github.com/ToothlessGear/node-gcm#usage)
-
-**Note:** parameters are duplicated in data and in notification, so in fact they are being send as:
+Example usage:
 
 ```js
-    data: {
-        title: 'title',
-        message: 'body',
-        sound: 'mySound.aiff',
-        icon: undefined,
-        msgcnt: undefined
-        // Any custom data
-        sender: 'appfeel-test',
-    },
-    notification: {
-        title: 'title',
-        body: 'body',
-        icon: undefined,
-	image: undefined,
-	style: undefined,
-	picture: undefined,
-        sound: 'mySound.aiff',
-        badge: undefined,
-        tag: undefined,
-        color: undefined,
-        click_action: undefined,
-        body_loc_key: undefined,
-        body_loc_args: undefined,
-        title_loc_key: undefined,
-        title_loc_args: undefined,
-	android_channel_id: undefined
-    }
-```
-
-In that way, they can be accessed in android in the following two ways:
-
-```java
-    String title = extras.getString("title");
-    title = title != null ? title : extras.getString("gcm.notification.title");
-```
-
-### Silent push notifications
-
-GCM supports silent push notifications which are not displayed to the user but only used to transmit data.
-
-```js
-const silentPushData = {
-    topic: 'yourTopic',
-    silent: true,
-    custom: {
-        yourKey: 'yourValue',
-        ...
-    }
-}
-```
-
-Internally, `silent: true` will tell `node-gcm` _not_ to send the `notification` property and only send the `custom` property. If you don't specify `silent: true` then the push notifications will still be visible on the device. Note that this is nearly the same behavior as `phoneGap: true` and will set `content-available` to `true`.
-
-### Send to custom recipients (device groups or topics)
-
-In order to override the default behaviour of sending the notifications to a list of device tokens,
-you can pass a `recipients` field with your desired recipients. Supported fields are `to` and `condition` as documented in the [node-gcm docs](https://github.com/ToothlessGear/node-gcm#recipients).
-
-Example:
-
-```javascript
-const dataWithRecipientTo = { ...yourData, recipients: { to: 'topicName' } };
-const dataWithRecipientCondition = { ...yourData, recipients: { condition: 'topicName' } };
-
-push.send(registrationIds, dataWithRecipientTo)
-    .then((results) => { ... })
-    .catch((err) => { ... });
-```
-
-Be aware that the presence of a valid `data.recipient` field will take precendence over any Android device tokens passed with the `registrationIds`.
-
-### PhoneGap compatibility mode
-
-In case your app is written with Cordova / Ionic and you are using the [PhoneGap PushPlugin](https://github.com/phonegap/phonegap-plugin-push/),
-you can use the `phonegap` setting in order to adapt to the recommended behaviour described in
-[https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour](https://github.com/phonegap/phonegap-plugin-push/blob/master/docs/PAYLOAD.md#android-behaviour).
-
-```js
-const settings = {
-  gcm: {
-    id: '<yourId>',
-    phonegap: true,
+const data = {
+  title: 'Title',
+  body: 'Body text',
+  icon: 'ic_notification',
+  color: '#FF0000',
+  sound: 'notification_sound',
+  clickAction: 'OPEN_ACTIVITY',
+  android_channel_id: 'default_channel',
+  tag: 'my_notification',
+  badge: 1,
+  notificationPriority: 'high',
+  ticker: 'New notification',
+  sticky: false,
+  visibility: 'public',
+  analyticsLabel: 'my_analytics_label',
+  custom: {
+    key: 'value',
   },
 };
 ```
@@ -533,14 +460,22 @@ const silentPushData = {
 
 ## FCM
 
-The following parameters are used to create an FCM message (Android/APN):
-[node-gcm](https://github.com/ToothlessGear/node-gcm) lib for `GCM` method use old firebase api (will be [deprecated ](https://firebase.google.com/docs/cloud-messaging/migrate-v1?hl=en&authuser=0))
-Settings:
+All Android push notifications are sent through Firebase Cloud Messaging (FCM) using the [firebase-admin](https://github.com/firebase/firebase-admin-node) library.
 
-- `settings.fcm.appName` [firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
-- `settings.fcm.serviceAccountKey` [firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded 'service-account-file.json'
-- `settings.fcm.credential` [firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential)
-  Note: one of `serviceAccountKey`, `credential` fcm options is required
+**Firebase Admin SDK App Options:**
+
+The following Firebase Admin SDK `AppOptions` are supported and can be passed in `settings.fcm`:
+
+- `appName` - [Firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
+- `serviceAccountKey` - [Firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded 'service-account-file.json'
+- `credential` - [Firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential) (one of `serviceAccountKey` or `credential` is required)
+- `projectId` - Explicitly set the Google Cloud project ID (optional)
+- `databaseURL` - Realtime Database URL (optional)
+- `storageBucket` - Cloud Storage bucket name (optional)
+- `serviceAccountId` - Service account email (optional)
+- `databaseAuthVariableOverride` - Auth variable override for Realtime Database (optional)
+- `httpAgent` - HTTP Agent for proxy support (optional, see [Proxy](#proxy) section)
+- `httpsAgent` - HTTPS Agent for proxy support (optional, see [Proxy](#proxy) section)
 
 ```js
 const tokens = ['e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x'];
@@ -579,11 +514,7 @@ pushNotifications.send(tokens, notifications, (error, result) => {
 });
 ```
 
-`fcm_notification` - object that will be passed to
-
-```js
-  new gcm.Message({ ..., notification: data.fcm_notification })
-```
+`fcm_notification` - object that will be passed to FCM message notification field
 
 Fcm object that will be sent to provider ([Fcm message format](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages?authuser=0#Message)) :
 
@@ -687,23 +618,58 @@ A working server example implementation can be found at [https://github.com/alex
 
 ## Proxy
 
-To use the module with a proxy:
+The module supports proxy configuration at two different levels:
 
-```
+### Network Proxy (SDK-level)
+
+To route Firebase Admin SDK network requests through a corporate proxy, configure HTTP/HTTPS agents:
+
+```javascript
+import { HttpProxyAgent } from 'http-proxy-agent';
 import { HttpsProxyAgent } from 'https-proxy-agent';
-...
+
 const settings = {
-    fcm: {
-		...,
-		httpAgent = new HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`);
-    },
-    apn: {
-        ...
-		proxy: {
-			host: <proxy_address>,
-			port: <proxy_port>
-		}
+  fcm: {
+    appName: 'myApp',
+    credential: { ... },
+    // Route all Firebase Admin SDK network traffic through proxy
+    httpAgent: new HttpProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
+    httpsAgent: new HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
+  },
+};
+```
+
+This affects how the SDK communicates with Google's servers and applies to all Firebase services.
+
+### Notification Proxy Behavior (Android-level)
+
+To control how Android devices handle notifications in proxy scenarios, use the `proxy` property in the notification data:
+
+```javascript
+const data = {
+  title: 'Notification',
+  body: 'Test',
+  proxy: 'allow', // Can be 'allow', 'deny', or 'if_priority_lowered'
+};
+
+push.send(registrationIds, data);
+```
+
+This is a notification-level setting that tells the Android system whether to deliver the notification when the device is on a proxy network.
+
+### Platform-Specific Proxy
+
+For APN (Apple Push Notification), configure the proxy at the app settings level:
+
+```javascript
+const settings = {
+  apn: {
+    token: { ... },
+    proxy: {
+      host: <proxy_address>,
+      port: <proxy_port>
     }
+  }
 };
 ```
 

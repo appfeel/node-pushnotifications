@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import PN from '../../src';
-import sendGCM from '../../src/sendGCM';
-import sendADM from '../../src/sendADM';
-import sendWNS from '../../src/sendWNS';
-import sendWeb from '../../src/sendWeb';
+import PN from '../../src/index.js';
+import sendFCM from '../../src/sendFCM.js';
+import sendADM from '../../src/sendADM.js';
+import sendWNS from '../../src/sendWNS.js';
+import sendWeb from '../../src/sendWeb.js';
 
 const regIds = [
   'APA91bFQCD9Ndd8uVggMhj1usfeWsKIfGyBUWMprpZLGciWrMjS-77bIY24IMQNeEHzjidCcddnDxqYo-UEV03xw6ySmtIgQyzTqhSxhPGAi1maf6KDMAQGuUWc6L5Khze8YK9YrL9I_WD1gl49P3f_9hr08ZAS5Tw', // android
@@ -33,7 +33,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
   let sendWith;
 
   before(() => {
-    pn = new PN({ isLegacyGCM: true });
+    pn = new PN({});
     const sendApnFunctionName = pn.apn.sendAPN.bind(pn.apn).name;
 
     sendWith = sinon.stub(PN.prototype, 'sendWith', (method, _regIds, _data, cb) => {
@@ -47,7 +47,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
         case 0:
         case 1:
         case 2:
-          expect(method).to.equal(sendGCM);
+          expect(method).to.equal(sendFCM);
           break;
 
         case 3:
@@ -68,7 +68,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
           break;
 
         default:
-          expect.fail(null, null, 'Method should be sendGCM, sendAPN, sendWNS, sendADM or sendWeb');
+          expect.fail(null, null, 'Method should be sendFCM, sendAPN, sendWNS, sendADM or sendWeb');
           break;
       }
       expect(data).to.equal(data);
@@ -103,7 +103,7 @@ describe('push-notifications: call with registration ids for android, ios, windo
 
   const assertPushResultsForArrayInput = (result) => {
     let expectedNumRegIds = 1;
-    if (result.method === 'sendGCM') {
+    if (result.method === 'sendFCM') {
       expectedNumRegIds = 3;
     } else if (result.method === 'bound sendAPN') {
       expectedNumRegIds = 2;

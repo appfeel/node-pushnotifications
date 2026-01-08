@@ -1,4 +1,3 @@
-const sendGCM = require('./sendGCM');
 const sendFCM = require('./sendFCM');
 const APN = require('./sendAPN');
 const sendADM = require('./sendADM');
@@ -11,7 +10,6 @@ const {
   WEB_METHOD,
   WNS_METHOD,
   ADM_METHOD,
-  GCM_METHOD,
   FCM_METHOD,
   APN_METHOD,
 } = require('./constants');
@@ -27,7 +25,6 @@ class PN {
       this.apn.shutdown();
     }
     this.apn = new APN(this.settings.apn);
-    this.useFcmOrGcmMethod = this.settings.isLegacyGCM ? GCM_METHOD : FCM_METHOD;
   }
 
   sendWith(method, regIds, data, cb) {
@@ -50,14 +47,14 @@ class PN {
     if (typeof regId === 'object' && regId.id && regId.type) {
       return {
         regId: regId.id,
-        pushMethod: this.settings.isAlwaysUseFCM ? this.useFcmOrGcmMethod : regId.type,
+        pushMethod: this.settings.isAlwaysUseFCM ? FCM_METHOD : regId.type,
       };
     }
 
     // TODO: deprecated, remove of all cases below in v3.0
     // and review test cases
     if (this.settings.isAlwaysUseFCM) {
-      return { regId, pushMethod: this.useFcmOrGcmMethod };
+      return { regId, pushMethod: FCM_METHOD };
     }
 
     if (regId.substring(0, 4) === 'http') {
@@ -73,7 +70,7 @@ class PN {
     }
 
     if (regId.length > 64) {
-      return { regId, pushMethod: this.useFcmOrGcmMethod };
+      return { regId, pushMethod: FCM_METHOD };
     }
 
     return { regId, pushMethod: UNKNOWN_METHOD };
@@ -81,7 +78,6 @@ class PN {
 
   send(_regIds, data, callback) {
     const promises = [];
-    const regIdsGCM = [];
     const regIdsFCM = [];
     const regIdsAPN = [];
     const regIdsWNS = [];
@@ -96,8 +92,6 @@ class PN {
 
       if (pushMethod === WEB_METHOD) {
         regIdsWebPush.push(regId);
-      } else if (pushMethod === GCM_METHOD) {
-        regIdsGCM.push(regId);
       } else if (pushMethod === FCM_METHOD) {
         regIdsFCM.push(regId);
       } else if (pushMethod === WNS_METHOD) {
@@ -112,11 +106,6 @@ class PN {
     });
 
     try {
-      // Android GCM / FCM (Android/iOS) Legacy
-      if (regIdsGCM.length > 0) {
-        promises.push(this.sendWith(sendGCM, regIdsGCM, data));
-      }
-
       // FCM (Android/iOS)
       if (regIdsFCM.length > 0) {
         promises.push(this.sendWith(sendFCM, regIdsFCM, data));
@@ -192,5 +181,4 @@ module.exports = PN;
 module.exports.WEB = WEB_METHOD;
 module.exports.WNS = WNS_METHOD;
 module.exports.ADM = ADM_METHOD;
-module.exports.GCM = GCM_METHOD;
 module.exports.APN = APN_METHOD;
