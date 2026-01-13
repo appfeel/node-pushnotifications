@@ -89,6 +89,12 @@ const sendFCM = (regIds, data, settings) => {
   });
 
   const firebaseApp = firebaseAdmin.initializeApp(opts, appName);
+
+  // Enable legacy HTTP/1.1 transport if requested
+  if (settings.fcm.legacyHttpTransport) {
+    firebaseAdmin.messaging(firebaseApp).enableLegacyHttpTransport();
+  }
+
   firebaseAdmin.INTERNAL.appStore.removeApp(appName);
 
   const promises = [];
