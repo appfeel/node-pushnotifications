@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { Messaging as fbMessaging } from 'firebase-admin/messaging';

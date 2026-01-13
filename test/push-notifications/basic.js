@@ -1,4 +1,3 @@
-/* eslint-env mocha */
 import path from 'path';
 import chai from 'chai';
 import dirtyChai from 'dirty-chai';
