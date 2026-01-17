@@ -67,15 +67,19 @@ const sendChunk = (firebaseApp, recipients, message) => {
 
 const sendFCM = (regIds, data, settings) => {
   const appName = `${settings.fcm.appName}`;
+
+  // Get or create credential with httpAgent for proper proxy support in authentication
+  const credential =
+    settings.fcm.credential ||
+    firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey, settings.fcm.httpAgent);
+
   const opts = {
-    credential:
-      settings.fcm.credential || firebaseAdmin.credential.cert(settings.fcm.serviceAccountKey),
+    credential,
   };
 
   // Add optional Firebase AppOptions properties if provided
   const optionalProps = [
     'httpAgent',
-    'httpsAgent',
     'projectId',
     'databaseURL',
     'storageBucket',

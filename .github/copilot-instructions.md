@@ -68,9 +68,8 @@ This repository implements a Node.js module for sending push notifications acros
 - `storageBucket` (optional) - Cloud Storage bucket
 - `serviceAccountId` (optional) - Service account email
 - `databaseAuthVariableOverride` (optional) - Auth override for RTDB rules
-- `httpAgent` (optional) - HTTP proxy agent for network requests
-- `httpsAgent` (optional) - HTTPS proxy agent for network requests
-- `legacyHttpTransport` (optional) - Enable HTTP/1.1 transport instead of HTTP/2 (for compatibility with older Node.js or network restrictions)
+- `httpAgent` (optional) - HTTP/HTTPS proxy agent for network requests (use HttpProxyAgent for HTTP proxies, HttpsProxyAgent for HTTPS proxies)
+- `legacyHttpTransport` (optional) - Enable HTTP/1.1 transport instead of HTTP/2 (for compatibility with older Node.js or network restrictions, required for proper proxy support)
 
 All optional properties are dynamically added to Firebase initialization if defined.
 
