@@ -154,47 +154,8 @@ describe('push-notifications-fcm', () => {
         });
     });
 
-    it('should accept httpsAgent in settings', (done) => {
-      const mockHttpsAgent = {};
-      const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
-        messaging: () => ({
-          sendEachForMulticast: () =>
-            Promise.resolve({
-              successCount: 1,
-              failureCount: 0,
-              responses: [{ error: null }],
-            }),
-        }),
-      });
-
-      const fcmOptsWithProxy = {
-        fcm: {
-          name: 'testAppNameProxyHttps',
-          credential: { getAccessToken: () => Promise.resolve({}) },
-          httpsAgent: mockHttpsAgent,
-        },
-      };
-
-      const pnWithProxy = new PN(fcmOptsWithProxy);
-
-      pnWithProxy
-        .send(regIds, message)
-        .then(() => {
-          // Verify that initializeApp was called with httpsAgent
-          const callArgs = mockInitializeApp.getCall(0).args[0];
-          expect(callArgs.httpsAgent).to.equal(mockHttpsAgent);
-          mockInitializeApp.restore();
-          done();
-        })
-        .catch((err) => {
-          mockInitializeApp.restore();
-          done(err);
-        });
-    });
-
-    it('should accept both httpAgent and httpsAgent in settings', (done) => {
+    it('should accept httpAgent in settings for both HTTP and HTTPS', (done) => {
       const mockHttpAgent = {};
-      const mockHttpsAgent = {};
       const mockInitializeApp = sinon.stub(firebaseAdmin, 'initializeApp').returns({
         messaging: () => ({
           sendEachForMulticast: () =>
@@ -208,10 +169,9 @@ describe('push-notifications-fcm', () => {
 
       const fcmOptsWithProxy = {
         fcm: {
-          name: 'testAppNameProxyBoth',
+          name: 'testAppNameProxyHttpsViaHttpAgent',
           credential: { getAccessToken: () => Promise.resolve({}) },
           httpAgent: mockHttpAgent,
-          httpsAgent: mockHttpsAgent,
         },
       };
 
@@ -220,10 +180,10 @@ describe('push-notifications-fcm', () => {
       pnWithProxy
         .send(regIds, message)
         .then(() => {
-          // Verify that initializeApp was called with both agents
+          // Verify that initializeApp was called with httpAgent
+          // httpAgent handles both HTTP and HTTPS connections in Firebase Admin SDK
           const callArgs = mockInitializeApp.getCall(0).args[0];
           expect(callArgs.httpAgent).to.equal(mockHttpAgent);
-          expect(callArgs.httpsAgent).to.equal(mockHttpsAgent);
           mockInitializeApp.restore();
           done();
         })
@@ -464,6 +424,125 @@ describe('push-notifications-fcm', () => {
         })
         .catch((err) => {
           mockInitializeApp.restore();
+          done(err);
+        });
+    });
+  });
+
+  describe('Legacy HTTP transport support', () => {
+    it('should enable legacyHttpTransport when configured', (done) => {
+      const mockEnableLegacyHttpTransport = sinon.stub();
+
+      // Stub messaging to track calls and return mock instance
+      const mockMessagingStub = sinon.stub().returns({
+        enableLegacyHttpTransport: mockEnableLegacyHttpTransport,
+        sendEachForMulticast: () =>
+          Promise.resolve({
+            successCount: 1,
+            failureCount: 0,
+            responses: [{ error: null }],
+          }),
+      });
+
+      // Use Object.defineProperty to override the messaging getter
+      const proto = Object.getPrototypeOf(firebaseAdmin);
+      const propertyDescriptor = Object.getOwnPropertyDescriptor(proto, 'messaging');
+
+      // eslint-disable-next-line no-import-assign
+      Object.defineProperty(firebaseAdmin, 'messaging', {
+        value: mockMessagingStub,
+        configurable: true,
+        writable: true,
+      });
+
+      sinon.stub(firebaseAdmin, 'initializeApp').returns({});
+      sinon.stub(firebaseAdmin.INTERNAL.appStore, 'removeApp');
+
+      const fcmOptsWithLegacy = {
+        fcm: {
+          name: 'testAppNameLegacy',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+          legacyHttpTransport: true,
+        },
+      };
+
+      const pnWithLegacy = new PN(fcmOptsWithLegacy);
+
+      pnWithLegacy
+        .send(regIds, message)
+        .then(() => {
+          expect(mockEnableLegacyHttpTransport.called).to.be.true;
+          // Restore
+          firebaseAdmin.initializeApp.restore();
+          firebaseAdmin.INTERNAL.appStore.removeApp.restore();
+          // eslint-disable-next-line no-import-assign
+          Object.defineProperty(firebaseAdmin, 'messaging', propertyDescriptor);
+          done();
+        })
+        .catch((err) => {
+          // Restore
+          firebaseAdmin.initializeApp.restore();
+          firebaseAdmin.INTERNAL.appStore.removeApp.restore();
+          // eslint-disable-next-line no-import-assign
+          Object.defineProperty(firebaseAdmin, 'messaging', propertyDescriptor);
+          done(err);
+        });
+    });
+
+    it('should not enable legacyHttpTransport when not configured', (done) => {
+      const mockEnableLegacyHttpTransport = sinon.stub();
+
+      // Stub messaging to track calls and return mock instance
+      const mockMessagingStub = sinon.stub().returns({
+        enableLegacyHttpTransport: mockEnableLegacyHttpTransport,
+        sendEachForMulticast: () =>
+          Promise.resolve({
+            successCount: 1,
+            failureCount: 0,
+            responses: [{ error: null }],
+          }),
+      });
+
+      // Use Object.defineProperty to override the messaging getter
+      const proto = Object.getPrototypeOf(firebaseAdmin);
+      const propertyDescriptor = Object.getOwnPropertyDescriptor(proto, 'messaging');
+
+      // eslint-disable-next-line no-import-assign
+      Object.defineProperty(firebaseAdmin, 'messaging', {
+        value: mockMessagingStub,
+        configurable: true,
+        writable: true,
+      });
+
+      sinon.stub(firebaseAdmin, 'initializeApp').returns({});
+      sinon.stub(firebaseAdmin.INTERNAL.appStore, 'removeApp');
+
+      const fcmOptsWithoutLegacy = {
+        fcm: {
+          name: 'testAppNameNoLegacy',
+          credential: { getAccessToken: () => Promise.resolve({}) },
+        },
+      };
+
+      const pnWithoutLegacy = new PN(fcmOptsWithoutLegacy);
+
+      pnWithoutLegacy
+        .send(regIds, message)
+        .then(() => {
+          expect(mockEnableLegacyHttpTransport.called).to.be.false;
+          // Restore
+          firebaseAdmin.initializeApp.restore();
+          firebaseAdmin.INTERNAL.appStore.removeApp.restore();
+          // eslint-disable-next-line no-import-assign
+          Object.defineProperty(firebaseAdmin, 'messaging', propertyDescriptor);
+          done();
+        })
+        .catch((err) => {
+          // Restore
+          firebaseAdmin.initializeApp.restore();
+          firebaseAdmin.INTERNAL.appStore.removeApp.restore();
+          // eslint-disable-next-line no-import-assign
+          Object.defineProperty(firebaseAdmin, 'messaging', propertyDescriptor);
           done(err);
         });
     });
