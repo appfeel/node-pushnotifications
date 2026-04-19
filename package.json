@@ -73,7 +73,7 @@
     "nyc": "18.0.0",
     "open-cli": "8.0.0",
     "prettier": "3.8.3",
-    "release-it": "19.2.4",
+    "release-it": "20.0.0",
     "sinon": "1.17.7",
     "sinon-chai": "3.5.0"
   },
