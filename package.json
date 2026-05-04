@@ -51,7 +51,7 @@
     "url": "https://github.com/appfeel/node-pushnotifications.git"
   },
   "dependencies": {
-    "@parse/node-apn": "7.1.0",
+    "@parse/node-apn": "8.1.0",
     "firebase-admin": "13.8.0",
     "node-adm": "0.9.1",
     "web-push": "3.6.7",
