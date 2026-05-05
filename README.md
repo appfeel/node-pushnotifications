@@ -30,7 +30,7 @@ npm install node-pushnotifications --save
 
 ## Requirements
 
-Node version >= 18.x.x
+Node version >= 20.x.x
 
 ## Features
 
