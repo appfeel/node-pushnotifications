@@ -59,8 +59,8 @@ const settings = {
         databaseURL: 'https://your-database.firebaseio.com', // Realtime Database URL (optional)
         storageBucket: 'your-bucket.appspot.com', // Cloud Storage bucket (optional)
         serviceAccountId: 'your-email@your-project.iam.gserviceaccount.com', // Service account email (optional)
-        httpAgent: undefined, // HTTP Agent for proxy support (optional)
-        httpsAgent: undefined, // HTTPS Agent for proxy support (optional)
+        httpAgent: undefined, // HTTP Agent for proxy support - use HttpProxyAgent for HTTP proxies, HttpsProxyAgent for HTTPS proxies (optional)
+        legacyHttpTransport: false, // Enable HTTP/1.1 instead of HTTP/2 (optional)
     },
     apn: {
         token: {
@@ -474,8 +474,8 @@ The following Firebase Admin SDK `AppOptions` are supported and can be passed in
 - `storageBucket` - Cloud Storage bucket name (optional)
 - `serviceAccountId` - Service account email (optional)
 - `databaseAuthVariableOverride` - Auth variable override for Realtime Database (optional)
-- `httpAgent` - HTTP Agent for proxy support (optional, see [Proxy](#proxy) section)
-- `httpsAgent` - HTTPS Agent for proxy support (optional, see [Proxy](#proxy) section)
+- `httpAgent` - HTTP/HTTPS Agent for proxy support (optional, use HttpProxyAgent for HTTP proxies, HttpsProxyAgent for HTTPS proxies, see [Proxy](#proxy) section)
+- `legacyHttpTransport` - Enable HTTP/1.1 transport instead of HTTP/2 (optional, for compatibility with older Node.js versions or network restrictions)
 
 ```js
 const tokens = ['e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x'];
