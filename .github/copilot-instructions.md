@@ -36,6 +36,7 @@ This repository implements a Node.js module for sending push notifications acros
 ### Message Building (src/utils/tools.js)
 
 **buildAndroidMessage(data, options)**
+
 - Converts unified notification data to Firebase Admin SDK AndroidMessage format
 - Returns plain JavaScript object (no wrapper functions)
 - Properties mapped to camelCase (Firebase SDK standard)
@@ -44,6 +45,7 @@ This repository implements a Node.js module for sending push notifications acros
 - Supports all 20+ AndroidNotification properties
 
 **buildAndroidNotification(data)**
+
 - Maps input `data` object to AndroidNotification interface
 - Supported properties:
   - Basic: `title`, `body`, `icon`, `color`, `sound`, `tag`, `imageUrl`
@@ -59,14 +61,15 @@ This repository implements a Node.js module for sending push notifications acros
 ### FCM Configuration (src/sendFCM.js)
 
 **Initialization Options:**
+
 - `credential` or `serviceAccountKey` (required) - Firebase authentication
 - `projectId` (optional) - Explicit Google Cloud project ID
 - `databaseURL` (optional) - Realtime Database URL
 - `storageBucket` (optional) - Cloud Storage bucket
 - `serviceAccountId` (optional) - Service account email
 - `databaseAuthVariableOverride` (optional) - Auth override for RTDB rules
-- `httpAgent` (optional) - HTTP proxy agent for network requests
-- `httpsAgent` (optional) - HTTPS proxy agent for network requests
+- `httpAgent` (optional) - HTTP/HTTPS proxy agent for network requests (use HttpProxyAgent for HTTP proxies, HttpsProxyAgent for HTTPS proxies)
+- `legacyHttpTransport` (optional) - Enable HTTP/1.1 transport instead of HTTP/2 (for compatibility with older Node.js or network restrictions, required for proper proxy support)
 
 All optional properties are dynamically added to Firebase initialization if defined.
 
@@ -89,6 +92,7 @@ All optional properties are dynamically added to Firebase initialization if defi
 ### Message Format
 
 Firebase Admin SDK expects:
+
 ```javascript
 {
   tokens: [...],
@@ -134,12 +138,14 @@ Firebase Admin SDK expects:
 ### What Changed
 
 **Removed:**
+
 - `buildGcmMessage()` function (wrapper pattern with toJson() method)
 - `buildGcmNotification()` function
 - Post-processing delete statements for undefined properties
 - References to legacy `node-gcm` library
 
 **Added:**
+
 - `buildAndroidMessage()` - Direct Firebase Admin SDK compatible builder
 - `buildAndroidNotification()` - Proper Android notification interface
 - 15+ new Android notification properties (ticker, sticky, visibility, LED settings, etc.)
@@ -150,12 +156,14 @@ Firebase Admin SDK expects:
 ### Migration Pattern
 
 **Before (Legacy GCM):**
+
 ```javascript
 const message = buildGcmMessage(data).toJson();
 // Result: wrapper object with toJson() method
 ```
 
 **After (Firebase Admin SDK):**
+
 ```javascript
 const message = buildAndroidMessage(data);
 // Result: plain object directly compatible with firebase-admin
@@ -164,6 +172,7 @@ const message = buildAndroidMessage(data);
 ### Property Naming
 
 All properties now use **camelCase** (Firebase Admin SDK standard):
+
 - `android_channel_id` → `channelId`
 - `title_loc_key` → `titleLocKey`
 - `body_loc_key` → `bodyLocKey`
@@ -173,6 +182,7 @@ All properties now use **camelCase** (Firebase Admin SDK standard):
 ### Testing
 
 New test suite added with 7 test cases:
+
 - `should accept projectId in settings`
 - `should accept databaseURL in settings`
 - `should accept storageBucket in settings`
@@ -186,6 +196,7 @@ All 87 tests passing, zero regressions.
 ## Example Usage
 
 See `README.md` for complete examples including:
+
 - FCM settings configuration with all AppOptions
 - Notification data with all supported properties
 - Network proxy agent setup
