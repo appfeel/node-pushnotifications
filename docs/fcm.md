@@ -120,4 +120,4 @@ Sending to FCM topics or conditions is not supported at the moment. The library 
 
 ## Proxies
 
-`firebase-admin` sends FCM messages over HTTP/2 and doesn't use an HTTP agent for them, so FCM sends can't go through a proxy at the moment. `settings.fcm.httpAgent` is passed to Firebase, but it only applies to the SDK's HTTP/1.1 requests.
+`firebase-admin` sends FCM messages over HTTP/2 and doesn't use an HTTP agent for them, so FCM sends can't go through a proxy at the moment. `settings.fcm.httpAgent` is passed to Firebase's app options, but neither FCM sends nor the OAuth token request use it.
