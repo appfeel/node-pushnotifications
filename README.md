@@ -27,6 +27,7 @@ const results = await push.send([androidToken, iosToken, webSubscription], {
 - [Service guides](#service-guides): [FCM](#fcm) · [APNs](#apns) · [Web Push](#web-push) · [WNS](#wns) · [ADM](#adm)
 - [Proxy support](#proxy-support)
 - [Upgrading](#upgrading)
+- [Examples](#examples)
 - [Contributing](#contributing) · [Security](#security) · [License](#license)
 
 ## Features
@@ -36,10 +37,10 @@ const results = await push.send([androidToken, iosToken, webSubscription], {
 - One result format for all services
 - Built on the official SDKs: [`firebase-admin`](https://github.com/firebase/firebase-admin-node), [`@parse/node-apn`](https://github.com/parse-community/node-apn), [`web-push`](https://github.com/web-push-libs/web-push)
 - APNs token (`.p8`) and certificate auth
-- FCM batching, topics and conditions
+- FCM batching
 - Silent pushes on iOS and Android
 - Promise and callback APIs
-- Proxy support
+- Proxy support for APNs and Web Push
 
 ## Supported services
 
@@ -217,19 +218,6 @@ const data = {
 };
 ```
 
-#### FCM topics and conditions
-
-```js
-await push.send([{ id: 'topic', type: FCM }], {
-  title: 'Breaking news',
-  body: 'Something happened',
-  recipients: { to: 'news' },
-  // or: recipients: { condition: "'sports' in topics || 'news' in topics" },
-});
-```
-
-At least one destination must be an FCM destination, otherwise FCM is not called. Its `id` is ignored when `recipients` is set. An empty destination list resolves to `[{ method: 'none', success: 0, failure: 0, message: [] }]`.
-
 ### Results
 
 `send()` resolves to one entry per service used:
@@ -272,7 +260,7 @@ FCM errors are the original `firebase-admin` errors with their [`code`](https://
 
 Service-level failures reject the promise and call the callback with `err`, for example invalid APNs credentials or an FCM network error. Services are combined with `Promise.all`, so one failing service rejects the whole call. For FCM, one failed batch of 500 rejects the whole call.
 
-Destinations that can't be routed are returned under `method: 'unknown'` with `error: Error('Unknown registration id')`.
+An empty destination list resolves to `[{ method: 'none', success: 0, failure: 0, message: [] }]`. Destinations that can't be routed are returned under `method: 'unknown'` with `error: Error('Unknown registration id')`.
 
 ## Payload reference
 
@@ -329,7 +317,6 @@ Reference: [`AndroidConfig`](https://firebase.google.com/docs/reference/admin/no
 | `analyticsLabel`        | `android.fcmOptions.analyticsLabel`  | Or `fcmOptions: { analyticsLabel }`.                            |
 | `fcm_notification`      | `android.notification`               | Used as-is instead of the fields above.                         |
 | `providersExclude`      | (message)                            | `['apns']` or `['android']` omits that part of the FCM message. |
-| `recipients`            | (message target)                     | `{ to: '<topic>' }` or `{ condition: '...' }`.                  |
 
 </details>
 
@@ -357,11 +344,11 @@ Reference: [node-apn `Notification`](https://github.com/parse-community/node-apn
 
 ### Web Push, WNS, ADM
 
-| Service  | Fields                                                                                                                                                |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Web Push | The whole `data` value is the payload (strings as-is, objects JSON-stringified).                                                                      |
-| WNS      | `headers`, `launch`, `duration` override `settings.wns`. Other fields go to the `notificationMethod` function. With `sendRaw`, `data` is stringified. |
-| ADM      | `consolidationKey`, `expiry`/`timeToLive` (as `expiresAfter`). All other fields plus `custom` become the ADM `data`.                                  |
+| Service  | Fields                                                                                                                                                                                           |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Web Push | The whole `data` value is the payload (strings as-is, objects JSON-stringified).                                                                                                                 |
+| WNS      | `headers`, `launch`, `duration` override `settings.wns` (not with `sendRaw`). Other fields go to the `notificationMethod` function. With `sendRaw`, the whole `data` is stringified as the body. |
+| ADM      | `consolidationKey`, `expiry`/`timeToLive` (as `expiresAfter`). All other fields plus `custom` become the ADM `data`.                                                                             |
 
 ## Service guides
 
@@ -381,18 +368,18 @@ const push = new PushNotifications({
 
 `settings.fcm` options ([`AppOptions`](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.appoptions)):
 
-| Option                         | Description                                                                 |
-| ------------------------------ | --------------------------------------------------------------------------- |
-| `appName`                      | Firebase app instance name.                                                 |
-| `serviceAccountKey`            | Service account JSON. Use this or `credential`.                             |
-| `credential`                   | A `firebase-admin` `Credential`. Takes precedence over `serviceAccountKey`. |
-| `projectId`                    | Google Cloud project ID.                                                    |
-| `databaseURL`                  | Realtime Database URL.                                                      |
-| `storageBucket`                | Cloud Storage bucket.                                                       |
-| `serviceAccountId`             | Service account email.                                                      |
-| `databaseAuthVariableOverride` | Realtime Database `auth` override.                                          |
-| `httpAgent`, `httpsAgent`      | See [Proxy support](#proxy-support).                                        |
-| `phonegap`                     | `true`: data-only messages for the legacy Cordova push plugin.              |
+| Option                         | Description                                                                                   |
+| ------------------------------ | --------------------------------------------------------------------------------------------- |
+| `appName`                      | Firebase app instance name.                                                                   |
+| `serviceAccountKey`            | Service account JSON. Use this or `credential`.                                               |
+| `credential`                   | A `firebase-admin` `Credential`. Takes precedence over `serviceAccountKey`.                   |
+| `projectId`                    | Google Cloud project ID.                                                                      |
+| `databaseURL`                  | Realtime Database URL.                                                                        |
+| `storageBucket`                | Cloud Storage bucket.                                                                         |
+| `serviceAccountId`             | Service account email.                                                                        |
+| `databaseAuthVariableOverride` | Realtime Database `auth` override.                                                            |
+| `httpAgent`                    | Passed to Firebase app options. Not used for FCM sends (see [Proxy support](#proxy-support)). |
+| `phonegap`                     | `true`: data-only messages for the legacy Cordova push plugin.                                |
 
 `android.data` contains your `custom` fields plus `title`, `message` (body), `sound`, `icon` and `msgcnt` (badge), for older client plugins. All values are strings.
 
@@ -495,18 +482,6 @@ If `settings.wns.accessToken` is set, notifications are sent one at a time so a 
 
 ## Proxy support
 
-FCM: pass agents in `settings.fcm`.
-
-```js
-import { HttpsProxyAgent } from 'https-proxy-agent';
-
-const agent = new HttpsProxyAgent('http://proxy.internal:3128');
-
-const push = new PushNotifications({
-  fcm: { appName: 'my-app', serviceAccountKey, httpAgent: agent, httpsAgent: agent },
-});
-```
-
 APNs: use node-apn's `proxy` option.
 
 ```js
@@ -517,6 +492,8 @@ apn: {
 ```
 
 Web Push: set `proxy` in `settings.web`.
+
+FCM: `firebase-admin` sends messages over HTTP/2 without an agent, so FCM sends don't go through a proxy. `settings.fcm.httpAgent` is passed to the Firebase app options and only applies to the SDK's HTTP/1.1 requests.
 
 The `data.proxy` field is not a network proxy. It is the Android [notification proxy](https://firebase.google.com/docs/reference/admin/node/firebase-admin.messaging.androidnotification#androidnotificationproxy) setting.
 

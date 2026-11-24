@@ -16,7 +16,8 @@ npm ci
 | -------------------- | ------------------------------------------ |
 | `npm test`           | Run the tests (mocha)                      |
 | `npm run test-cover` | Run the tests with a coverage report (nyc) |
-| `npm run lint`       | Run ESLint                                 |
+| `npm run lint`       | ESLint and Prettier check                  |
+| `npm run lint:fix`   | Fix ESLint and Prettier issues             |
 | `npm run format`     | Format with Prettier                       |
 | `npm run build`      | Compile `src/` to `lib/` with Babel        |
 

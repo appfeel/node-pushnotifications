@@ -5,7 +5,8 @@ Node.js library that sends push notifications through FCM, APNs, Web Push, WNS a
 ## Commands
 
 - `npm test`: mocha with `@babel/register`
-- `npm run lint`: ESLint
+- `npm run lint`: ESLint and `prettier --check .`
+- `npm run lint:fix`: fix ESLint and Prettier issues
 - `npm run format`: Prettier
 - `npm run build`: Babel `src/` to `lib/`
 
