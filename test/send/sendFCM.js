@@ -115,6 +115,199 @@ describe('push-notifications-fcm', () => {
     });
   });
 
+  describe('per-recipient response mapping', () => {
+    const notRegistered = Object.assign(new Error('Requested entity was not found.'), {
+      code: 'messaging/registration-token-not-registered',
+    });
+
+    before(() => {
+      sendMethod = sinon.stub(fbMessaging.prototype, 'sendEachForMulticast', () =>
+        Promise.resolve({
+          successCount: 0,
+          failureCount: 1,
+          responses: [{ success: false, error: notRegistered }],
+        })
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('keeps the original error object and its code', async () => {
+      const results = await pn.send(regIds, message);
+      const [entry] = results[0].message;
+      expect(results[0].failure).to.equal(1);
+      expect(entry.error).to.equal(notRegistered);
+      expect(entry.error.code).to.equal('messaging/registration-token-not-registered');
+      expect(entry.errorMsg).to.equal(notRegistered.message);
+      expect(entry.regId).to.equal(regIds[0]);
+      expect(entry.originalRegId).to.equal(regIds[0]);
+    });
+  });
+
+  describe('messageId mapping', () => {
+    const messageId = 'projects/test/messages/1';
+
+    before(() => {
+      sendMethod = sinon.stub(fbMessaging.prototype, 'sendEachForMulticast', () =>
+        Promise.resolve({
+          successCount: 1,
+          failureCount: 0,
+          responses: [{ success: true, messageId }],
+        })
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('returns the messageId from the FCM response', async () => {
+      const results = await pn.send(regIds, message);
+      expect(results[0].message[0].messageId).to.equal(messageId);
+      expect(results[0].message[0].error).to.equal(null);
+    });
+  });
+
+  describe('batch transport failure', () => {
+    const transportError = new Error('FCM transport failed');
+
+    before(() => {
+      sendMethod = sinon.stub(fbMessaging.prototype, 'sendEachForMulticast', () =>
+        Promise.reject(transportError)
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('rejects the send promise with the original error', async () => {
+      let caught;
+      try {
+        await pn.send(regIds, message);
+      } catch (err) {
+        caught = err;
+      }
+      expect(caught).to.equal(transportError);
+    });
+
+    it('passes the original error to the callback', (done) => {
+      pn.send(regIds, message, (err, results) => {
+        try {
+          expect(err).to.equal(transportError);
+          expect(results).to.equal(undefined);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      }).catch(() => {});
+    });
+  });
+
+  describe('multi-chunk send with one failing chunk', () => {
+    const manyRegIds = Array.from({ length: 501 }, (_, i) => `${regIds[0]}-${i}`);
+    const chunkError = new Error('second chunk failed');
+
+    before(() => {
+      sendMethod = sinon.stub(fbMessaging.prototype, 'sendEachForMulticast', ({ tokens }) =>
+        tokens.length === 1
+          ? Promise.reject(chunkError)
+          : Promise.resolve({
+              successCount: tokens.length,
+              failureCount: 0,
+              responses: tokens.map(() => ({ success: true })),
+            })
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('rejects when any chunk fails', async () => {
+      let caught;
+      try {
+        await pn.send(manyRegIds, message);
+      } catch (err) {
+        caught = err;
+      }
+      expect(caught).to.equal(chunkError);
+    });
+  });
+
+  describe('multi-chunk send with all chunks succeeding', () => {
+    const manyRegIds = Array.from({ length: 501 }, (_, i) => `${regIds[0]}-${i}`);
+
+    before(() => {
+      sendMethod = sinon.stub(fbMessaging.prototype, 'sendEachForMulticast', ({ tokens }) =>
+        Promise.resolve({
+          successCount: tokens.length,
+          failureCount: 0,
+          responses: tokens.map((_, i) => ({ success: true, messageId: `m${i}` })),
+        })
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('merges the results of every chunk in order', async () => {
+      const results = await pn.send(manyRegIds, message);
+      expect(results).to.have.length(1);
+      expect(sendMethod.callCount).to.equal(2);
+      expect(results[0].success).to.equal(501);
+      expect(results[0].failure).to.equal(0);
+      expect(results[0].message).to.have.length(501);
+      expect(results[0].message[500].originalRegId).to.equal(manyRegIds[500]);
+      expect(results[0].message[500].messageId).to.equal('m0');
+    });
+  });
+
+  describe('empty FCM response', () => {
+    before(() => {
+      sendMethod = sinon.stub(fbMessaging.prototype, 'sendEachForMulticast', () =>
+        Promise.resolve(undefined)
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('rejects with a clear error', async () => {
+      let caught;
+      try {
+        await pn.send(regIds, message);
+      } catch (err) {
+        caught = err;
+      }
+      expect(caught).to.be.instanceOf(Error);
+      expect(caught.message).to.equal('FCM returned an empty response');
+    });
+  });
+
+  describe('response without per-recipient results', () => {
+    before(() => {
+      sendMethod = sinon.stub(fbMessaging.prototype, 'sendEachForMulticast', () =>
+        Promise.resolve({ successCount: 1, failureCount: 0 })
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('reports every recipient as failed', async () => {
+      const results = await pn.send(regIds, message);
+      expect(results[0].success).to.equal(0);
+      expect(results[0].failure).to.equal(regIds.length);
+      expect(results[0].message[0].errorMsg).to.equal('unknown');
+    });
+  });
+
   describe('proxy support', () => {
     it('should accept httpAgent in settings', (done) => {
       const mockHttpAgent = {};
