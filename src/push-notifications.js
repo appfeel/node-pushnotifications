@@ -28,15 +28,18 @@ class PN {
   }
 
   sendWith(method, regIds, data, cb) {
-    return method(regIds, data, this.settings)
-      .then((results) => {
+    // Two-argument then: an exception thrown by cb must not route into the
+    // error handler and invoke cb a second time
+    return method(regIds, data, this.settings).then(
+      (results) => {
         cb?.(null, results);
         return results;
-      })
-      .catch((error) => {
+      },
+      (error) => {
         cb?.(error);
         throw error;
-      });
+      }
+    );
   }
 
   getPushMethodByRegId(regId) {
@@ -163,17 +166,18 @@ class PN {
       );
     }
 
-    return Promise.all(promises)
-      .then((results) => {
-        const cb = callback || ((noop) => noop);
-        cb(null, results);
+    // Two-argument then: an exception thrown by the callback must not route
+    // into the error handler and invoke the callback a second time
+    return Promise.all(promises).then(
+      (results) => {
+        callback?.(null, results);
         return results;
-      })
-      .catch((err) => {
-        const cb = callback || ((noop) => noop);
-        cb(err);
+      },
+      (err) => {
+        callback?.(err);
         throw err;
-      });
+      }
+    );
   }
 }
 
