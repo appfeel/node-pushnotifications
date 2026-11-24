@@ -16,36 +16,28 @@ const sendChunk = (firebaseApp, recipients, message) => {
   return firebaseAdmin
     .messaging(firebaseApp)
     .sendEachForMulticast(firebaseMessage)
-    .then((response, err) => {
-      const recipientList = getRecipientList(recipients);
-      if (err) {
-        return {
-          method: FCM_METHOD,
-          success: 0,
-          failure: recipientList.length,
-          message: recipientList.map((value) => ({
-            originalRegId: value,
-            regId: value,
-            error: err,
-            errorMsg: err instanceof Error ? err.message : err,
-          })),
-        };
+    .then((response) => {
+      if (!response) {
+        throw new Error('FCM returned an empty response');
       }
-      if (response && response.responses !== undefined) {
-        let regIndex = 0;
+      const recipientList = getRecipientList(recipients);
+      if (response.responses !== undefined) {
         return {
           method: FCM_METHOD,
           success: response.successCount,
           failure: response.failureCount,
-          message: response.responses.map((value) => {
-            const regToken = recipientList[regIndex];
-            regIndex += 1;
+          message: response.responses.map((value, index) => {
+            const regToken = recipientList[index];
             const errorMsg = value.error ? value.error.message || value.error : null;
+            let error = null;
+            if (value.error) {
+              error = value.error instanceof Error ? value.error : new Error(errorMsg);
+            }
             return {
-              messageId: value.message_id,
+              messageId: value.messageId,
               originalRegId: regToken,
-              regId: value.registration_id || regToken,
-              error: value.error ? new Error(value.error) : null,
+              regId: regToken,
+              error,
               errorMsg,
             };
           }),
@@ -53,8 +45,8 @@ const sendChunk = (firebaseApp, recipients, message) => {
       }
       return {
         method: FCM_METHOD,
-        success: response.successCount,
-        failure: response.failureCount,
+        success: 0,
+        failure: recipientList.length,
         message: recipientList.map((value) => ({
           originalRegId: value,
           regId: value,

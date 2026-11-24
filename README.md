@@ -292,11 +292,10 @@ push.send(registrationIds, data)
 [
     {
         method: 'fcm', // The method used send notifications and which this info is related to
-        multicastId: [], // (only Android) Array with unique ID (number) identifying the multicast message, one identifier for each chunk of 1.000 notifications)
         success: 0, // Number of notifications that have been successfully sent. It does not mean that the notification has been deliveried.
         failure: 0, // Number of notifications that have been failed to be send.
         message: [{
-            messageId: '', // (only for android) String specifying a unique ID for each successfully processed message or undefined if error
+            messageId: '', // (only for fcm) Message ID assigned by FCM for each successfully sent message, or undefined if error
             regId: value, // The current registrationId (device token id). Beware: For Android this may change if Google invalidates the previous device token. Use "originalRegId" if you are interested in when this changed occurs.
             originalRegId: value, // (only for android) The registrationId that was sent to the push.send() method. Compare this with field "regId" in order to know when the original registrationId (device token id) gets changed.
             error: new Error('unknown'), // If any, there will be an Error object here for debugging purposes
