@@ -1,5 +1,5 @@
 import js from '@eslint/js';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin from 'eslint-plugin-import-x';
 import prettier from 'eslint-plugin-prettier/recommended';
 
 export default [
@@ -10,7 +10,7 @@ export default [
   {
     files: ['src/**/*.js'],
     plugins: {
-      import: importPlugin,
+      'import-x': importPlugin,
     },
     languageOptions: {
       ecmaVersion: 2021,
@@ -26,14 +26,14 @@ export default [
     rules: {
       'no-console': 'off',
       'no-use-before-define': ['error', { functions: false }],
-      'import/no-extraneous-dependencies': 'error',
-      'import/no-unresolved': 'error',
+      'import-x/no-extraneous-dependencies': 'error',
+      'import-x/no-unresolved': 'error',
     },
   },
   {
     files: ['test/**/*.js'],
     plugins: {
-      import: importPlugin,
+      'import-x': importPlugin,
     },
     languageOptions: {
       ecmaVersion: 2021,
@@ -55,8 +55,8 @@ export default [
     rules: {
       'no-console': 'off',
       'global-require': 'off',
-      'import/no-extraneous-dependencies': 'off',
-      'import/no-dynamic-require': 'off',
+      'import-x/no-extraneous-dependencies': 'off',
+      'import-x/no-dynamic-require': 'off',
     },
   },
   prettier,
