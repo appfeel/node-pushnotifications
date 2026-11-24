@@ -1,707 +1,545 @@
-# Node Push Notifications
+# node-pushnotifications
 
-A node.js module for interfacing with Apple Push Notification, Google Cloud Messaging, Windows Push Notification, Web-Push Notification and Amazon Device Messaging services.
+**Push notifications for [Node.js](https://nodejs.org). One API for FCM, APNs, Web Push, WNS and ADM.**
 
-[![License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](https://npmjs.org/package/node-pushnotifications)
-[![NPM version](http://img.shields.io/npm/v/node-pushnotifications.svg?style=flat)](https://npmjs.org/package/node-pushnotifications)
-[![Downloads](http://img.shields.io/npm/dm/node-pushnotifications.svg?style=flat)](https://npmjs.org/package/node-pushnotifications)
-[![node-pushnotifications CI](https://github.com/appfeel/node-pushnotifications/actions/workflows/ci.yml/badge.svg)](https://github.com/appfeel/node-pushnotifications/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/appfeel/node-pushnotifications/badge.svg?branch=master)](https://coveralls.io/github/appfeel/node-pushnotifications?branch=master)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+[![npm version](https://img.shields.io/npm/v/node-pushnotifications.svg)](https://www.npmjs.com/package/node-pushnotifications)
+[![npm downloads](https://img.shields.io/npm/dm/node-pushnotifications.svg)](https://www.npmjs.com/package/node-pushnotifications)
+[![CI](https://github.com/appfeel/node-pushnotifications/actions/workflows/ci.yml/badge.svg)](https://github.com/appfeel/node-pushnotifications/actions/workflows/ci.yml)
+[![Node.js version](https://img.shields.io/node/v/node-pushnotifications.svg)](https://nodejs.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-- [Installation](#installation)
-- [Requirements](#requirements)
+```js
+const results = await push.send([androidToken, iosToken, webSubscription], {
+  title: 'Order shipped',
+  body: 'Your order #1234 is on its way',
+  topic: 'com.example.app', // iOS bundle ID
+});
+```
+
+## Contents
+
 - [Features](#features)
+- [Supported services](#supported-services)
+- [Installation](#installation)
+- [Quick start](#quick-start)
 - [Usage](#usage)
-- [FCM](#fcm)
-- [APN](#apn)
-- [WNS](#wns)
-- [ADM](#adm)
-- [Web-Push](#web-push)
-- [Resources](#resources)
-- [Proxy](#proxy)
-- [LICENSE](#license)
+- [Payload reference](#payload-reference)
+- [Service guides](#service-guides): [FCM](#fcm) · [APNs](#apns) · [Web Push](#web-push) · [WNS](#wns) · [ADM](#adm)
+- [Proxy support](#proxy-support)
+- [Upgrading](#upgrading)
+- [Contributing](#contributing) · [Security](#security) · [License](#license)
+
+## Features
+
+- One `send()` for every service, sent in parallel
+- Routing by token type
+- One result format for all services
+- Built on the official SDKs: [`firebase-admin`](https://github.com/firebase/firebase-admin-node), [`@parse/node-apn`](https://github.com/parse-community/node-apn), [`web-push`](https://github.com/web-push-libs/web-push)
+- APNs token (`.p8`) and certificate auth
+- FCM batching, topics and conditions
+- Silent pushes on iOS and Android
+- Promise and callback APIs
+- Proxy support
+
+## Supported services
+
+| Service                                                                                                                                    | Platforms                         | Library                                                           | `type` constant     |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- | ----------------------------------------------------------------- | ------------------- |
+| [Firebase Cloud Messaging](https://firebase.google.com/docs/cloud-messaging)                                                               | Android, iOS (via Firebase)       | [firebase-admin](https://github.com/firebase/firebase-admin-node) | `FCM` (`'fcm'`)     |
+| [Apple Push Notification service](https://developer.apple.com/documentation/usernotifications)                                             | iOS, iPadOS, macOS, watchOS, tvOS | [@parse/node-apn](https://github.com/parse-community/node-apn)    | `APN` (`'apn'`)     |
+| [Web Push](https://developer.mozilla.org/en-US/docs/Web/API/Push_API)                                                                      | Browsers with the Push API        | [web-push](https://github.com/web-push-libs/web-push)             | `WEB` (`'webPush'`) |
+| [Windows Push Notification Services](https://learn.microsoft.com/en-us/windows/apps/develop/notifications/push-notifications/wns-overview) | Windows apps                      | [wns](https://github.com/tjanczuk/wns)                            | `WNS` (`'wns'`)     |
+| [Amazon Device Messaging](https://developer.amazon.com/docs/adm/overview.html)                                                             | Fire TV, Fire tablets, Vega OS    | [node-adm](https://github.com/umano/node-adm)                     | `ADM` (`'adm'`)     |
 
 ## Installation
 
 ```bash
-npm install node-pushnotifications --save
+npm install node-pushnotifications
 ```
 
-## Requirements
+Requires Node.js 20 or later. CI tests Node.js 20, 22, 24 and 26.
 
-Node version >= 20.x.x
+```js
+// ESM
+import PushNotifications, { FCM, APN, WEB, WNS, ADM } from 'node-pushnotifications';
 
-## Features
+// CommonJS
+const PushNotifications = require('node-pushnotifications');
+const { FCM, APN, WEB, WNS, ADM } = PushNotifications;
+```
 
-- Powerful and intuitive.
-- Multi platform push notifications.
-- Automatically detects destination device type.
-- Unified error handling.
-- Written in ES6, compatible with ES5 through babel transpilation.
+## Quick start
+
+```js
+import { readFileSync } from 'node:fs';
+import PushNotifications, { FCM, APN } from 'node-pushnotifications';
+
+const push = new PushNotifications({
+  fcm: {
+    appName: 'my-app',
+    serviceAccountKey: JSON.parse(readFileSync('./firebase-service-account.json', 'utf8')),
+  },
+  apn: {
+    token: { key: './AuthKey_ABC123DEFG.p8', keyId: 'ABC123DEFG', teamId: 'TEAM123456' },
+    production: process.env.NODE_ENV === 'production',
+  },
+});
+
+const results = await push.send(
+  [
+    { id: '<android-fcm-token>', type: FCM },
+    { id: '<ios-apns-token>', type: APN },
+  ],
+  {
+    title: 'Order shipped',
+    body: 'Your order #1234 is on its way',
+    topic: 'com.example.app', // required for APNs
+    custom: { orderId: '1234' },
+  }
+);
+
+for (const { method, success, failure } of results) {
+  console.log(`${method}: ${success} sent, ${failure} failed`);
+}
+```
 
 ## Usage
 
-### 1. Import and setup push module
+### Settings
 
-Include the settings for each device type. You should only include the settings for the devices that you expect to have. I.e. if your app is only available for Android or for iOS, you should only include `fcm` or `apn` respectively.
-
-```js
-import PushNotifications from 'node-pushnotifications';
-
-const settings = {
-    fcm: {
-        appName: 'localFcmAppName',
-        serviceAccountKey: require('../firebase-project-service-account-key.json'), // firebase service-account-file.json,
-        credential: null, // 'firebase-admin' Credential interface
-        // Optional Firebase Admin SDK AppOptions
-        projectId: 'your-project-id', // Explicitly set the Google Cloud project ID
-        databaseURL: 'https://your-database.firebaseio.com', // Realtime Database URL (optional)
-        storageBucket: 'your-bucket.appspot.com', // Cloud Storage bucket (optional)
-        serviceAccountId: 'your-email@your-project.iam.gserviceaccount.com', // Service account email (optional)
-        httpAgent: undefined, // HTTP Agent for proxy support (optional)
-        httpsAgent: undefined, // HTTPS Agent for proxy support (optional)
-    },
-    apn: {
-        token: {
-            key: './certs/key.p8', // optionally: fs.readFileSync('./certs/key.p8')
-            keyId: 'ABCD',
-            teamId: 'EFGH',
-        },
-        production: false // true for APN production environment, false for APN sandbox environment,
-        ...
-    },
-    adm: {
-        client_id: null,
-        client_secret: null,
-        ...
-    },
-    wns: {
-        client_id: null,
-        client_secret: null,
-        notificationMethod: 'sendTileSquareBlock',
-        ...
-    },
-    web: {
-        vapidDetails: {
-            subject: '< \'mailto\' Address or URL >',
-            publicKey: '< URL Safe Base64 Encoded Public Key >',
-            privateKey: '< URL Safe Base64 Encoded Private Key >',
-        },
-        TTL: 2419200,
-        contentEncoding: 'aes128gcm',
-        headers: {}
-    },
-    isAlwaysUseFCM: false, // true all messages will be sent through FCM API
-
-};
-const push = new PushNotifications(settings);
-```
-
-- FCM options: see [firebase-admin](https://firebase.google.com/docs/admin/setup) (read [FCM](#fcm) section below!) - used for Android and fallback for other platforms
-- APN options: see [node-apn](https://github.com/node-apn/node-apn/blob/master/doc/provider.markdown)
-- ADM options: see [node-adm](https://github.com/umano/node-adm)
-- WNS options: see [wns](https://github.com/tjanczuk/wns)
-- Web-push options: see [web-push](https://github.com/web-push-libs/web-push)
-
-* `isAlwaysUseFCM`: when set to `true`, will send all notifications through FCM instead of platform-specific services
-
-_iOS:_ It is recommended to use [provider authentication tokens](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/CommunicatingwithAPNs.html). You need the .p8 certificate that you can obtain in your [account membership](https://cloud.githubusercontent.com/assets/8225312/20380437/599a767c-aca2-11e6-82bd-3cbfc2feee33.png). You should ask for an _Apple Push Notification Authentication Key (Sandbox & Production)_ or _Apple Push Notification service SSL (Sandbox & Production)_. However, you can also use certificates. See [node-apn](https://github.com/node-apn/node-apn/wiki/Preparing-Certificates) to see how to prepare cert.pem and key.pem.
-
-### 2. Define destination device ID
-
-Registration id's should be defined as objects (or strings which is not recommended and should be used at your own risk, it is kept for backwards compatibility).
-
-You can send to multiple devices, independently of platform, creating an array with different destination device IDs.
+Only include the services you use.
 
 ```js
-// Single destination
-const registrationIds = 'INSERT_YOUR_DEVICE_ID';
-
-// Multiple destinations
-const registrationIds = [];
-registrationIds.push('INSERT_YOUR_DEVICE_ID');
-registrationIds.push('INSERT_OTHER_DEVICE_ID');
+const push = new PushNotifications({
+  fcm: {
+    appName: 'my-app',
+    serviceAccountKey: require('./firebase-service-account.json'), // or `credential`
+  },
+  apn: {
+    token: {
+      key: './certs/AuthKey_ABC123DEFG.p8', // path, Buffer or string
+      keyId: 'ABC123DEFG',
+      teamId: 'TEAM123456',
+    },
+    production: false, // false = sandbox
+  },
+  web: {
+    vapidDetails: {
+      subject: 'mailto:you@example.com',
+      publicKey: '<VAPID public key>',
+      privateKey: '<VAPID private key>',
+    },
+    TTL: 2419200,
+    contentEncoding: 'aes128gcm',
+  },
+  wns: {
+    client_id: '<package SID>',
+    client_secret: '<client secret>',
+    notificationMethod: 'sendTileSquareBlock',
+  },
+  adm: {
+    client_id: '<ADM client id>',
+    client_secret: '<ADM client secret>',
+  },
+  isAlwaysUseFCM: false, // true: send typed and string tokens through FCM
+});
 ```
 
-The `PN.send()` method later detects device type and therefore used push method, based on the id stucture. Check out the method `PN.getPushMethodByRegId` how this detection works.
+Each block is passed to the underlying library:
 
-Actually there are several different supported reg id's:
+| Key   | Options                                                                                                                                     |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fcm` | See [FCM](#fcm)                                                                                                                             |
+| `apn` | [`apn.Provider` options](https://github.com/parse-community/node-apn/blob/master/doc/provider.markdown)                                     |
+| `web` | [`web-push` options](https://github.com/web-push-libs/web-push#sendnotificationpushsubscription-payload-options)                            |
+| `wns` | [`wns` options](https://github.com/tjanczuk/wns), plus `notificationMethod`: the `wns` function to call (`sendToastText01`, `sendRaw`, ...) |
+| `adm` | [`node-adm` options](https://github.com/umano/node-adm)                                                                                     |
 
-#### Object regId
+Settings are merged shallowly with the defaults: passing `apn: {...}` replaces the whole default `apn` object. `push.setOptions(settings)` replaces the settings and reconnects to APNs.
 
-It can be of 2 types:
+### Destinations
 
-- Mobile regId:
-
-```json
-{
-  "id": "INSERT_YOUR_DEVICE_ID",
-  "type": "apn"
-}
-```
-
-Where type can be one of: 'apn', 'fcm', 'adm', 'wns', 'webPush'. The types are available as constants:
+Pass one destination or an array. Different services can be mixed.
 
 ```js
-import { WEB, WNS, ADM, FCM, APN } from 'node-pushnotifications';
+import { FCM, APN, WNS, ADM } from 'node-pushnotifications';
 
-const regId = {
-  id: 'INSERT_YOUR_DEVICE_ID',
-  type: APN,
-};
+const devices = [
+  { id: '<fcm-token>', type: FCM },
+  { id: '<apns-device-token>', type: APN },
+  { id: 'https://db5.notify.windows.com/?token=...', type: WNS },
+  { id: 'amzn1.adm-registration.v3...', type: ADM },
+  // Web Push: the PushSubscription from pushManager.subscribe()
+  { endpoint: 'https://...', keys: { p256dh: '<key>', auth: '<secret>' } },
+];
 ```
 
-In case of webPush, `id` needs to be as defined below for `Web subscription`.
+Objects without both `id` and `type` are treated as Web Push subscriptions. With `isAlwaysUseFCM: true`, everything except Web Push subscriptions goes through FCM.
 
-- Web subscription see [web-push](https://www.npmjs.com/package/web-push)
+<details>
+<summary>Plain string tokens (legacy, not recommended)</summary>
 
-```json
-{
-  "endpoint": "< Push Subscription URL >",
-  "keys": {
-    "p256dh": "< User Public Encryption Key >",
-    "auth": "< User Auth Secret >"
-  }
-}
+Strings are still accepted. The service is guessed from the format, checked in this order:
+
+| Rule                           | Service                                 |
+| ------------------------------ | --------------------------------------- |
+| `isAlwaysUseFCM` is `true`     | `fcm`                                   |
+| starts with `http`             | `wns`                                   |
+| matches `/^(amzn[0-9]*.adm)/i` | `adm`                                   |
+| 64 or 160 hex characters       | `apn`                                   |
+| longer than 64 characters      | `fcm`                                   |
+| anything else                  | `unknown` (not sent, counted as failed) |
+
+</details>
+
+### Sending
+
+```js
+// Promise
+const results = await push.send(devices, data);
+
+// Callback
+push.send(devices, data, (err, results) => {});
 ```
 
-#### String regId (not recommended)
+`send()` returns a promise even when a callback is given. If you only use the callback, add `.catch(() => {})` to avoid unhandled rejections.
 
-It is not recommended, as the [reg id is of variable length](https://developer.apple.com/documentation/uikit/uiapplicationdelegate/1622958-application), which makes it difficult to identify if it is an APN regId or FCM regId.
-
-- `regId.substring(0, 4) === 'http'`: 'wns'
-- `/^(amzn[0-9]*.adm)/i.test(regId)`: 'adm'
-- `(regId.length === 64 || regId.length === 160) && /^[a-fA-F0-9]+$/.test(regId)`: 'apn'
-- `regId.length > 64`: 'fcm'
-- otherwise: 'unknown' (the notification will not be sent)
-
-**Android:**
-
-- All Android notifications are sent through Firebase Cloud Messaging (FCM)
-- If you provide more than 1.000 registration tokens, they will automatically be split into 1.000 chunks
-- You are able to send to custom topics or conditions through FCM (see [firebase-admin docs](https://firebase.google.com/docs/cloud-messaging))
-
-Example:
-
-```javascript
-const data = { ...data, recipients };
-```
-
-### 3. Send the notification
-
-Create a JSON object with a title and message and send the notification.
+`data` is shared by all services. Each service reads the fields it supports (see [Payload reference](#payload-reference)):
 
 ```js
 const data = {
-    title: 'New push notification', // REQUIRED for Android
-    topic: 'topic', // REQUIRED for iOS (apn and fcm)
-    /* The topic of the notification. When using token-based authentication, specify the bundle ID of the app.
-     * When using certificate-based authentication, the topic is usually your app's bundle ID.
-     * More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
-     */
-    body: 'Powered by AppFeel',
-    custom: {
-        sender: 'AppFeel',
-    },
-    priority: 'high', // fcm, apn. Supported values are 'high' or 'normal' (fcm). Will be translated to 10 and 5 for apn. Defaults to 'high'
-    collapseKey: '', // fcm for android, used as collapseId in apn
-    contentAvailable: true, // fcm, apn. node-apn will translate true to 1 as required by apn.
-    delayWhileIdle: true, // fcm for android
-    restrictedPackageName: '', // fcm for android
-    dryRun: false, // fcm for android
-    directBootOk: false, // fcm for android. Allows direct boot mode
-    icon: '', // fcm for android
-    image: '', // fcm for android
-    style: '', // fcm for android
-    picture: '', // fcm for android
-    tag: '', // fcm for android
-    color: '', // fcm for android
-    clickAction: '', // fcm for android. In ios, category will be used if not supplied
-    locKey: '', // fcm, apn
-    titleLocKey: '', // fcm, apn
-    locArgs: undefined, // fcm, apn. Expected format: Stringified Array
-    titleLocArgs: undefined, // fcm, apn. Expected format: Stringified Array
-    retries: 1, // fcm, apn
-    encoding: '', // apn
-    badge: 2, // fcm for ios, apn
-    sound: 'ping.aiff', // fcm, apn
-    android_channel_id: '', // fcm - Android Channel ID
-    notificationCount: 0, // fcm for android. badge can be used for both fcm and apn
-    ticker: '', // fcm for android. Ticker text for accessibility
-    sticky: false, // fcm for android. Notification persists when clicked
-    visibility: 'public', // fcm for android. Can be 'public', 'private', or 'secret'
-    localOnly: false, // fcm for android. Local-only notification (Wear OS)
-    eventTimestamp: undefined, // fcm for android. Date object for event time
-    notificationPriority: 'default', // fcm for android. Can be 'min', 'low', 'default', 'high', 'max'
-    vibrateTimingsMillis: undefined, // fcm for android. Array of vibration durations in milliseconds
-    defaultVibrateTimings: false, // fcm for android. Use system default vibration
-    defaultSound: false, // fcm for android. Use system default sound
-    lightSettings: undefined, // fcm for android. LED light settings object
-    defaultLightSettings: false, // fcm for android. Use system default LED settings
-    analyticsLabel: '', // fcm for android. Analytics label for FCM
-    alert: { // apn, will take precedence over title and body
-        title: 'title',
-        body: 'body'
-        // details: https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#convenience-setters
-    },
-    silent: false, // fcm, apn, will override badge, sound, alert and priority if set to true on iOS, will omit `notification` property and send as data-only on Android/FCM
-    /*
-     * A string is also accepted as a payload for alert
-     * Your notification won't appear on ios if alert is empty object
-     * If alert is an empty string the regular 'title' and 'body' will show in Notification
-     */
-    // alert: '',
-    launchImage: '', // apn and fcm for ios
-    action: '', // apn and fcm for ios
-    category: '', // apn and fcm for ios
-    // mdm: '', // apn and fcm for ios. Use this to send Mobile Device Management commands.
-    // https://developer.apple.com/library/content/documentation/Miscellaneous/Reference/MobileDeviceManagementProtocolRef/3-MDM_Protocol/MDM_Protocol.html
-    urlArgs: '', // apn and fcm for ios
-    truncateAtWordEnd: true, // apn and fcm for ios
-    mutableContent: 0, // apn
-    threadId: '', // apn
-    pushType: undefined, // apn. valid values are 'alert' and 'background' (https://github.com/parse-community/node-apn/blob/master/doc/notification.markdown#notificationpushtype)
-    expiry: Math.floor(Date.now() / 1000) + 28 * 86400, // unit is seconds. if both expiry and timeToLive are given, expiry will take precedence
-    timeToLive: 28 * 86400,
-    headers: [], // wns
-    launch: '', // wns
-    duration: '', // wns
-    consolidationKey: 'my notification', // ADM
+  title: 'New message',
+  body: 'You have a new message from Ana',
+  topic: 'com.example.app', // required for APNs
+  custom: { conversationId: '42' },
+  badge: 3,
+  sound: 'default',
 };
-
-// You can use it in node callback style
-push.send(registrationIds, data, (err, result) => {
-    if (err) {
-        console.log(err);
-    } else {
-	    console.log(result);
-    }
-});
-
-// Or you could use it as a promise:
-push.send(registrationIds, data)
-    .then((results) => { ... })
-    .catch((err) => { ... });
 ```
 
-- `err` will be null if all went fine, otherwise will return the error from the respective provider module.
-- `result` will contain an array with the following objects (one object for each device type found in device registration id's):
+#### FCM topics and conditions
+
+```js
+await push.send([{ id: 'topic', type: FCM }], {
+  title: 'Breaking news',
+  body: 'Something happened',
+  recipients: { to: 'news' },
+  // or: recipients: { condition: "'sports' in topics || 'news' in topics" },
+});
+```
+
+At least one destination must be an FCM destination, otherwise FCM is not called. Its `id` is ignored when `recipients` is set. An empty destination list resolves to `[{ method: 'none', success: 0, failure: 0, message: [] }]`.
+
+### Results
+
+`send()` resolves to one entry per service used:
 
 ```js
 [
-    {
-        method: 'fcm', // The method used send notifications and which this info is related to
-        success: 0, // Number of notifications that have been successfully sent. It does not mean that the notification has been deliveried.
-        failure: 0, // Number of notifications that have been failed to be send.
-        message: [{
-            messageId: '', // (only for fcm) Message ID assigned by FCM for each successfully sent message, or undefined if error
-            regId: value, // The current registrationId (device token id). Beware: For Android this may change if Google invalidates the previous device token. Use "originalRegId" if you are interested in when this changed occurs.
-            originalRegId: value, // (only for android) The registrationId that was sent to the push.send() method. Compare this with field "regId" in order to know when the original registrationId (device token id) gets changed.
-            error: new Error('unknown'), // If any, there will be an Error object here for debugging purposes
-            errorMsg: 'some error', // If any, will include the error message from the respective provider module
-        }],
-    },
-    {
-        method: 'apn',
-        ... // Same structure here, except for message.orignalRegId
-    },
-    {
-        method: 'wns',
-        ... // Same structure here, except for message.orignalRegId
-    },
-    {
-        method: 'adm',
-        ... // Same structure here, except for message.orignalRegId
-    },
-    {
-        method: 'webPush',
-        ... // Same structure here, except for message.orignalRegId
-    },
-]
-```
-
-## FCM
-
-All Android push notifications are sent through Firebase Cloud Messaging (FCM) using the [firebase-admin](https://github.com/firebase/firebase-admin-node) library.
-
-The following parameters are used to create an FCM Android message (following the [Firebase Admin SDK AndroidConfig interface](https://firebase.google.com/docs/reference/admin/node/admin.messaging.AndroidConfig)):
-
-**AndroidConfig properties:**
-
-- `collapseKey` - Collapse key for message grouping
-- `priority` - Message priority: 'high' (default) or 'normal'
-- `ttl` - Time to live in milliseconds (converted from seconds)
-- `restrictedPackageName` - Package name restriction
-- `directBootOk` - Allow delivery in direct boot mode
-- `data` - Custom data fields (key-value pairs)
-- `notification` - Android notification properties (see below)
-- `fcmOptions` - FCM options including `analyticsLabel`
-
-**AndroidNotification properties:**
-
-- `title` - Notification title
-- `body` - Notification body
-- `icon` - Notification icon resource
-- `color` - Notification color (#rrggbb format)
-- `sound` - Notification sound file
-- `tag` - Notification tag for replacing existing notifications
-- `imageUrl` - Image URL to display in notification
-- `clickAction` - Action to launch when notification is clicked
-- `bodyLocKey` / `bodyLocArgs` - Localized body text
-- `titleLocKey` / `titleLocArgs` - Localized title text
-- `channelId` - Android notification channel ID
-- `notificationCount` - Number of unread notifications
-- `ticker` - Ticker text for accessibility
-- `sticky` - Notification persists when clicked
-- `visibility` - Visibility level: 'public', 'private', or 'secret'
-- `priority` - Notification priority: 'min', 'low', 'default', 'high', or 'max'
-- `eventTimestamp` - Date object for event time
-- `localOnly` - Local-only notification (for Wear OS)
-- `vibrateTimingsMillis` - Vibration pattern (array of milliseconds)
-- `defaultVibrateTimings` - Use system default vibration
-- `defaultSound` - Use system default sound
-- `lightSettings` - LED light configuration object
-- `defaultLightSettings` - Use system default LED settings
-- `proxy` - Proxy setting: 'allow', 'deny', or 'if_priority_lowered'
-
-Example usage:
-
-```js
-const data = {
-  title: 'Title',
-  body: 'Body text',
-  icon: 'ic_notification',
-  color: '#FF0000',
-  sound: 'notification_sound',
-  clickAction: 'OPEN_ACTIVITY',
-  android_channel_id: 'default_channel',
-  tag: 'my_notification',
-  badge: 1,
-  notificationPriority: 'high',
-  ticker: 'New notification',
-  sticky: false,
-  visibility: 'public',
-  analyticsLabel: 'my_analytics_label',
-  custom: {
-    key: 'value',
+  {
+    method: 'fcm', // 'fcm' | 'apn' | 'webPush' | 'wns' | 'adm' | 'unknown' | 'none'
+    success: 1, // accepted by the service (not a delivery receipt)
+    failure: 1,
+    message: [
+      {
+        regId: '<token>',
+        originalRegId: '<token>', // FCM only, same as regId
+        messageId: 'projects/my-app/messages/0:1700...', // FCM only, set on success
+        error: null,
+      },
+      {
+        regId: '<expired-token>',
+        originalRegId: '<expired-token>',
+        error: FirebaseMessagingError, // .code: 'messaging/registration-token-not-registered'
+        errorMsg: 'Requested entity was not found.',
+      },
+    ],
   },
-};
+  { method: 'apn', success: 1, failure: 0, message: [{ regId: '<token>', error: null }] },
+];
 ```
 
-## APN
-
-The following parameters are used to create an APN message:
+Per-device failures are reported in `message[]` and do not reject. To remove invalid FCM tokens:
 
 ```js
-{
-    retryLimit: data.retries || -1,
-    expiry: data.expiry || ((data.timeToLive || 28 * 86400) + Math.floor(Date.now() / 1000)),
-    priority: data.priority === 'normal' ? 5 : 10,
-    encoding: data.encoding,
-    payload: data.custom || {},
-    badge: data.silent === true ? undefined : data.badge,
-    badge: data.sound === true ? undefined : data.sound,
-    alert: data.sound === true ? undefined : data.alert || {
-        title: data.title,
-        body: data.body,
-        'title-loc-key': data.titleLocKey,
-        'title-loc-args': data.titleLocArgs,
-        'loc-key': data.locKey,
-        'loc-args': data.locArgs,
-        'launch-image': data.launchImage,
-        action: data.action,
-    },
-    topic: data.topic, // Required
-    category: data.category || data.clickAction,
-    contentAvailable: data.contentAvailable,
-    mdm: data.mdm,
-    urlArgs: data.urlArgs,
-    truncateAtWordEnd: data.truncateAtWordEnd,
-    collapseId: data.collapseKey,
-    mutableContent: data.mutableContent || 0,
-    threadId: data.threadId,
-    pushType: data.pushType,
-    rawPayload: data.rawPayload,
-    interruptionLevel: data.interruptionLevel
-}
+const stale = results
+  .flatMap((r) => r.message)
+  .filter((m) => m.error?.code === 'messaging/registration-token-not-registered')
+  .map((m) => m.regId);
 ```
 
-_data is the parameter in `push.send(registrationIds, data)`_
+FCM errors are the original `firebase-admin` errors with their [`code`](https://firebase.google.com/docs/cloud-messaging/manage-tokens#detect-invalid-token-responses-from-the-fcm-backend). APNs errors use Apple's [`reason`](https://developer.apple.com/documentation/usernotifications/handling-notification-responses-from-apns) (`BadDeviceToken`, `Unregistered`, ...) as the message.
 
-- [See node-apn fields](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown)
-- **Please note** that `topic` is required ([see node-apn docs](https://github.com/node-apn/node-apn/blob/master/doc/notification.markdown#notificationtopic)). When using token-based authentication, specify the bundle ID of the app.
-  When using certificate-based authentication, the topic is usually your app's bundle ID.
-  More details can be found under https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/sending_notification_requests_to_apns
-- `rawPayload` (hidden 'node-apn' lib notification param) [source code](https://github.com/node-apn/node-apn/blob/master/lib/notification/index.js#L99) this param will replace all payload
+Service-level failures reject the promise and call the callback with `err`, for example invalid APNs credentials or an FCM network error. Services are combined with `Promise.all`, so one failing service rejects the whole call. For FCM, one failed batch of 500 rejects the whole call.
 
-### Silent push notifications
+Destinations that can't be routed are returned under `method: 'unknown'` with `error: Error('Unknown registration id')`.
 
-iOS supports silent push notifications which are not displayed to the user but only used to transmit data.
+## Payload reference
 
-Silent push notifications must not include sound, badge or alert and have normal priority.
+All `data` fields the library reads. "iOS" means APNs and the `apns` part of FCM messages.
 
-By setting the `silent` property to `true` the values for `sound`, `badge` and `alert` will be overridden to `undefined`.
+### Common
 
-Priority will be overridden to `normal`.
+| Field                         | Services       | Description                                                                                          |
+| ----------------------------- | -------------- | ---------------------------------------------------------------------------------------------------- |
+| `title`, `body`               | FCM, APNs      | Notification title and text.                                                                         |
+| `custom`                      | FCM, APNs, ADM | Your data. FCM: `data` (values stringified). APNs: payload. ADM: merged into `data`.                 |
+| `topic`                       | iOS            | Required for APNs. Your bundle ID.                                                                   |
+| `priority`                    | FCM, APNs      | `'high'` (default) or `'normal'`. APNs: 10 or 5.                                                     |
+| `badge`                       | FCM, APNs      | Badge count. Android: fallback for `notificationCount`.                                              |
+| `sound`                       | FCM, APNs      | Sound file name or `'default'`.                                                                      |
+| `collapseKey`                 | FCM, APNs      | Android `collapseKey`, iOS `apns-collapse-id`.                                                       |
+| `contentAvailable`            | iOS            | `true` sets `content-available: 1`.                                                                  |
+| `silent`                      | FCM, APNs      | Background push. iOS: drops `badge`, `sound`, `alert`, priority 5. Android: no `notification` block. |
+| `timeToLive`                  | FCM, APNs, ADM | Seconds. Default 28 days (2419200).                                                                  |
+| `expiry`                      | FCM, APNs, ADM | Unix timestamp in seconds. Overrides `timeToLive`. FCM TTL is capped at 28 days.                     |
+| `clickAction`                 | FCM, APNs      | Android click action. iOS: fallback for `category`.                                                  |
+| `locKey`, `locArgs`           | FCM, APNs      | Localized body key and args (`locArgs` as a JSON string array, e.g. `'["Ana"]'`).                    |
+| `titleLocKey`, `titleLocArgs` | FCM, APNs      | Localized title key and args (JSON string array).                                                    |
+
+### Android (FCM)
+
+Reference: [`AndroidConfig`](https://firebase.google.com/docs/reference/admin/node/firebase-admin.messaging.androidconfig), [`AndroidNotification`](https://firebase.google.com/docs/reference/admin/node/firebase-admin.messaging.androidnotification).
+
+<details>
+<summary>All Android fields</summary>
+
+| Field                   | Maps to                              | Notes                                                           |
+| ----------------------- | ------------------------------------ | --------------------------------------------------------------- |
+| `icon`                  | `notification.icon`                  | Drawable name.                                                  |
+| `image`, `picture`      | `notification.imageUrl`              | Image URL.                                                      |
+| `color`                 | `notification.color`                 | `#rrggbb`.                                                      |
+| `tag`                   | `notification.tag`                   | Replaces a notification with the same tag.                      |
+| `android_channel_id`    | `notification.channelId`             | Notification channel.                                           |
+| `notificationCount`     | `notification.notificationCount`     | Falls back to `badge`.                                          |
+| `notificationPriority`  | `notification.priority`              | `'min'`, `'low'`, `'default'`, `'high'`, `'max'`.               |
+| `visibility`            | `notification.visibility`            | `'public'`, `'private'`, `'secret'`.                            |
+| `ticker`                | `notification.ticker`                | Accessibility text.                                             |
+| `sticky`                | `notification.sticky`                | Keep after tap.                                                 |
+| `localOnly`             | `notification.localOnly`             | Don't bridge to Wear OS.                                        |
+| `eventTimestamp`        | `notification.eventTimestamp`        | `Date`.                                                         |
+| `vibrateTimingsMillis`  | `notification.vibrateTimingsMillis`  | Array of milliseconds.                                          |
+| `defaultVibrateTimings` | `notification.defaultVibrateTimings` | System default vibration.                                       |
+| `defaultSound`          | `notification.defaultSound`          | System default sound.                                           |
+| `lightSettings`         | `notification.lightSettings`         | LED settings.                                                   |
+| `defaultLightSettings`  | `notification.defaultLightSettings`  | System default LED.                                             |
+| `proxy`                 | `notification.proxy`                 | `'allow'`, `'deny'`, `'if_priority_lowered'`.                   |
+| `restrictedPackageName` | `android.restrictedPackageName`      | Only deliver to this package.                                   |
+| `directBootOk`          | `android.directBootOk`               | Deliver in direct boot mode.                                    |
+| `analyticsLabel`        | `android.fcmOptions.analyticsLabel`  | Or `fcmOptions: { analyticsLabel }`.                            |
+| `fcm_notification`      | `android.notification`               | Used as-is instead of the fields above.                         |
+| `providersExclude`      | (message)                            | `['apns']` or `['android']` omits that part of the FCM message. |
+| `recipients`            | (message target)                     | `{ to: '<topic>' }` or `{ condition: '...' }`.                  |
+
+</details>
+
+### iOS
+
+Reference: [node-apn `Notification`](https://github.com/parse-community/node-apn/blob/master/doc/notification.markdown), [Apple payload keys](https://developer.apple.com/documentation/usernotifications/generating-a-remote-notification).
+
+| Field               | Description                                                                        |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| `alert`             | String or object (`{ title, subtitle, body, ... }`). Overrides `title` and `body`. |
+| `category`          | Notification category.                                                             |
+| `threadId`          | Thread grouping.                                                                   |
+| `mutableContent`    | `1` enables a Notification Service Extension.                                      |
+| `pushType`          | `'alert'`, `'background'`, `'voip'`, `'liveactivity'`, ...                         |
+| `interruptionLevel` | `'passive'`, `'active'`, `'time-sensitive'`, `'critical'`.                         |
+| `launchImage`       | Launch image file name.                                                            |
+| `action`            | Alert action text (legacy).                                                        |
+| `urlArgs`           | Safari push URL arguments.                                                         |
+| `mdm`               | MDM push magic.                                                                    |
+| `truncateAtWordEnd` | Truncate the alert at a word boundary.                                             |
+| `encoding`          | Payload encoding.                                                                  |
+| `retries`           | Retry limit.                                                                       |
+| `bodyLocArgs`       | Alias for `locArgs`.                                                               |
+| `rawPayload`        | Full APNs payload. Replaces everything built from other fields.                    |
+
+### Web Push, WNS, ADM
+
+| Service  | Fields                                                                                                                                                |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Web Push | The whole `data` value is the payload (strings as-is, objects JSON-stringified).                                                                      |
+| WNS      | `headers`, `launch`, `duration` override `settings.wns`. Other fields go to the `notificationMethod` function. With `sendRaw`, `data` is stringified. |
+| ADM      | `consolidationKey`, `expiry`/`timeToLive` (as `expiresAfter`). All other fields plus `custom` become the ADM `data`.                                  |
+
+## Service guides
+
+### FCM
+
+Messages are sent with [`firebase-admin`](https://firebase.google.com/docs/admin/setup) `sendEachForMulticast` in batches of 500. Each message has an `android` and an `apns` part, so the same tokens work for Android and Firebase-based iOS apps.
+
+Get a service account key from the Firebase console (Project settings > Service accounts) and pass it as `serviceAccountKey`, or pass a [`credential`](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential):
 
 ```js
-const silentPushData = {
-    topic: 'yourTopic',
-    contentAvailable: true,
-    silent: true,
-    custom: {
-        yourKey: 'yourValue',
-        ...
-    }
-}
-```
+import { applicationDefault } from 'firebase-admin/app';
 
-## FCM
-
-All Android push notifications are sent through Firebase Cloud Messaging (FCM) using the [firebase-admin](https://github.com/firebase/firebase-admin-node) library.
-
-**Firebase Admin SDK App Options:**
-
-The following Firebase Admin SDK `AppOptions` are supported and can be passed in `settings.fcm`:
-
-- `appName` - [Firebase app name](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.app#appname) (required)
-- `serviceAccountKey` - [Firebase service account file](https://firebase.google.com/docs/admin/setup#initialize_the_sdk_in_non-google_environments) use downloaded 'service-account-file.json'
-- `credential` - [Firebase credential](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.credential) (one of `serviceAccountKey` or `credential` is required)
-- `projectId` - Explicitly set the Google Cloud project ID (optional)
-- `databaseURL` - Realtime Database URL (optional)
-- `storageBucket` - Cloud Storage bucket name (optional)
-- `serviceAccountId` - Service account email (optional)
-- `databaseAuthVariableOverride` - Auth variable override for Realtime Database (optional)
-- `httpAgent` - HTTP Agent for proxy support (optional, see [Proxy](#proxy) section)
-- `httpsAgent` - HTTPS Agent for proxy support (optional, see [Proxy](#proxy) section)
-
-```js
-const tokens = ['e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x'];
-
-const notifications = {
-  collapseKey: Math.random().toString().replace('0.', ''),
-  priority: 'high',
-  sound: 'default',
-  title: 'Title 1',
-  body: 'Body 2',
-  // titleLocKey: 'GREETING',
-  // titleLocArgs: ['Smith', 'M'],
-  // fcm_notification: {
-  //   title: 'Title 1',
-  //   body: 'Body 2',
-  //   sound: 'default',
-  //   default_vibrate_timings: true,
-  // },
-  // alert: {
-  //   title: 'Title 2',
-  //   body: 'Body 2'
-  // },
-  custom: {
-    friend_id: 54657,
-    list_id: 'N7jSif1INyZkA7r910HljzGUVS',
-  },
-};
-
-pushNotifications.send(tokens, notifications, (error, result) => {
-  if (error) {
-    console.log('[error]', error);
-    throw error;
-  } else {
-    console.log('[result]', result, result.at(0));
-  }
+const push = new PushNotifications({
+  fcm: { appName: 'my-app', credential: applicationDefault(), projectId: 'my-project' },
 });
 ```
 
-`fcm_notification` - object that will be passed to FCM message notification field
+`settings.fcm` options ([`AppOptions`](https://firebase.google.com/docs/reference/admin/node/firebase-admin.app.appoptions)):
 
-Fcm object that will be sent to provider ([Fcm message format](https://firebase.google.com/docs/reference/fcm/rest/v1/projects.messages?authuser=0#Message)) :
+| Option                         | Description                                                                 |
+| ------------------------------ | --------------------------------------------------------------------------- |
+| `appName`                      | Firebase app instance name.                                                 |
+| `serviceAccountKey`            | Service account JSON. Use this or `credential`.                             |
+| `credential`                   | A `firebase-admin` `Credential`. Takes precedence over `serviceAccountKey`. |
+| `projectId`                    | Google Cloud project ID.                                                    |
+| `databaseURL`                  | Realtime Database URL.                                                      |
+| `storageBucket`                | Cloud Storage bucket.                                                       |
+| `serviceAccountId`             | Service account email.                                                      |
+| `databaseAuthVariableOverride` | Realtime Database `auth` override.                                          |
+| `httpAgent`, `httpsAgent`      | See [Proxy support](#proxy-support).                                        |
+| `phonegap`                     | `true`: data-only messages for the legacy Cordova push plugin.              |
+
+`android.data` contains your `custom` fields plus `title`, `message` (body), `sound`, `icon` and `msgcnt` (badge), for older client plugins. All values are strings.
+
+<details>
+<summary>Generated FCM message example</summary>
+
+Input: `{ title: 'Order shipped', body: 'Your order #1234 is on its way', topic: 'com.example.app', sound: 'default', badge: 1, collapseKey: 'order-1234', timeToLive: 3600, custom: { orderId: 1234, screen: 'orders' } }`
 
 ```json
 {
-  "data": {
-    "friend_id": "54657",
-    "list_id": "N7jSif1INyZkA7r910HljzGUVS"
-  },
+  "data": { "orderId": "1234", "screen": "orders" },
   "android": {
-    "collapse_key": "5658586678087056",
+    "collapseKey": "order-1234",
     "priority": "high",
-    "notification": {
-      "title": "Title 1",
-      "body": "Body 2",
-      "sound": "default"
+    "ttl": 3600000,
+    "data": {
+      "orderId": "1234",
+      "screen": "orders",
+      "title": "Order shipped",
+      "message": "Your order #1234 is on its way",
+      "sound": "default",
+      "msgcnt": "1"
     },
-    "ttl": 2419200000
+    "notification": {
+      "title": "Order shipped",
+      "body": "Your order #1234 is on its way",
+      "sound": "default",
+      "notificationCount": 1
+    }
   },
   "apns": {
     "headers": {
-      "apns-expiration": "1697456586",
-      "apns-collapse-id": "5658586678087056"
+      "apns-priority": "10",
+      "apns-collapse-id": "order-1234",
+      "apns-expiration": "1795560829",
+      "apns-topic": "com.example.app"
     },
     "payload": {
       "aps": {
+        "badge": 1,
         "sound": "default",
-        "alert": {
-          "title": "Title 1",
-          "body": "Body 2"
-        }
+        "alert": { "title": "Order shipped", "body": "Your order #1234 is on its way" }
       }
     }
   },
-  "tokens": ["e..Gwso:APA91.......7r910HljzGUVS_f...kbyIFk2sK6......D2s6XZWn2E21x"]
+  "tokens": ["<device-token>"]
 }
 ```
 
-## WNS
+</details>
 
-The following fields are used to create a WNS message:
+### APNs
 
-```js
-const notificationMethod = settings.wns.notificationMethod;
-const opts = Object.assign({}, settings.wns);
-opts.headers = data.headers || opts.headers;
-opts.launch = data.launch || opts.launch;
-opts.duration = data.duration || opts.duration;
-
-delete opts.notificationMethod;
-delete data.headers;
-delete data.launch;
-delete data.duration;
-
-wns[notificationMethod](regId, data, opts, (err, response) => { ... });
-
-```
-
-_data is the parameter in `push.send(registrationIds, data)`_
-
-- [See wns fileds](https://github.com/tjanczuk/wns)
-
-**Note:** Please keep in mind that if `data.accessToken` is supplied, each push notification will be sent after the previous one has been **responded**. This is because Microsoft may send a new `accessToken` in the response and it should be used in successive requests. This can slow down the whole process depending on the number of devices to send.
-
-## ADM
-
-The following parameters are used to create an ADM message:
+Token auth is recommended. Create a `.p8` key under [Certificates, Identifiers & Profiles > Keys](https://developer.apple.com/account/resources/authkeys/list). One key works for all your apps and doesn't expire. See [Establishing a token-based connection to APNs](https://developer.apple.com/documentation/usernotifications/establishing-a-token-based-connection-to-apns).
 
 ```js
-const data = Object.assign({}, _data); // _data is the data passed as method parameter
-const consolidationKey = data.consolidationKey;
-const expiry = data.expiry;
-const timeToLive = data.timeToLive;
-
-delete data.consolidationKey;
-delete data.expiry;
-delete data.timeToLive;
-
-const ADMmesssage = {
-  expiresAfter: expiry - Math.floor(Date.now() / 1000) || timeToLive || 28 * 86400,
-  consolidationKey,
-  data,
-};
+apn: {
+  token: { key: './AuthKey_ABC123DEFG.p8', keyId: 'ABC123DEFG', teamId: 'TEAM123456' },
+  production: true,
+}
 ```
 
-_data is the parameter in `push.send(registrationIds, data)`_
+Certificates (`cert`/`key` or `pfx` + `passphrase`) also work, see [`apn.Provider`](https://github.com/parse-community/node-apn/blob/master/doc/provider.markdown).
 
-- [See node-adm fields](https://github.com/umano/node-adm#usage)
+- `topic` is required: your bundle ID ([details](https://developer.apple.com/documentation/usernotifications/sending-notification-requests-to-apns)).
+- `production: false` uses the sandbox, which development builds need.
+- The APNs connection is opened in the constructor. Reuse one `PushNotifications` instance.
 
-## Web-Push
-
-Data can be passed as a simple string payload. If you do not pass a string, the parameter value will be stringified beforehand.
-Settings are directly forwarded to `webPush.sendNotification`.
+Silent notifications:
 
 ```js
-const payload = typeof data === 'string' ? data : JSON.stringify(data);
-webPush.sendNotification(regId, payload, settings.web);
+await push.send(iosDevices, {
+  topic: 'com.example.app',
+  contentAvailable: true,
+  silent: true,
+  pushType: 'background',
+  custom: { syncId: 'abc' },
+});
 ```
 
-A working server example implementation can be found at [https://github.com/alex-friedl/webpush-example/blob/master/server/index.js](https://github.com/alex-friedl/webpush-example/blob/master/server/index.js)
+### Web Push
 
-## Proxy
+Generate VAPID keys once:
 
-The module supports proxy configuration at two different levels:
+```bash
+npx web-push generate-vapid-keys
+```
 
-### Network Proxy (SDK-level)
+Put them in `settings.web.vapidDetails` and pass the public key to `pushManager.subscribe({ applicationServerKey })` in the browser. Full example: [alex-friedl/webpush-example](https://github.com/alex-friedl/webpush-example).
 
-To route Firebase Admin SDK network requests through a corporate proxy, configure HTTP/HTTPS agents:
+### WNS
 
-```javascript
-import { HttpProxyAgent } from 'http-proxy-agent';
+`settings.wns.notificationMethod` selects the [`wns`](https://github.com/tjanczuk/wns) function (`sendTileSquareBlock`, `sendToastText02`, `sendBadge`, `sendRaw`, ...). `data` is passed to it.
+
+If `settings.wns.accessToken` is set, notifications are sent one at a time so a renewed token from WNS can be reused. This is slower for many devices.
+
+### ADM
+
+[ADM](https://developer.amazon.com/docs/adm/overview.html) works on Fire TV, Fire tablets (not the 1st-generation Kindle Fire) and [Vega OS](https://developer.amazon.com/docs/vega-api/2.0/README.amazon-devices_kepler-amazon-device-messaging) apps. Get `client_id` and `client_secret` from a Security Profile in the Amazon Developer Console.
+
+## Proxy support
+
+FCM: pass agents in `settings.fcm`.
+
+```js
 import { HttpsProxyAgent } from 'https-proxy-agent';
 
-const settings = {
-  fcm: {
-    appName: 'myApp',
-    credential: { ... },
-    // Route all Firebase Admin SDK network traffic through proxy
-    httpAgent: new HttpProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
-    httpsAgent: new HttpsProxyAgent(`http://${env.proxy.host}:${env.proxy.port}`),
-  },
-};
+const agent = new HttpsProxyAgent('http://proxy.internal:3128');
+
+const push = new PushNotifications({
+  fcm: { appName: 'my-app', serviceAccountKey, httpAgent: agent, httpsAgent: agent },
+});
 ```
 
-This affects how the SDK communicates with Google's servers and applies to all Firebase services.
+APNs: use node-apn's `proxy` option.
 
-### Notification Proxy Behavior (Android-level)
-
-To control how Android devices handle notifications in proxy scenarios, use the `proxy` property in the notification data:
-
-```javascript
-const data = {
-  title: 'Notification',
-  body: 'Test',
-  proxy: 'allow', // Can be 'allow', 'deny', or 'if_priority_lowered'
-};
-
-push.send(registrationIds, data);
+```js
+apn: {
+  token: { /* ... */ },
+  proxy: { host: 'proxy.internal', port: 3128 },
+}
 ```
 
-This is a notification-level setting that tells the Android system whether to deliver the notification when the device is on a proxy network.
+Web Push: set `proxy` in `settings.web`.
 
-### Platform-Specific Proxy
+The `data.proxy` field is not a network proxy. It is the Android [notification proxy](https://firebase.google.com/docs/reference/admin/node/firebase-admin.messaging.androidnotification#androidnotificationproxy) setting.
 
-For APN (Apple Push Notification), configure the proxy at the app settings level:
+## Upgrading
 
-```javascript
-const settings = {
-  apn: {
-    token: { ... },
-    proxy: {
-      host: <proxy_address>,
-      port: <proxy_port>
-    }
-  }
-};
-```
+- v6 requires Node.js 20 or later.
+- v5 removed GCM (`node-gcm`). Android goes through FCM with `firebase-admin`. Replace `settings.gcm` with `settings.fcm`.
 
-## Resources
+See [GitHub Releases](https://github.com/appfeel/node-pushnotifications/releases) for all changes.
 
-- [Crossplatform integration example using this library and a React Native app](https://github.com/alex-friedl/crossplatform-push-notifications-example)
-- [Web-Push client/server example](https://github.com/alex-friedl/webpush-example)
-- [Node Push Notify from alexlds](https://github.com/alexlds/node-push-notify)
+## Examples
 
-## LICENSE
+- [React Native cross-platform example](https://github.com/alex-friedl/crossplatform-push-notifications-example)
+- [Web Push client and server example](https://github.com/alex-friedl/webpush-example)
 
-```
-The MIT License (MIT)
+## Contributing
 
-Copyright (c) 2016 AppFeel
+See [CONTRIBUTING.md](CONTRIBUTING.md). Bugs and questions go to [GitHub Issues](https://github.com/appfeel/node-pushnotifications/issues).
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## Security
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+## License
 
-_<p style="font-size: small;" align="right"><a color="#232323;" href="http://appfeel.com">Made in Barcelona with <span color="#FCB"><3</span> and <span color="#BBCCFF">Code</span></a></p>_
+[MIT](LICENSE) © [AppFeel](https://github.com/appfeel)

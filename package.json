@@ -1,6 +1,6 @@
 {
   "name": "node-pushnotifications",
-  "description": "A cross-platform push service for node.js",
+  "description": "Push notifications for Node.js. One API for FCM, APNs, Web Push, WNS and ADM.",
   "version": "6.0.3",
   "author": {
     "name": "AppFeel",
@@ -19,32 +19,28 @@
     "lint:fix": "eslint . --fix && prettier --write ."
   },
   "keywords": [
-    "notifications",
     "push",
     "push notifications",
-    "apple",
-    "ios",
-    "iphone",
-    "ipad",
-    "apns",
-    "google",
-    "android",
-    "gcm",
+    "notifications",
     "fcm",
-    "amazon",
-    "kindle",
-    "adm",
-    "microsoft",
-    "windows",
-    "wphone",
-    "windows phone",
+    "firebase",
+    "firebase cloud messaging",
+    "apns",
+    "apn",
+    "apns2",
+    "ios",
+    "android",
+    "web push",
+    "webpush",
+    "vapid",
     "wns",
-    "mpns",
-    "webpush"
+    "windows",
+    "adm",
+    "amazon"
   ],
   "main": "index.js",
   "bugs": {
-    "url": "https://github.com/appfeel/node-pushnotifications",
+    "url": "https://github.com/appfeel/node-pushnotifications/issues",
     "email": "info@appfeel.com"
   },
   "repository": {
