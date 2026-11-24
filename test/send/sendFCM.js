@@ -115,6 +115,31 @@ describe('push-notifications-fcm', () => {
     });
   });
 
+  describe('batch transport failure', () => {
+    const transportError = new Error('FCM transport failed');
+
+    before(() => {
+      sendMethod = sinon.stub(fbMessaging.prototype, 'sendEachForMulticast', () =>
+        Promise.reject(transportError)
+      );
+    });
+
+    after(() => {
+      sendMethod.restore();
+    });
+
+    it('reports a failure for every recipient instead of rejecting', async () => {
+      const results = await pn.send(regIds, message);
+      expect(results).to.have.length(1);
+      expect(results[0].method).to.equal(method);
+      expect(results[0].success).to.equal(0);
+      expect(results[0].failure).to.equal(regIds.length);
+      expect(results[0].message).to.have.length(regIds.length);
+      expect(results[0].message[0].regId).to.equal(regIds[0]);
+      expect(results[0].message[0].errorMsg).to.equal(transportError.message);
+    });
+  });
+
   describe('proxy support', () => {
     it('should accept httpAgent in settings', (done) => {
       const mockHttpAgent = {};

@@ -16,22 +16,10 @@ const sendChunk = (firebaseApp, recipients, message) => {
   return firebaseAdmin
     .messaging(firebaseApp)
     .sendEachForMulticast(firebaseMessage)
-    .then((response, err) => {
-      const recipientList = getRecipientList(recipients);
-      if (err) {
-        return {
-          method: FCM_METHOD,
-          success: 0,
-          failure: recipientList.length,
-          message: recipientList.map((value) => ({
-            originalRegId: value,
-            regId: value,
-            error: err,
-            errorMsg: err instanceof Error ? err.message : err,
-          })),
-        };
-      }
-      if (response && response.responses !== undefined) {
+    .then(
+      (response) => {
+        const recipientList = getRecipientList(recipients);
+        if (response && response.responses !== undefined) {
         let regIndex = 0;
         return {
           method: FCM_METHOD,
@@ -51,18 +39,33 @@ const sendChunk = (firebaseApp, recipients, message) => {
           }),
         };
       }
-      return {
-        method: FCM_METHOD,
-        success: response.successCount,
-        failure: response.failureCount,
-        message: recipientList.map((value) => ({
-          originalRegId: value,
-          regId: value,
-          error: new Error('unknown'),
-          errorMsg: 'unknown',
-        })),
-      };
-    });
+        return {
+          method: FCM_METHOD,
+          success: response.successCount,
+          failure: response.failureCount,
+          message: recipientList.map((value) => ({
+            originalRegId: value,
+            regId: value,
+            error: new Error('unknown'),
+            errorMsg: 'unknown',
+          })),
+        };
+      },
+      (err) => {
+        const recipientList = getRecipientList(recipients);
+        return {
+          method: FCM_METHOD,
+          success: 0,
+          failure: recipientList.length,
+          message: recipientList.map((value) => ({
+            originalRegId: value,
+            regId: value,
+            error: err,
+            errorMsg: err instanceof Error ? err.message : err,
+          })),
+        };
+      }
+    );
 };
 
 const sendFCM = (regIds, data, settings) => {
