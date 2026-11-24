@@ -11,7 +11,7 @@
 
 Do not open a public issue.
 
-Report it privately through [GitHub Security Advisories](https://github.com/appfeel/node-pushnotifications/security/advisories/new). Include the affected version, steps to reproduce and the impact.
+Email info@appfeel.com, or use [GitHub private vulnerability reporting](https://github.com/appfeel/node-pushnotifications/security/advisories/new) if it is enabled. Include the affected version, steps to reproduce and the impact.
 
 We aim to reply within 7 days and will keep you updated until a fix is released.
 
