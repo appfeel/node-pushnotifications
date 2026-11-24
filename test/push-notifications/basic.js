@@ -1,5 +1,5 @@
 import path from 'path';
-import chai from 'chai';
+import * as chai from 'chai';
 import dirtyChai from 'dirty-chai';
 import sinonChai from 'sinon-chai';
 import { spy } from 'sinon';
@@ -36,7 +36,6 @@ describe('push-notifications: instantiation and class properties', () => {
     const settings = {
       fcm: {
         name: 'testAppName',
-        // eslint-disable-next-line no-undef
         serviceAccountKey: require(path.resolve('test/send/FCM-service-account-key.json')),
       },
       apn: {
@@ -220,11 +219,10 @@ describe('push-notifications: instantiation and class properties', () => {
       expect(pn.getPushMethodByRegId(regIds.androidObjectWhatever).pushMethod).to.equal(FCM_METHOD);
     });
 
-    it('Android / FCM', () => {
+    it('Android / FCM with isAlwaysUseFCM', () => {
       const settings = {
         fcm: {
           name: 'testAppName',
-          // eslint-disable-next-line no-undef
           serviceAccountKey: require(path.resolve('test/send/FCM-service-account-key.json')),
         },
       };

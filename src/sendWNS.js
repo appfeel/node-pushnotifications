@@ -32,6 +32,8 @@ const sendWNS = (_regIds, _data, settings) => {
     if (regId) {
       try {
         wns[notificationMethod](regId, data, opts, (err, response) => {
+          // TODO: replace this callback recursion with a promisified wns client
+          // eslint-disable-next-line promise/no-promise-in-callback
           sendPromises.push(Promise.resolve());
           processResponse(err, response, regId);
           sendNotifications(
@@ -47,6 +49,8 @@ const sendWNS = (_regIds, _data, settings) => {
         sendNotifications(regIds, notificationMethod, data, opts, onFinish);
       }
     } else {
+      // onFinish settles the outer promise for both outcomes
+      // eslint-disable-next-line promise/catch-or-return
       Promise.all(sendPromises).then(() => onFinish(), onFinish);
     }
   }

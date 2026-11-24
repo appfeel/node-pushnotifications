@@ -77,7 +77,7 @@ function sendOkMethod() {
       });
 
       expect(firebaseMessage.android.fcmOptions).to.deep.equal({
-        analyticsLabel: analyticsLabel,
+        analyticsLabel,
       });
 
       expect(firebaseMessage.apns.payload.aps.sound).to.equal(notificationData.sound);
