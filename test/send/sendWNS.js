@@ -235,4 +235,31 @@ describe('push-notifications-wns', () => {
         .catch((err) => testException(err, undefined, done));
     });
   });
+
+  describe('concurrent sends', () => {
+    let stub;
+
+    afterEach(() => {
+      stub.restore();
+    });
+
+    it('keeps the results of each call separate', () => {
+      const pending = [];
+      stub = sinon.stub(wns, 'sendTileSquareBlock', (channel, message, options, cb) => {
+        pending.push(() => cb(null, {}));
+      });
+
+      const first = pn.send([regIds[0]], data);
+      const second = pn.send([regIds[0], regIds[1]], data);
+      pending.forEach((respond) => respond());
+
+      return Promise.all([first, second]).then(([[a], [b]]) => {
+        expect(a).to.not.equal(b);
+        expect(a.success).to.equal(1);
+        expect(a.message).to.have.lengthOf(1);
+        expect(b.success).to.equal(2);
+        expect(b.message).to.have.lengthOf(2);
+      });
+    });
+  });
 });
