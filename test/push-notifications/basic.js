@@ -18,6 +18,16 @@ chai.use(dirtyChai);
 chai.use(sinonChai);
 
 describe('push-notifications: instantiation and class properties', () => {
+  describe('exported method constants', () => {
+    it('should export a constant for every push method', () => {
+      expect(PN.WEB).to.equal(WEB_METHOD);
+      expect(PN.WNS).to.equal(WNS_METHOD);
+      expect(PN.ADM).to.equal(ADM_METHOD);
+      expect(PN.FCM).to.equal(FCM_METHOD);
+      expect(PN.APN).to.equal(APN_METHOD);
+    });
+  });
+
   describe('empty options', () => {
     it('should have send methods and settings options', () => {
       const pn = new PN();
