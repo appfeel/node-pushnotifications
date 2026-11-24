@@ -204,4 +204,55 @@ describe('push-notifications-wns-access-token', () => {
         .catch((err) => testException(err, undefined, done));
     });
   });
+
+  describe('wns calls back with only an error', () => {
+    let stub;
+    const tokenPn = () =>
+      new PN({
+        wns: {
+          client_id: 'client',
+          client_secret: 'secret',
+          notificationMethod: 'sendTileSquareBlock',
+          accessToken: 'initial',
+        },
+      });
+
+    afterEach(() => {
+      stub.restore();
+    });
+
+    it('settles and uses the refreshed token from the error', () => {
+      // Same as wns on request errors and non-2xx responses: callback(err), no response
+      const tokens = [];
+      stub = sinon.stub(wns, 'sendTileSquareBlock', (channel, message, options, cb) => {
+        tokens.push(options.accessToken);
+        const err = new Error('Channel expired');
+        err.newAccessToken = 'refreshed';
+        process.nextTick(() => cb(err));
+      });
+
+      return tokenPn()
+        .send(regIds.slice(0, 2), data)
+        .then(([result]) => {
+          expect(result.success).to.equal(0);
+          expect(result.failure).to.equal(2);
+          expect(result.message[0].errorMsg).to.equal('Channel expired');
+          expect(tokens).to.deep.equal(['initial', 'refreshed']);
+        });
+    });
+
+    it('keeps the current token when wns issues no new one', () => {
+      const tokens = [];
+      stub = sinon.stub(wns, 'sendTileSquareBlock', (channel, message, options, cb) => {
+        tokens.push(options.accessToken);
+        process.nextTick(() => cb(null, {}));
+      });
+
+      return tokenPn()
+        .send(regIds.slice(0, 2), data)
+        .then(() => {
+          expect(tokens).to.deep.equal(['initial', 'initial']);
+        });
+    });
+  });
 });

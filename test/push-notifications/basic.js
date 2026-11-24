@@ -297,4 +297,39 @@ describe('push-notifications: instantiation and class properties', () => {
       expect(pn.getPushMethodByRegId(regIds.unknownRegId).pushMethod).to.equal(UNKNOWN_METHOD);
     });
   });
+
+  describe('callback that throws', () => {
+    const boom = new Error('boom');
+
+    it('send() calls the callback once and rejects with its error', () => {
+      const pn = new PN();
+      const callback = spy(() => {
+        throw boom;
+      });
+
+      return pn.send(['unknown-reg-id'], { title: 'title' }, callback).then(
+        () => expect.fail('expected rejection'),
+        (err) => {
+          expect(err).to.equal(boom);
+          expect(callback).to.have.been.calledOnce();
+        }
+      );
+    });
+
+    it('sendWith() calls the callback once and rejects with its error', () => {
+      const pn = new PN();
+      const method = () => Promise.resolve({ method: 'fake', success: 1, failure: 0, message: [] });
+      const callback = spy(() => {
+        throw boom;
+      });
+
+      return pn.sendWith(method, ['id'], { title: 'title' }, callback).then(
+        () => expect.fail('expected rejection'),
+        (err) => {
+          expect(err).to.equal(boom);
+          expect(callback).to.have.been.calledOnce();
+        }
+      );
+    });
+  });
 });
