@@ -81,7 +81,7 @@ These fields map to [node-apn's `Notification`](https://github.com/parse-communi
 | `pushType`          | The `apns-push-type`, for example `'alert'`, `'background'`, `'voip'` or `'liveactivity'`.           |
 | `interruptionLevel` | One of `'passive'`, `'active'`, `'time-sensitive'` or `'critical'`.                                  |
 | `launchImage`       | The launch image file name.                                                                          |
-| `action`            | The alert's action button text. Apple no longer uses this.                                           |
+| `action`            | The alert's action button text (legacy).                                                             |
 | `urlArgs`           | URL arguments for Safari push notifications.                                                         |
 | `mdm`               | The push magic string for MDM notifications.                                                         |
 | `truncateAtWordEnd` | Truncates the alert at a word boundary when the payload is too large.                                |

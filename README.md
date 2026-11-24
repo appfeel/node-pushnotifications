@@ -32,7 +32,7 @@ const results = await push.send(
 
 - Mix Android, iOS, web, Windows and Amazon devices in one `send()` call
 - Get the same result shape from every service, so you handle failures once
-- Built on the official SDKs: `firebase-admin`, `@parse/node-apn` and `web-push`
+- Built on `firebase-admin`, `@parse/node-apn` and `web-push`
 - APNs token (`.p8`) and certificate auth
 - Silent pushes on iOS and Android
 - Promise and callback APIs
