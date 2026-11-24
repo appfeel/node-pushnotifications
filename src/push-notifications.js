@@ -35,7 +35,7 @@ class PN {
       })
       .catch((error) => {
         cb?.(error);
-        return Promise.reject(error);
+        throw error;
       });
   }
 
@@ -172,7 +172,7 @@ class PN {
       .catch((err) => {
         const cb = callback || ((noop) => noop);
         cb(err);
-        return Promise.reject(err);
+        throw err;
       });
   }
 }

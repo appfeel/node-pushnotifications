@@ -1,63 +1,78 @@
+import { defineConfig, globalIgnores } from 'eslint/config';
 import js from '@eslint/js';
-import importPlugin from 'eslint-plugin-import-x';
-import prettier from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
+import { flatConfigs as importX } from 'eslint-plugin-import-x';
+import mocha from 'eslint-plugin-mocha';
+import n from 'eslint-plugin-n';
+import promise from 'eslint-plugin-promise';
+import prettierConfig from 'eslint-config-prettier/flat';
 
-export default [
+export default defineConfig([
+  globalIgnores(['lib/', 'coverage/', '.nyc_output/']),
+
   {
-    ignores: ['node_modules/', 'lib/', 'coverage/'],
+    linterOptions: {
+      reportUnusedDisableDirectives: 'error',
+      reportUnusedInlineConfigs: 'error',
+    },
   },
+
   js.configs.recommended,
+  importX.recommended,
+
   {
-    files: ['src/**/*.js'],
-    plugins: {
-      'import-x': importPlugin,
-    },
-    languageOptions: {
-      ecmaVersion: 2021,
-      sourceType: 'commonjs',
-      globals: {
-        console: 'readonly',
-        process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-      },
-    },
     rules: {
-      'no-console': 'off',
       'no-use-before-define': ['error', { functions: false }],
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'object-shorthand': 'error',
+      'import-x/no-unresolved': ['error', { commonjs: true }],
       'import-x/no-extraneous-dependencies': 'error',
-      'import-x/no-unresolved': 'error',
     },
   },
+
+  // Library code (CommonJS, compiled to lib/ by Babel)
+  {
+    files: ['src/**/*.js', 'index.js'],
+    extends: [n.configs['flat/recommended-script'], promise.configs['flat/recommended']],
+    rules: {
+      'import-x/no-extraneous-dependencies': [
+        'error',
+        { devDependencies: false, optionalDependencies: false },
+      ],
+      // The public API supports both callbacks and promises on purpose
+      'promise/no-callback-in-promise': 'off',
+    },
+  },
+  {
+    // Points at the Babel output in lib/, which may not be built yet
+    files: ['index.js'],
+    rules: {
+      'import-x/no-unresolved': 'off',
+      'n/no-missing-require': 'off',
+    },
+  },
+
+  // Tests (ES modules transpiled by @babel/register, run with mocha)
   {
     files: ['test/**/*.js'],
-    plugins: {
-      'import-x': importPlugin,
-    },
+    extends: [mocha.configs.recommended],
     languageOptions: {
-      ecmaVersion: 2021,
       sourceType: 'module',
-      globals: {
-        console: 'readonly',
-        process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        describe: 'readonly',
-        it: 'readonly',
-        before: 'readonly',
-        after: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-      },
+      globals: { ...globals.node, ...globals.mocha },
     },
     rules: {
-      'no-console': 'off',
-      'global-require': 'off',
-      'import-x/no-extraneous-dependencies': 'off',
-      'import-x/no-dynamic-require': 'off',
+      // mocha's `this` context and arrow-free style aren't used in this suite
+      'mocha/no-mocha-arrows': 'off',
     },
   },
-  prettier,
-];
+
+  // Tooling config files
+  {
+    files: ['*.mjs'],
+    languageOptions: { globals: globals.node },
+  },
+
+  // Must stay last: turns off rules that conflict with Prettier
+  prettierConfig,
+]);
