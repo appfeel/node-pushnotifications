@@ -26,5 +26,5 @@ Run tests and lint before finishing a change.
 
 - CommonJS in `src/`. Code is Prettier formatted (see `.prettierrc`).
 - Per-device failures go in `message[]`. Only service-level failures reject.
-- When adding a `data` field: update the builder in `src/utils/tools.js`, add a test, and add it to the payload tables in `README.md`.
+- When adding a `data` field: update the builder in `src/utils/tools.js`, add a test, and add it to `docs/payload.md`.
 - Keep the results format stable. Changing it is a breaking change.
